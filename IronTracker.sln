@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronTracker", "IronTracker\IronTracker.csproj", "{9DA6A89C-31AE-23B9-D3DB-4BDDE77F105C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DA6A89C-31AE-23B9-D3DB-4BDDE77F105C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA6A89C-31AE-23B9-D3DB-4BDDE77F105C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA6A89C-31AE-23B9-D3DB-4BDDE77F105C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA6A89C-31AE-23B9-D3DB-4BDDE77F105C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C2A0C943-724D-44F9-950A-E629F0A05FCF}
+	EndGlobalSection
+EndGlobal

@@ -307,7 +307,7 @@ else
         { 
             RoutineDayId = day.Id,
             SortOrder = (exercises?.Count ?? 0) + 1,
-            TargetConfig = "12-10-8"
+            TargetConfig = "15-12-10-8"
         };
         
         var parameters = new DialogParameters<ExerciseDialog>
@@ -336,6 +336,7 @@ else
                     RoutineDayId = exercise.RoutineDayId, 
                     Name = exercise.Name, 
                     TargetConfig = exercise.TargetConfig,
+                    TargetWeights = exercise.TargetWeights,
                     SortOrder = exercise.SortOrder 
                 } 
             },
@@ -349,6 +350,7 @@ else
         {
             exercise.Name = updated.Name;
             exercise.TargetConfig = updated.TargetConfig;
+            exercise.TargetWeights = updated.TargetWeights;
             exercise.SortOrder = updated.SortOrder;
             await WorkoutService.UpdateExerciseAsync(exercise);
             await LoadDataAsync();

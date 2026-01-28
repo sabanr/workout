@@ -56,6 +56,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.TargetConfig).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.TargetWeights).HasMaxLength(50);
         });
 
         // WorkoutSession configuration

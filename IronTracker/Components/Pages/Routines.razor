@@ -1,0 +1,371 @@
+@page "/routines"
+@inject WorkoutService WorkoutService
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+
+<PageTitle>Routines - IronTracker</PageTitle>
+
+<div class="d-flex justify-space-between align-center mb-4">
+    <MudText Typo="Typo.h4">My Routines</MudText>
+    <MudButton Variant="Variant.Filled" 
+               Color="Color.Primary" 
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenCreateRoutineDialog">
+        New Routine
+    </MudButton>
+</div>
+
+@if (_loading)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (_routines == null || _routines.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">
+        No routines found. Click "New Routine" to create your first workout routine.
+    </MudAlert>
+}
+else
+{
+    <MudGrid>
+        @foreach (var routine in _routines)
+        {
+            <MudItem xs="12">
+                <MudCard Elevation="2" Class="mb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5">@routine.Name</MudText>
+                            @if (!string.IsNullOrEmpty(routine.Description))
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@routine.Description</MudText>
+                            }
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                          Size="Size.Small"
+                                          OnClick="@(() => OpenEditRoutineDialog(routine))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                          Size="Size.Small" 
+                                          Color="Color.Error"
+                                          OnClick="@(() => DeleteRoutineAsync(routine))" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <div class="d-flex justify-space-between align-center mb-2">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                                @routine.Days.Count day@(routine.Days.Count != 1 ? "s" : "")
+                            </MudText>
+                            <MudButton Variant="Variant.Text" 
+                                      Size="Size.Small"
+                                      StartIcon="@Icons.Material.Filled.Add"
+                                      OnClick="@(() => OpenAddDayDialog(routine))">
+                                Add Day
+                            </MudButton>
+                        </div>
+                        
+                        <MudExpansionPanels Elevation="0">
+                            @foreach (var day in routine.Days.OrderBy(d => d.SortOrder))
+                            {
+                                <MudExpansionPanel>
+                                    <TitleContent>
+                                        <div class="d-flex align-center gap-2" style="width: 100%">
+                                            <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Small" Color="Color.Primary" />
+                                            <MudText Typo="Typo.subtitle1">@day.Name</MudText>
+                                            <MudSpacer />
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">
+                                                @day.Exercises.Count exercises
+                                            </MudChip>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                                          Size="Size.Small"
+                                                          OnClick="@(() => OpenEditDayDialog(day))"
+                                                          OnClick:stopPropagation="true" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                                          Size="Size.Small" 
+                                                          Color="Color.Error"
+                                                          OnClick="@(() => DeleteDayAsync(day))"
+                                                          OnClick:stopPropagation="true" />
+                                        </div>
+                                    </TitleContent>
+                                    <ChildContent>
+                                        @if (_expandedDayExercises.TryGetValue(day.Id, out var exercises) && exercises != null)
+                                        {
+                                            <MudTable Items="@exercises" Dense="true" Hover="true" Elevation="0">
+                                                <HeaderContent>
+                                                    <MudTh>Exercise</MudTh>
+                                                    <MudTh>Sets x Reps</MudTh>
+                                                    <MudTh Style="width: 100px;">Actions</MudTh>
+                                                </HeaderContent>
+                                                <RowTemplate>
+                                                    <MudTd DataLabel="Exercise">@context.Name</MudTd>
+                                                    <MudTd DataLabel="Sets x Reps">
+                                                        <MudText Typo="Typo.body2">@FormatTargetConfig(context.TargetConfig)</MudText>
+                                                    </MudTd>
+                                                    <MudTd>
+                                                        <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                                                      Size="Size.Small"
+                                                                      OnClick="@(() => OpenEditExerciseDialog(context))" />
+                                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                                                      Size="Size.Small" 
+                                                                      Color="Color.Error"
+                                                                      OnClick="@(() => DeleteExerciseAsync(context))" />
+                                                    </MudTd>
+                                                </RowTemplate>
+                                            </MudTable>
+                                            
+                                            <div class="d-flex justify-space-between mt-3">
+                                                <MudButton Variant="Variant.Text" 
+                                                          Size="Size.Small"
+                                                          StartIcon="@Icons.Material.Filled.Add"
+                                                          OnClick="@(() => OpenAddExerciseDialog(day))">
+                                                    Add Exercise
+                                                </MudButton>
+                                                <MudButton Variant="Variant.Filled" 
+                                                           Color="Color.Primary"
+                                                           StartIcon="@Icons.Material.Filled.PlayArrow"
+                                                           OnClick="@(() => StartSession(day.Id))">
+                                                    Start This Day
+                                                </MudButton>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+                                        }
+                                    </ChildContent>
+                                </MudExpansionPanel>
+                            }
+                        </MudExpansionPanels>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private bool _loading = true;
+    private List<Routine>? _routines;
+    private Dictionary<int, List<ExerciseTemplate>?> _expandedDayExercises = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true;
+        _routines = await WorkoutService.GetRoutinesAsync();
+        
+        _expandedDayExercises.Clear();
+        foreach (var routine in _routines ?? Enumerable.Empty<Routine>())
+        {
+            foreach (var day in routine.Days)
+            {
+                var dayWithExercises = await WorkoutService.GetRoutineDayAsync(day.Id);
+                _expandedDayExercises[day.Id] = dayWithExercises?.Exercises.OrderBy(e => e.SortOrder).ToList();
+            }
+        }
+        
+        _loading = false;
+    }
+
+    private string FormatTargetConfig(string? targetConfig)
+    {
+        if (string.IsNullOrWhiteSpace(targetConfig))
+            return "—";
+
+        var parts = targetConfig.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return targetConfig;
+
+        return $"{parts.Length} sets: {string.Join(", ", parts)} reps";
+    }
+
+    private void StartSession(int dayId)
+    {
+        Navigation.NavigateTo($"/session?dayId={dayId}");
+    }
+
+    // Routine dialogs
+    private async Task OpenCreateRoutineDialog()
+    {
+        var parameters = new DialogParameters<RoutineDialog>
+        {
+            { x => x.Routine, new Routine() },
+            { x => x.IsNew, true }
+        };
+        
+        var dialog = await DialogService.ShowAsync<RoutineDialog>("New Routine", parameters);
+        var result = await dialog.Result;
+        
+        if (result != null && !result.Canceled && result.Data is Routine routine)
+        {
+            await WorkoutService.CreateRoutineAsync(routine);
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task OpenEditRoutineDialog(Routine routine)
+    {
+        var parameters = new DialogParameters<RoutineDialog>
+        {
+            { x => x.Routine, new Routine { Id = routine.Id, Name = routine.Name, Description = routine.Description } },
+            { x => x.IsNew, false }
+        };
+        
+        var dialog = await DialogService.ShowAsync<RoutineDialog>("Edit Routine", parameters);
+        var result = await dialog.Result;
+        
+        if (result != null && !result.Canceled && result.Data is Routine updated)
+        {
+            routine.Name = updated.Name;
+            routine.Description = updated.Description;
+            await WorkoutService.UpdateRoutineAsync(routine);
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task DeleteRoutineAsync(Routine routine)
+    {
+        var confirm = await DialogService.ShowMessageBox(
+            "Delete Routine",
+            $"Are you sure you want to delete '{routine.Name}'? This will also delete all days and exercises.",
+            yesText: "Delete", cancelText: "Cancel");
+        
+        if (confirm == true)
+        {
+            await WorkoutService.DeleteRoutineAsync(routine.Id);
+            await LoadDataAsync();
+        }
+    }
+
+    // Day dialogs
+    private async Task OpenAddDayDialog(Routine routine)
+    {
+        var newDay = new RoutineDay 
+        { 
+            RoutineId = routine.Id,
+            SortOrder = routine.Days.Count + 1
+        };
+        
+        var parameters = new DialogParameters<DayDialog>
+        {
+            { x => x.Day, newDay },
+            { x => x.IsNew, true }
+        };
+        
+        var dialog = await DialogService.ShowAsync<DayDialog>("Add Day", parameters);
+        var result = await dialog.Result;
+        
+        if (result != null && !result.Canceled && result.Data is RoutineDay day)
+        {
+            await WorkoutService.AddRoutineDayAsync(day);
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task OpenEditDayDialog(RoutineDay day)
+    {
+        var parameters = new DialogParameters<DayDialog>
+        {
+            { x => x.Day, new RoutineDay { Id = day.Id, RoutineId = day.RoutineId, Name = day.Name, SortOrder = day.SortOrder } },
+            { x => x.IsNew, false }
+        };
+        
+        var dialog = await DialogService.ShowAsync<DayDialog>("Edit Day", parameters);
+        var result = await dialog.Result;
+        
+        if (result != null && !result.Canceled && result.Data is RoutineDay updated)
+        {
+            day.Name = updated.Name;
+            day.SortOrder = updated.SortOrder;
+            await WorkoutService.UpdateRoutineDayAsync(day);
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task DeleteDayAsync(RoutineDay day)
+    {
+        var confirm = await DialogService.ShowMessageBox(
+            "Delete Day",
+            $"Are you sure you want to delete '{day.Name}'? This will also delete all exercises.",
+            yesText: "Delete", cancelText: "Cancel");
+        
+        if (confirm == true)
+        {
+            await WorkoutService.DeleteRoutineDayAsync(day.Id);
+            await LoadDataAsync();
+        }
+    }
+
+    // Exercise dialogs
+    private async Task OpenAddExerciseDialog(RoutineDay day)
+    {
+        var exercises = _expandedDayExercises.GetValueOrDefault(day.Id);
+        var newExercise = new ExerciseTemplate 
+        { 
+            RoutineDayId = day.Id,
+            SortOrder = (exercises?.Count ?? 0) + 1,
+            TargetConfig = "12-10-8"
+        };
+        
+        var parameters = new DialogParameters<ExerciseDialog>
+        {
+            { x => x.Exercise, newExercise },
+            { x => x.IsNew, true }
+        };
+        
+        var dialog = await DialogService.ShowAsync<ExerciseDialog>("Add Exercise", parameters);
+        var result = await dialog.Result;
+        
+        if (result != null && !result.Canceled && result.Data is ExerciseTemplate exercise)
+        {
+            await WorkoutService.AddExerciseAsync(exercise);
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task OpenEditExerciseDialog(ExerciseTemplate exercise)
+    {
+        var parameters = new DialogParameters<ExerciseDialog>
+        {
+            { x => x.Exercise, new ExerciseTemplate 
+                { 
+                    Id = exercise.Id, 
+                    RoutineDayId = exercise.RoutineDayId, 
+                    Name = exercise.Name, 
+                    TargetConfig = exercise.TargetConfig,
+                    SortOrder = exercise.SortOrder 
+                } 
+            },
+            { x => x.IsNew, false }
+        };
+        
+        var dialog = await DialogService.ShowAsync<ExerciseDialog>("Edit Exercise", parameters);
+        var result = await dialog.Result;
+        
+        if (result != null && !result.Canceled && result.Data is ExerciseTemplate updated)
+        {
+            exercise.Name = updated.Name;
+            exercise.TargetConfig = updated.TargetConfig;
+            exercise.SortOrder = updated.SortOrder;
+            await WorkoutService.UpdateExerciseAsync(exercise);
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task DeleteExerciseAsync(ExerciseTemplate exercise)
+    {
+        var confirm = await DialogService.ShowMessageBox(
+            "Delete Exercise",
+            $"Are you sure you want to delete '{exercise.Name}'?",
+            yesText: "Delete", cancelText: "Cancel");
+        
+        if (confirm == true)
+        {
+            await WorkoutService.DeleteExerciseAsync(exercise.Id);
+            await LoadDataAsync();
+        }
+    }
+}

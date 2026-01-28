@@ -1,0 +1,117 @@
+@* ExerciseDialog.razor - Dialog for creating/editing exercises *@
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Class="mr-2" />
+            @(IsNew ? "Add Exercise" : "Edit Exercise")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Exercise.Name" 
+                     Label="Exercise Name" 
+                     Required="true"
+                     RequiredError="Name is required"
+                     Placeholder="e.g., Bench Press"
+                     Class="mb-4" />
+        <MudTextField @bind-Value="Exercise.TargetConfig" 
+                     Label="Target Reps (per set)" 
+                     Required="true"
+                     RequiredError="Target config is required"
+                     Placeholder="e.g., 15-12-10-8"
+                     HelperText="Enter reps for each set separated by dashes"
+                     Class="mb-4" />
+        <MudTextField @bind-Value="Exercise.TargetWeights" 
+                     Label="Target Weights (lbs per set)" 
+                     Placeholder="e.g., 20-25-30-35"
+                     HelperText="Enter weight for each set separated by dashes (optional)"
+                     Class="mb-4" />
+        <MudNumericField @bind-Value="Exercise.SortOrder" 
+                        Label="Order" 
+                        Min="1"
+                        HelperText="Position in the day's exercise list" />
+        
+        @if (!string.IsNullOrWhiteSpace(Exercise.TargetConfig))
+        {
+            <MudAlert Severity="Severity.Info" Class="mt-4" Dense="true">
+                @FormatPreview()
+            </MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" 
+                  Variant="Variant.Filled"
+                  Disabled="@(!IsValid())"
+                  OnClick="Submit">
+            @(IsNew ? "Add" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public ExerciseTemplate Exercise { get; set; } = new();
+
+    [Parameter]
+    public bool IsNew { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Exercise));
+
+    private bool IsValid()
+    {
+        if (string.IsNullOrWhiteSpace(Exercise.Name))
+            return false;
+        if (string.IsNullOrWhiteSpace(Exercise.TargetConfig))
+            return false;
+        
+        // Validate reps format
+        var repParts = Exercise.TargetConfig.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (repParts.Length == 0 || !repParts.All(p => int.TryParse(p.Trim(), out _)))
+            return false;
+        
+        // Validate weights format (if provided)
+        if (!string.IsNullOrWhiteSpace(Exercise.TargetWeights))
+        {
+            var weightParts = Exercise.TargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
+            if (!weightParts.All(p => decimal.TryParse(p.Trim(), out _)))
+                return false;
+            // Weights count should match reps count
+            if (weightParts.Length != repParts.Length)
+                return false;
+        }
+        
+        return true;
+    }
+
+    private string FormatPreview()
+    {
+        if (string.IsNullOrWhiteSpace(Exercise.TargetConfig))
+            return "";
+
+        var repParts = Exercise.TargetConfig.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (repParts.Length == 0 || !repParts.All(p => int.TryParse(p.Trim(), out _)))
+            return "Invalid format - use numbers separated by dashes";
+
+        var weightParts = string.IsNullOrWhiteSpace(Exercise.TargetWeights) 
+            ? Array.Empty<string>() 
+            : Exercise.TargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        
+        var hasWeights = weightParts.Length == repParts.Length && weightParts.All(p => decimal.TryParse(p.Trim(), out _));
+        
+        if (hasWeights)
+        {
+            var setDetails = repParts
+                .Select((r, i) => $"Set {i + 1}: {r} reps @ {weightParts[i]} lbs")
+                .ToArray();
+            return $"Preview: {string.Join(", ", setDetails)}";
+        }
+        
+        return $"Preview: {repParts.Length} set{(repParts.Length != 1 ? "s" : "")} targeting {string.Join(", ", repParts)} reps";
+    }
+}

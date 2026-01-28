@@ -1,0 +1,46 @@
+@* RoutineDialog.razor - Dialog for creating/editing routines *@
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Class="mr-2" />
+            @(IsNew ? "Create Routine" : "Edit Routine")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Routine.Name" 
+                     Label="Routine Name" 
+                     Required="true"
+                     RequiredError="Name is required"
+                     Placeholder="e.g., Push/Pull/Legs"
+                     Class="mb-4" />
+        <MudTextField @bind-Value="Routine.Description" 
+                     Label="Description" 
+                     Lines="2"
+                     Placeholder="Optional description" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" 
+                  Variant="Variant.Filled"
+                  Disabled="@(string.IsNullOrWhiteSpace(Routine.Name))"
+                  OnClick="Submit">
+            @(IsNew ? "Create" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public Routine Routine { get; set; } = new();
+
+    [Parameter]
+    public bool IsNew { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Routine));
+}

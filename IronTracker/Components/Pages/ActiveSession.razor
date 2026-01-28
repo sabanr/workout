@@ -1,0 +1,333 @@
+@page "/session"
+@page "/session/{DayId:int}"
+@using IronTracker.Components
+@inject WorkoutService WorkoutService
+@inject NavigationManager Navigation
+
+<PageTitle>Active Session - IronTracker</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (_session == null && _routineDay == null)
+{
+    @* No active session - show routine selection *@
+    <MudText Typo="Typo.h4" Class="mb-4">Start a Workout</MudText>
+    
+    @if (_routines == null || _routines.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">
+            No routines found. Create a routine first.
+        </MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var routine in _routines)
+            {
+                <MudItem xs="12">
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@routine.Name</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                @routine.Description
+                            </MudText>
+                            <MudDivider Class="my-3" />
+                            <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+                                @foreach (var day in routine.Days.OrderBy(d => d.SortOrder))
+                                {
+                                    <MudButton Variant="Variant.Filled" 
+                                               Color="Color.Primary"
+                                               OnClick="@(() => StartSessionAsync(day.Id))">
+                                        @day.Name
+                                    </MudButton>
+                                }
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+}
+else
+{
+    @* Active session view *@
+    <MudGrid>
+        @* Header *@
+        <MudItem xs="12">
+            <MudPaper Class="pa-4 d-flex justify-space-between align-center" Elevation="1">
+                <div>
+                    <MudText Typo="Typo.h5">@_routineDay?.Name</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Started: @_session?.StartTime.ToLocalTime().ToString("HH:mm")
+                    </MudText>
+                </div>
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Error" 
+                           StartIcon="@Icons.Material.Filled.Stop"
+                           OnClick="EndSessionAsync">
+                    End Session
+                </MudButton>
+            </MudPaper>
+        </MudItem>
+
+        @* Desktop: Two columns / Mobile: Single column with accordion *@
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            @* Desktop Layout *@
+            <MudItem md="4" lg="3">
+                <MudPaper Class="pa-3" Elevation="1" Style="position: sticky; top: 80px;">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Exercises</MudText>
+                    <MudNavMenu>
+                        @if (_exercises != null)
+                        {
+                            @foreach (var exercise in _exercises)
+                            {
+                                var isComplete = IsExerciseComplete(exercise.Name);
+                                var isActive = _currentExercise?.Name == exercise.Name;
+                                <MudNavLink OnClick="@(() => SelectExercise(exercise))"
+                                            Icon="@(isComplete ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.FitnessCenter)"
+                                            IconColor="@(isComplete ? Color.Success : (isActive ? Color.Primary : Color.Default))"
+                                            Class="@(isActive ? "mud-primary-text" : "")">
+                                    @exercise.Name
+                                </MudNavLink>
+                            }
+                        }
+                    </MudNavMenu>
+                </MudPaper>
+            </MudItem>
+            
+            <MudItem md="8" lg="6">
+                @if (_currentExercise != null)
+                {
+                    <SetTracker Exercise="_currentExercise"
+                                SessionId="_session!.Id"
+                                ExistingLogs="_currentExerciseLogs"
+                                LastWeights="GetLastWeightsForExercise(_currentExercise.Name)"
+                                OnSetCompleted="HandleSetCompletedAsync" />
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Info">
+                        Select an exercise to start tracking sets.
+                    </MudAlert>
+                }
+            </MudItem>
+            
+            <MudItem md="12" lg="3">
+                <RestTimer @ref="_restTimer" 
+                           DefaultSeconds="60" 
+                           OnTimerComplete="HandleTimerComplete" />
+            </MudItem>
+        </MudHidden>
+
+        <MudHidden Breakpoint="Breakpoint.MdAndUp">
+            @* Mobile Layout - Accordion *@
+            <MudItem xs="12">
+                <RestTimer @ref="_restTimer" 
+                           DefaultSeconds="60" 
+                           OnTimerComplete="HandleTimerComplete" />
+            </MudItem>
+            
+            <MudItem xs="12">
+                <MudExpansionPanels MultiExpansion="false">
+                    @if (_exercises != null)
+                    {
+                        @foreach (var exercise in _exercises)
+                        {
+                            var isComplete = IsExerciseComplete(exercise.Name);
+                            <MudExpansionPanel @bind-Expanded="@_expandedPanels[exercise.Name]">
+                                <TitleContent>
+                                    <div class="d-flex align-center">
+                                        <MudIcon Icon="@(isComplete ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.FitnessCenter)"
+                                                 Color="@(isComplete ? Color.Success : Color.Default)"
+                                                 Class="mr-2" />
+                                        <MudText>@exercise.Name</MudText>
+                                    </div>
+                                </TitleContent>
+                                <ChildContent>
+                                    <SetTracker Exercise="exercise"
+                                                SessionId="_session!.Id"
+                                                ExistingLogs="GetLogsForExercise(exercise.Name)"
+                                                LastWeights="GetLastWeightsForExercise(exercise.Name)"
+                                                OnSetCompleted="HandleSetCompletedAsync" />
+                                </ChildContent>
+                            </MudExpansionPanel>
+                        }
+                    }
+                </MudExpansionPanels>
+            </MudItem>
+        </MudHidden>
+    </MudGrid>
+}
+
+@code {
+    [Parameter]
+    public int? DayId { get; set; }
+
+    private bool _loading = true;
+    private List<Routine>? _routines;
+    private WorkoutSession? _session;
+    private RoutineDay? _routineDay;
+    private List<ExerciseTemplate>? _exercises;
+    private ExerciseTemplate? _currentExercise;
+    private List<SetLog>? _currentExerciseLogs;
+    private Dictionary<string, List<SetLog>> _allExerciseLogs = new();
+    private Dictionary<string, Dictionary<int, decimal>> _lastWeights = new();
+    private Dictionary<string, bool> _expandedPanels = new();
+    private RestTimer? _restTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (DayId.HasValue && _session == null)
+        {
+            await StartSessionAsync(DayId.Value);
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _loading = true;
+        
+        // Check for active session
+        _session = await WorkoutService.GetActiveSessionAsync();
+        
+        if (_session != null)
+        {
+            _routineDay = _session.RoutineDay;
+            _exercises = _routineDay.Exercises.OrderBy(e => e.SortOrder).ToList();
+            
+            // Initialize expanded panels dictionary
+            foreach (var exercise in _exercises)
+            {
+                _expandedPanels[exercise.Name] = false;
+            }
+            
+            // Load existing logs for all exercises
+            await LoadAllExerciseLogsAsync();
+            
+            // Load last weights from previous sessions
+            await LoadLastWeightsAsync();
+            
+            // Select first incomplete exercise
+            _currentExercise = _exercises.FirstOrDefault(e => !IsExerciseComplete(e.Name)) ?? _exercises.FirstOrDefault();
+            if (_currentExercise != null)
+            {
+                _currentExerciseLogs = GetLogsForExercise(_currentExercise.Name);
+                _expandedPanels[_currentExercise.Name] = true;
+            }
+        }
+        else
+        {
+            _routines = await WorkoutService.GetRoutinesAsync();
+        }
+        
+        _loading = false;
+    }
+
+    private async Task LoadAllExerciseLogsAsync()
+    {
+        if (_session == null || _exercises == null) return;
+
+        _allExerciseLogs.Clear();
+        foreach (var exercise in _exercises)
+        {
+            var logs = await WorkoutService.GetExerciseLogsAsync(_session.Id, exercise.Name);
+            _allExerciseLogs[exercise.Name] = logs;
+        }
+    }
+
+    private async Task LoadLastWeightsAsync()
+    {
+        if (_exercises == null) return;
+
+        _lastWeights.Clear();
+        foreach (var exercise in _exercises)
+        {
+            var weights = await WorkoutService.GetLastWeightsForExerciseAsync(exercise.Name);
+            if (weights.Count > 0)
+            {
+                _lastWeights[exercise.Name] = weights;
+            }
+        }
+    }
+
+    private Dictionary<int, decimal>? GetLastWeightsForExercise(string exerciseName)
+    {
+        return _lastWeights.TryGetValue(exerciseName, out var weights) ? weights : null;
+    }
+
+    private List<SetLog> GetLogsForExercise(string exerciseName)
+    {
+        return _allExerciseLogs.TryGetValue(exerciseName, out var logs) ? logs : new List<SetLog>();
+    }
+
+    private bool IsExerciseComplete(string exerciseName)
+    {
+        var exercise = _exercises?.FirstOrDefault(e => e.Name == exerciseName);
+        if (exercise == null) return false;
+        
+        var logs = GetLogsForExercise(exerciseName);
+        return logs.Count >= exercise.SetCount;
+    }
+
+    private async Task StartSessionAsync(int dayId)
+    {
+        _loading = true;
+        _session = await WorkoutService.GetOrStartSessionAsync(dayId);
+        await LoadDataAsync();
+    }
+
+    private async Task EndSessionAsync()
+    {
+        await WorkoutService.EndSessionAsync();
+        _session = null;
+        _routineDay = null;
+        _exercises = null;
+        _currentExercise = null;
+        Navigation.NavigateTo("/");
+    }
+
+    private void SelectExercise(ExerciseTemplate exercise)
+    {
+        _currentExercise = exercise;
+        _currentExerciseLogs = GetLogsForExercise(exercise.Name);
+    }
+
+    private async Task HandleSetCompletedAsync(SetCompletedEventArgs args)
+    {
+        // Save the set
+        await WorkoutService.SaveSetAsync(
+            args.SessionId,
+            args.ExerciseName,
+            args.SetNumber,
+            args.Reps,
+            args.Weight
+        );
+
+        // Reload logs
+        await LoadAllExerciseLogsAsync();
+        _currentExerciseLogs = GetLogsForExercise(args.ExerciseName);
+
+        // Start rest timer
+        _restTimer?.StartWithDuration(60);
+
+        StateHasChanged();
+    }
+
+    private void HandleTimerComplete()
+    {
+        // Could play a sound or show notification here
+        StateHasChanged();
+    }
+}

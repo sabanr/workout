@@ -1,0 +1,156 @@
+@* RestTimer.razor - Countdown timer for rest between sets *@
+
+<MudPaper Class="pa-4 d-flex flex-column align-center" Elevation="2">
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Rest Timer</MudText>
+    
+    <MudText Typo="Typo.h2" Class="my-4" Color="@GetTimerColor()">
+        @TimeSpan.FromSeconds(_remainingSeconds).ToString(@"mm\:ss")
+    </MudText>
+    
+    @if (_isRunning)
+    {
+        <MudProgressLinear Color="@GetTimerColor()" 
+                           Value="@GetProgress()" 
+                           Class="my-2" 
+                           Style="width: 100%; max-width: 200px;" />
+    }
+    
+    <MudStack Row="true" Spacing="2" Class="mt-2">
+        @if (!_isRunning)
+        {
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       StartIcon="@Icons.Material.Filled.PlayArrow"
+                       OnClick="Start">
+                Start
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Outlined" 
+                       Color="Color.Warning" 
+                       StartIcon="@Icons.Material.Filled.SkipNext"
+                       OnClick="Skip">
+                Skip
+            </MudButton>
+        }
+        
+        <MudButton Variant="Variant.Outlined" 
+                   Color="Color.Default" 
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="AddTime"
+                   Disabled="@(!_isRunning)">
+            +30s
+        </MudButton>
+        
+        <MudButton Variant="Variant.Outlined" 
+                   Color="Color.Default" 
+                   StartIcon="@Icons.Material.Filled.Refresh"
+                   OnClick="Reset">
+            Reset
+        </MudButton>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public int DefaultSeconds { get; set; } = 60;
+    
+    [Parameter]
+    public EventCallback OnTimerComplete { get; set; }
+    
+    [Parameter]
+    public EventCallback OnTimerSkipped { get; set; }
+
+    private int _remainingSeconds;
+    private int _totalSeconds;
+    private bool _isRunning;
+    private System.Threading.Timer? _timer;
+
+    protected override void OnInitialized()
+    {
+        _remainingSeconds = DefaultSeconds;
+        _totalSeconds = DefaultSeconds;
+    }
+
+    public void Start()
+    {
+        if (_isRunning) return;
+        
+        _isRunning = true;
+        _timer = new System.Threading.Timer(Tick, null, 1000, 1000);
+    }
+
+    public void StartWithDuration(int seconds)
+    {
+        _remainingSeconds = seconds;
+        _totalSeconds = seconds;
+        Start();
+    }
+
+    private async void Tick(object? state)
+    {
+        _remainingSeconds--;
+        
+        if (_remainingSeconds <= 0)
+        {
+            Stop();
+            await InvokeAsync(async () =>
+            {
+                await OnTimerComplete.InvokeAsync();
+                StateHasChanged();
+            });
+        }
+        else
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void Stop()
+    {
+        _isRunning = false;
+        _timer?.Dispose();
+        _timer = null;
+    }
+
+    private async Task Skip()
+    {
+        Stop();
+        _remainingSeconds = DefaultSeconds;
+        _totalSeconds = DefaultSeconds;
+        await OnTimerSkipped.InvokeAsync();
+    }
+
+    private void Reset()
+    {
+        Stop();
+        _remainingSeconds = DefaultSeconds;
+        _totalSeconds = DefaultSeconds;
+    }
+
+    private void AddTime()
+    {
+        _remainingSeconds += 30;
+        _totalSeconds += 30;
+    }
+
+    private double GetProgress()
+    {
+        if (_totalSeconds == 0) return 0;
+        return ((double)_remainingSeconds / _totalSeconds) * 100;
+    }
+
+    private Color GetTimerColor()
+    {
+        if (!_isRunning) return Color.Default;
+        if (_remainingSeconds <= 10) return Color.Error;
+        if (_remainingSeconds <= 30) return Color.Warning;
+        return Color.Success;
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}

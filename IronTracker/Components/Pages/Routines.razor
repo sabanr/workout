@@ -93,12 +93,18 @@ else
                                                 <HeaderContent>
                                                     <MudTh>Exercise</MudTh>
                                                     <MudTh>Sets x Reps</MudTh>
+                                                    <MudTh>Weights (lbs)</MudTh>
                                                     <MudTh Style="width: 100px;">Actions</MudTh>
                                                 </HeaderContent>
                                                 <RowTemplate>
                                                     <MudTd DataLabel="Exercise">@context.Name</MudTd>
                                                     <MudTd DataLabel="Sets x Reps">
                                                         <MudText Typo="Typo.body2">@FormatTargetConfig(context.TargetConfig)</MudText>
+                                                    </MudTd>
+                                                    <MudTd DataLabel="Weights">
+                                                        <MudText Typo="Typo.body2" Color="@(string.IsNullOrWhiteSpace(context.TargetWeights) ? Color.Secondary : Color.Default)">
+                                                            @FormatTargetWeights(context.TargetWeights)
+                                                        </MudText>
                                                     </MudTd>
                                                     <MudTd>
                                                         <MudIconButton Icon="@Icons.Material.Filled.Edit" 
@@ -180,6 +186,18 @@ else
             return targetConfig;
 
         return $"{parts.Length} sets: {string.Join(", ", parts)} reps";
+    }
+
+    private string FormatTargetWeights(string? targetWeights)
+    {
+        if (string.IsNullOrWhiteSpace(targetWeights))
+            return "Not set";
+
+        var parts = targetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return "Not set";
+
+        return string.Join(", ", parts);
     }
 
     private void StartSession(int dayId)

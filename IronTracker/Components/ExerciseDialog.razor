@@ -21,11 +21,24 @@
                      Placeholder="e.g., 15-12-10-8"
                      HelperText="Enter reps for each set separated by dashes"
                      Class="mb-4" />
-        <MudTextField @bind-Value="Exercise.TargetWeights" 
-                     Label="Target Weights (lbs per set)" 
-                     Placeholder="e.g., 20-25-30-35"
-                     HelperText="Enter weight for each set separated by dashes (optional)"
-                     Class="mb-4" />
+        <div class="d-flex align-center gap-2 mb-4">
+            <MudTextField @bind-Value="Exercise.TargetWeights" 
+                         @bind-Value:after="OnWeightsChanged"
+                         Label="Target Weights (lbs per set)" 
+                         Placeholder="e.g., 20-25-30-35"
+                         HelperText="@GetWeightHelperText()"
+                         Style="flex: 1" />
+            @if (!string.IsNullOrWhiteSpace(_suggestedWeights))
+            {
+                <MudButton Variant="Variant.Outlined" 
+                          Color="Color.Primary"
+                          Size="Size.Small"
+                          OnClick="ApplySuggestedWeights"
+                          Style="margin-top: 8px;">
+                    Apply: @_suggestedWeights
+                </MudButton>
+            }
+        </div>
         <MudNumericField @bind-Value="Exercise.SortOrder" 
                         Label="Order" 
                         Min="1"
@@ -59,9 +72,59 @@
     [Parameter]
     public bool IsNew { get; set; }
 
+    private string? _suggestedWeights;
+
     private void Cancel() => MudDialog.Cancel();
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(Exercise));
+
+    private void OnWeightsChanged()
+    {
+        _suggestedWeights = GenerateWeightSuggestion();
+    }
+
+    private string? GenerateWeightSuggestion()
+    {
+        if (string.IsNullOrWhiteSpace(Exercise.TargetConfig) || string.IsNullOrWhiteSpace(Exercise.TargetWeights))
+            return null;
+
+        var repParts = Exercise.TargetConfig.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        var weightParts = Exercise.TargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
+
+        // Only suggest if user has entered at least one weight and there are more sets to fill
+        if (weightParts.Length == 0 || weightParts.Length >= repParts.Length)
+            return null;
+
+        // Parse the last weight entered
+        if (!decimal.TryParse(weightParts[^1].Trim(), out var lastWeight))
+            return null;
+
+        // Generate suggestions for remaining sets (increment by 5 lbs each)
+        var suggestions = new List<string>(weightParts.Select(w => w.Trim()));
+        for (int i = weightParts.Length; i < repParts.Length; i++)
+        {
+            lastWeight += 5;
+            suggestions.Add(lastWeight.ToString("0"));
+        }
+
+        return string.Join("-", suggestions);
+    }
+
+    private void ApplySuggestedWeights()
+    {
+        if (!string.IsNullOrWhiteSpace(_suggestedWeights))
+        {
+            Exercise.TargetWeights = _suggestedWeights;
+            _suggestedWeights = null;
+        }
+    }
+
+    private string GetWeightHelperText()
+    {
+        if (!string.IsNullOrWhiteSpace(_suggestedWeights))
+            return "Click 'Apply' to use suggested weights with 5lbs increments";
+        return "Enter weight for each set separated by dashes (optional)";
+    }
 
     private bool IsValid()
     {

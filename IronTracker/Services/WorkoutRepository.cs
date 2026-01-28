@@ -22,6 +22,7 @@ public class WorkoutRepository : IWorkoutRepository
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.Routines
             .Include(r => r.Days)
+                .ThenInclude(d => d.Exercises)
             .OrderBy(r => r.Name)
             .ToListAsync();
     }

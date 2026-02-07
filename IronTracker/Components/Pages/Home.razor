@@ -170,15 +170,6 @@ else
             .Select(kv => (double)kv.Value)
             .ToArray();
 
-        _chartSeries = new List<ChartSeries>
-        {
-            new ChartSeries
-            {
-                Name = "Volume",
-                Data = values
-            }
-        };
-        
         // Determine appropriate Y-axis format based on maximum value
         // Format string syntax: each comma divides by 1,000
         // e.g., "0,K" divides by 1,000 and adds "K"
@@ -200,6 +191,15 @@ else
         {
             _chartOptions.YAxisFormat = "0"; // e.g., "500"
         }
+
+        _chartSeries = new List<ChartSeries>
+        {
+            new ChartSeries
+            {
+                Name = "Volume",
+                Data = values
+            }
+        };
     }
 
     private string FormatDuration(TimeSpan? duration)

@@ -139,6 +139,7 @@ else
     private DashboardStats? _stats;
     private List<ChartSeries> _chartSeries = new();
     private string[] _chartLabels = Array.Empty<string>();
+    // Limit to 5 Y-axis ticks for better readability with formatted labels
     private ChartOptions _chartOptions = new() { YAxisTicks = 5 };
 
     protected override async Task OnInitializedAsync()

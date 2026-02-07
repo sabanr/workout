@@ -139,7 +139,7 @@ else
     private DashboardStats? _stats;
     private List<ChartSeries> _chartSeries = new();
     private string[] _chartLabels = Array.Empty<string>();
-    private ChartOptions _chartOptions = new() { YAxisTicks = 500 };
+    private ChartOptions _chartOptions = new() { YAxisTicks = 5 };
 
     protected override async Task OnInitializedAsync()
     {
@@ -178,6 +178,25 @@ else
                 Data = values
             }
         };
+        
+        // Determine appropriate Y-axis format based on maximum value
+        var maxValue = values.Any() ? values.Max() : 0;
+        if (maxValue >= 1_000_000)
+        {
+            _chartOptions.YAxisFormat = "0,,.#M"; // Format as millions
+        }
+        else if (maxValue >= 10_000)
+        {
+            _chartOptions.YAxisFormat = "0,.#K"; // Format as thousands (no decimals for 10K+)
+        }
+        else if (maxValue >= 1_000)
+        {
+            _chartOptions.YAxisFormat = "0,.##K"; // Format as thousands (with decimals)
+        }
+        else
+        {
+            _chartOptions.YAxisFormat = "0"; // Format as whole numbers
+        }
     }
 
     private string FormatDuration(TimeSpan? duration)

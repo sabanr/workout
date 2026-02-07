@@ -75,7 +75,7 @@ else
                                 @if (!session.IsActive)
                                 {
                                     <MudChip T="string" Size="Size.Small" Color="Color.Primary">
-                                        @FormatVolume(session.TotalVolume) kg
+                                        @FormatVolume(session.TotalVolume) lbs
                                     </MudChip>
                                 }
                             </CardHeaderActions>
@@ -111,8 +111,8 @@ else
                                                     <tr>
                                                         <td>@exercise.Key</td>
                                                         <td>@sets.Count</td>
-                                                        <td>@bestSet.WeightUsed kg x @bestSet.RepsPerformed</td>
-                                                        <td>@FormatVolume(exerciseVolume) kg</td>
+                                                        <td>@bestSet.WeightUsed lbs x @bestSet.RepsPerformed</td>
+                                                        <td>@FormatVolume(exerciseVolume) lbs</td>
                                                     </tr>
                                                 }
                                             </tbody>

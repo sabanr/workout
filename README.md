@@ -45,14 +45,6 @@ cd IronTracker
 dotnet build -f net10.0-maccatalyst
 dotnet run -f net10.0-maccatalyst
 
-# For iOS
-dotnet build -f net10.0-ios
-dotnet run -f net10.0-ios
-
-# For Android
-dotnet build -f net10.0-android
-dotnet run -f net10.0-android
-
 # For Windows
 dotnet build -f net10.0-windows10.0.19041.0
 dotnet run -f net10.0-windows10.0.19041.0
@@ -80,8 +72,6 @@ IronTracker/
 
 Uses SQLite with Entity Framework Core for local storage. Database is created automatically on first run at:
 - **macOS**: `~/Library/Containers/com.companyname.irontracker/Data/Library/irontracker.db`
-- **iOS**: App sandbox data directory
-- **Android**: App data directory
 - **Windows**: Local app data folder
 
 ## Usage

@@ -183,7 +183,7 @@ else
         // Format string syntax: each comma divides by 1,000
         // e.g., "0,K" divides by 1,000 and adds "K"
         // e.g., "0,,.##M" divides by 1,000,000 and adds "M" with up to 2 decimals
-        var maxValue = values.Any() ? values.Max() : 0;
+        var maxValue = values.DefaultIfEmpty(0).Max();
         if (maxValue >= 1_000_000)
         {
             _chartOptions.YAxisFormat = "0,,.##M"; // e.g., "1.25M"

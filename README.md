@@ -4,7 +4,7 @@ A cross-platform workout tracking app built with .NET MAUI Blazor Hybrid and Mud
 
 ## Overview
 
-IronTracker helps you track your gym workouts with a clean, modern interface. Built for macOS, iOS, Android, and Windows.
+IronTracker helps you track your gym workouts with a clean, modern interface. Built for macOS and Windows.
 
 ## Features
 

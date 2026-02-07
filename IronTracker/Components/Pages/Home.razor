@@ -180,22 +180,25 @@ else
         };
         
         // Determine appropriate Y-axis format based on maximum value
+        // Format string syntax: each comma divides by 1,000
+        // e.g., "0,K" divides by 1,000 and adds "K"
+        // e.g., "0,,.##M" divides by 1,000,000 and adds "M" with up to 2 decimals
         var maxValue = values.Any() ? values.Max() : 0;
         if (maxValue >= 1_000_000)
         {
-            _chartOptions.YAxisFormat = "0,,.##M"; // Format as millions
+            _chartOptions.YAxisFormat = "0,,.##M"; // e.g., "1.25M"
         }
         else if (maxValue >= 10_000)
         {
-            _chartOptions.YAxisFormat = "0,K"; // Format as thousands (no decimals for 10K+)
+            _chartOptions.YAxisFormat = "0,K"; // e.g., "15K"
         }
         else if (maxValue >= 1_000)
         {
-            _chartOptions.YAxisFormat = "0,.##K"; // Format as thousands (with decimals)
+            _chartOptions.YAxisFormat = "0,.##K"; // e.g., "1.5K", "5K"
         }
         else
         {
-            _chartOptions.YAxisFormat = "0"; // Format as whole numbers
+            _chartOptions.YAxisFormat = "0"; // e.g., "500"
         }
     }
 

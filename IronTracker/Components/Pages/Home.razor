@@ -183,11 +183,11 @@ else
         var maxValue = values.Any() ? values.Max() : 0;
         if (maxValue >= 1_000_000)
         {
-            _chartOptions.YAxisFormat = "0,,.#M"; // Format as millions
+            _chartOptions.YAxisFormat = "0,,.##M"; // Format as millions
         }
         else if (maxValue >= 10_000)
         {
-            _chartOptions.YAxisFormat = "0,.#K"; // Format as thousands (no decimals for 10K+)
+            _chartOptions.YAxisFormat = "0,K"; // Format as thousands (no decimals for 10K+)
         }
         else if (maxValue >= 1_000)
         {

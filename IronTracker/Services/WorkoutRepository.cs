@@ -82,15 +82,15 @@ public class WorkoutRepository : IWorkoutRepository
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         
-        var startDate = DateTime.UtcNow.Date.AddDays(-(weeksBack * 7));
+        var startDate = DateTime.Now.Date.AddDays(-(weeksBack * 7));
         
         var logs = await context.SetLogs
             .Where(l => l.CompletedAt >= startDate)
             .ToListAsync();
 
-        // Group by week start (Monday)
+        // Group by week start (Monday) using local time
         var weeklyVolume = logs
-            .GroupBy(l => GetWeekStart(l.CompletedAt))
+            .GroupBy(l => GetWeekStart(l.CompletedAt.ToLocalTime()))
             .ToDictionary(
                 g => g.Key,
                 g => g.Sum(l => l.RepsPerformed * l.WeightUsed)

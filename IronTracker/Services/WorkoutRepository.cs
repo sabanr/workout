@@ -50,8 +50,13 @@ public class WorkoutRepository : IWorkoutRepository
         await using var context = await _contextFactory.CreateDbContextAsync();
         
         // Convert local date range to UTC for comparison with UTC StartTime
-        var fromUtc = from.Kind == DateTimeKind.Utc ? from : from.ToUniversalTime();
-        var toUtc = to.Kind == DateTimeKind.Utc ? to : to.ToUniversalTime();
+        // If Kind is Unspecified, treat as local time
+        var fromUtc = from.Kind == DateTimeKind.Utc ? from : 
+                      (from.Kind == DateTimeKind.Local ? from.ToUniversalTime() : 
+                       DateTime.SpecifyKind(from, DateTimeKind.Local).ToUniversalTime());
+        var toUtc = to.Kind == DateTimeKind.Utc ? to : 
+                    (to.Kind == DateTimeKind.Local ? to.ToUniversalTime() : 
+                     DateTime.SpecifyKind(to, DateTimeKind.Local).ToUniversalTime());
         
         return await context.WorkoutSessions
             .Include(s => s.RoutineDay)
@@ -110,17 +115,19 @@ public class WorkoutRepository : IWorkoutRepository
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         
-        var sessions = await context.WorkoutSessions
+        // Select only StartTime to reduce data transfer
+        var sessionTimes = await context.WorkoutSessions
             .Where(s => s.EndTime != null)
             .OrderByDescending(s => s.StartTime)
+            .Select(s => s.StartTime)
             .ToListAsync();
 
-        if (sessions.Count == 0)
+        if (sessionTimes.Count == 0)
             return 0;
 
         // Convert to local dates for streak calculation
-        var localDates = sessions
-            .Select(s => s.StartTime.ToLocalTime().Date)
+        var localDates = sessionTimes
+            .Select(s => s.ToLocalTime().Date)
             .Distinct()
             .OrderByDescending(d => d)
             .ToList();

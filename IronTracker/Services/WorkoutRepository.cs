@@ -48,10 +48,15 @@ public class WorkoutRepository : IWorkoutRepository
     public async Task<List<WorkoutSession>> GetSessionHistoryAsync(DateTime from, DateTime to)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
+        
+        // Convert local date range to UTC for comparison with UTC StartTime
+        var fromUtc = from.Kind == DateTimeKind.Utc ? from : from.ToUniversalTime();
+        var toUtc = to.Kind == DateTimeKind.Utc ? to : to.ToUniversalTime();
+        
         return await context.WorkoutSessions
             .Include(s => s.RoutineDay)
             .Include(s => s.SetLogs)
-            .Where(s => s.StartTime >= from && s.StartTime <= to)
+            .Where(s => s.StartTime >= fromUtc && s.StartTime <= toUtc)
             .OrderByDescending(s => s.StartTime)
             .ToListAsync();
     }
@@ -82,10 +87,12 @@ public class WorkoutRepository : IWorkoutRepository
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         
-        var startDate = DateTime.Now.Date.AddDays(-(weeksBack * 7));
+        // Calculate start date in local time, then convert to UTC for database query
+        var startDateLocal = DateTime.Now.Date.AddDays(-(weeksBack * 7));
+        var startDateUtc = startDateLocal.ToUniversalTime();
         
         var logs = await context.SetLogs
-            .Where(l => l.CompletedAt >= startDate)
+            .Where(l => l.CompletedAt >= startDateUtc)
             .ToListAsync();
 
         // Group by week start (Monday) using local time

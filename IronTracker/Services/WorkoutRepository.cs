@@ -106,25 +106,30 @@ public class WorkoutRepository : IWorkoutRepository
         var sessions = await context.WorkoutSessions
             .Where(s => s.EndTime != null)
             .OrderByDescending(s => s.StartTime)
-            .Select(s => s.StartTime.Date)
-            .Distinct()
             .ToListAsync();
 
         if (sessions.Count == 0)
             return 0;
 
+        // Convert to local dates for streak calculation
+        var localDates = sessions
+            .Select(s => s.StartTime.ToLocalTime().Date)
+            .Distinct()
+            .OrderByDescending(d => d)
+            .ToList();
+
         var streak = 0;
-        var expectedDate = DateTime.UtcNow.Date;
+        var expectedDate = DateTime.Now.Date;
 
         // If no session today, check if there was one yesterday
-        if (sessions.First() != expectedDate)
+        if (localDates.First() != expectedDate)
         {
             expectedDate = expectedDate.AddDays(-1);
-            if (sessions.First() != expectedDate)
+            if (localDates.First() != expectedDate)
                 return 0;
         }
 
-        foreach (var sessionDate in sessions)
+        foreach (var sessionDate in localDates)
         {
             if (sessionDate == expectedDate)
             {

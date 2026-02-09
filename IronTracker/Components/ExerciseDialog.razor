@@ -1,4 +1,6 @@
 @* ExerciseDialog.razor - Dialog for creating/editing exercises *@
+@inject SettingsService SettingsService
+@implements IDisposable
 
 <MudDialog>
     <TitleContent>
@@ -22,9 +24,9 @@
                      HelperText="Enter reps for each set separated by dashes"
                      Class="mb-4" />
         <div class="d-flex align-center gap-2 mb-4">
-            <MudTextField @bind-Value="Exercise.TargetWeights" 
+            <MudTextField @bind-Value="_displayTargetWeights"
                          @bind-Value:after="OnWeightsChanged"
-                         Label="Target Weights (lbs per set)" 
+                         Label="@GetTargetWeightsLabel()"
                          Placeholder="e.g., 20-25-30-35"
                          HelperText="@GetWeightHelperText()"
                          Style="flex: 1" />
@@ -73,10 +75,80 @@
     public bool IsNew { get; set; }
 
     private string? _suggestedWeights;
+    private string _displayTargetWeights = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        SettingsService.WeightUnitChanged += OnWeightUnitChanged;
+        // Convert stored lbs values to display unit
+        _displayTargetWeights = ConvertToDisplayFormat(Exercise.TargetWeights);
+    }
+
+    private void OnWeightUnitChanged()
+    {
+        // Convert current display weights to the new unit
+        _displayTargetWeights = ConvertToNewDisplayUnit(_displayTargetWeights);
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Converts weights from old display unit to new display unit.
+    /// </summary>
+    private string ConvertToNewDisplayUnit(string? weightsInOldDisplayUnit)
+    {
+        if (string.IsNullOrWhiteSpace(weightsInOldDisplayUnit))
+            return string.Empty;
+
+        var parts = weightsInOldDisplayUnit.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return string.Empty;
+
+        // Convert from old unit to lbs, then to new unit
+        var convertedParts = parts.Select(p =>
+        {
+            if (decimal.TryParse(p.Trim(), out var weight))
+            {
+                // Convert from old display unit to lbs
+                var weightInLbs = ConvertFromOldDisplayUnit(weight);
+                // Convert from lbs to new display unit
+                var newDisplayWeight = SettingsService.ConvertToDisplayUnit(weightInLbs);
+                // Format with appropriate precision
+                return newDisplayWeight == Math.Floor(newDisplayWeight)
+                    ? newDisplayWeight.ToString("0")
+                    : newDisplayWeight.ToString("0.#");
+            }
+            return p.Trim();
+        });
+
+        return string.Join("-", convertedParts);
+    }
+
+    /// <summary>
+    /// Converts a weight from the old display unit to lbs.
+    /// </summary>
+    private decimal ConvertFromOldDisplayUnit(decimal weightInOldDisplayUnit)
+    {
+        // The old unit is the opposite of the current unit
+        if (SettingsService.WeightUnit == WeightUnit.Lbs)
+        {
+            // Current is Lbs, so old was Kg: kg * 2.20462 = lbs
+            return Math.Round(weightInOldDisplayUnit * 2.20462m, 2);
+        }
+        else
+        {
+            // Current is Kg, so old was Lbs: lbs (already in lbs)
+            return weightInOldDisplayUnit;
+        }
+    }
 
     private void Cancel() => MudDialog.Cancel();
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(Exercise));
+    private void Submit()
+    {
+        // Convert display unit values back to lbs for storage
+        Exercise.TargetWeights = ConvertToStorageFormat(_displayTargetWeights);
+        MudDialog.Close(DialogResult.Ok(Exercise));
+    }
 
     private void OnWeightsChanged()
     {
@@ -85,26 +157,27 @@
 
     private string? GenerateWeightSuggestion()
     {
-        if (string.IsNullOrWhiteSpace(Exercise.TargetConfig) || string.IsNullOrWhiteSpace(Exercise.TargetWeights))
+        if (string.IsNullOrWhiteSpace(Exercise.TargetConfig) || string.IsNullOrWhiteSpace(_displayTargetWeights))
             return null;
 
         var repParts = Exercise.TargetConfig.Split('-', StringSplitOptions.RemoveEmptyEntries);
-        var weightParts = Exercise.TargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        var weightParts = _displayTargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
 
         // Only suggest if user has entered at least one weight and there are more sets to fill
         if (weightParts.Length == 0 || weightParts.Length >= repParts.Length)
             return null;
 
-        // Parse the last weight entered
+        // Parse the last weight entered (in display unit)
         if (!decimal.TryParse(weightParts[^1].Trim(), out var lastWeight))
             return null;
 
-        // Generate suggestions for remaining sets (increment by 5 lbs each)
+        // Generate suggestions for remaining sets (increment by step size)
+        var stepSize = SettingsService.GetWeightStepSize();
         var suggestions = new List<string>(weightParts.Select(w => w.Trim()));
         for (int i = weightParts.Length; i < repParts.Length; i++)
         {
-            lastWeight += 5;
-            suggestions.Add(lastWeight.ToString("0"));
+            lastWeight += stepSize;
+            suggestions.Add(lastWeight.ToString("0.#"));
         }
 
         return string.Join("-", suggestions);
@@ -114,7 +187,7 @@
     {
         if (!string.IsNullOrWhiteSpace(_suggestedWeights))
         {
-            Exercise.TargetWeights = _suggestedWeights;
+            _displayTargetWeights = _suggestedWeights;
             _suggestedWeights = null;
         }
     }
@@ -122,8 +195,13 @@
     private string GetWeightHelperText()
     {
         if (!string.IsNullOrWhiteSpace(_suggestedWeights))
-            return "Click 'Apply' to use suggested weights with 5lbs increments";
+            return $"Click 'Apply' to use suggested weights with {SettingsService.GetWeightIncrementText()}";
         return "Enter weight for each set separated by dashes (optional)";
+    }
+
+    private string GetTargetWeightsLabel()
+    {
+        return $"Target Weights ({SettingsService.GetUnitAbbreviation()} per set)";
     }
 
     private bool IsValid()
@@ -139,9 +217,9 @@
             return false;
         
         // Validate weights format (if provided)
-        if (!string.IsNullOrWhiteSpace(Exercise.TargetWeights))
+        if (!string.IsNullOrWhiteSpace(_displayTargetWeights))
         {
-            var weightParts = Exercise.TargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
+            var weightParts = _displayTargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
             if (!weightParts.All(p => decimal.TryParse(p.Trim(), out _)))
                 return false;
             // Weights count should match reps count
@@ -161,20 +239,80 @@
         if (repParts.Length == 0 || !repParts.All(p => int.TryParse(p.Trim(), out _)))
             return "Invalid format - use numbers separated by dashes";
 
-        var weightParts = string.IsNullOrWhiteSpace(Exercise.TargetWeights) 
-            ? Array.Empty<string>() 
-            : Exercise.TargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        var weightParts = string.IsNullOrWhiteSpace(_displayTargetWeights)
+            ? Array.Empty<string>()
+            : _displayTargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
         
         var hasWeights = weightParts.Length == repParts.Length && weightParts.All(p => decimal.TryParse(p.Trim(), out _));
         
         if (hasWeights)
         {
+            var unit = SettingsService.GetUnitAbbreviation();
             var setDetails = repParts
-                .Select((r, i) => $"Set {i + 1}: {r} reps @ {weightParts[i]} lbs")
+                .Select((r, i) => $"Set {i + 1}: {r} reps @ {weightParts[i]} {unit}")
                 .ToArray();
             return $"Preview: {string.Join(", ", setDetails)}";
         }
         
         return $"Preview: {repParts.Length} set{(repParts.Length != 1 ? "s" : "")} targeting {string.Join(", ", repParts)} reps";
+    }
+
+    /// <summary>
+    /// Converts a weights string from lbs (storage) to display unit.
+    /// </summary>
+    private string ConvertToDisplayFormat(string? weightsInLbs)
+    {
+        if (string.IsNullOrWhiteSpace(weightsInLbs))
+            return string.Empty;
+
+        var parts = weightsInLbs.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return string.Empty;
+
+        var convertedParts = parts.Select(p =>
+        {
+            if (decimal.TryParse(p.Trim(), out var weight))
+            {
+                var displayWeight = SettingsService.ConvertToDisplayUnit(weight);
+                // Format with appropriate precision
+                return displayWeight == Math.Floor(displayWeight)
+                    ? displayWeight.ToString("0")
+                    : displayWeight.ToString("0.#");
+            }
+            return p.Trim();
+        });
+
+        return string.Join("-", convertedParts);
+    }
+
+    /// <summary>
+    /// Converts a weights string from display unit to lbs (storage).
+    /// </summary>
+    private string ConvertToStorageFormat(string? weightsInDisplayUnit)
+    {
+        if (string.IsNullOrWhiteSpace(weightsInDisplayUnit))
+            return string.Empty;
+
+        var parts = weightsInDisplayUnit.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return string.Empty;
+
+        var convertedParts = parts.Select(p =>
+        {
+            if (decimal.TryParse(p.Trim(), out var weight))
+            {
+                var storageWeight = SettingsService.ConvertToStorageUnit(weight);
+                // Format with 2 decimal places for storage precision
+                return storageWeight.ToString("0.##");
+            }
+            return p.Trim();
+        });
+
+        return string.Join("-", convertedParts);
+    }
+
+    public void Dispose()
+    {
+        SettingsService.WeightUnitChanged -= OnWeightUnitChanged;
     }
 }

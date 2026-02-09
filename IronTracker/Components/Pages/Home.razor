@@ -1,6 +1,8 @@
 @page "/"
 @inject WorkoutService WorkoutService
 @inject NavigationManager Navigation
+@inject SettingsService SettingsService
+@implements IDisposable
 
 <PageTitle>Dashboard - IronTracker</PageTitle>
 
@@ -72,7 +74,7 @@ else
             <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Weekly Volume (lbs)</MudText>
+                        <MudText Typo="Typo.h6">Weekly Volume (@SettingsService.GetUnitAbbreviation())</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>
@@ -144,6 +146,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        SettingsService.WeightUnitChanged += OnWeightUnitChanged;
+        
         _loading = true;
         
         _hasActiveSession = await WorkoutService.HasActiveSessionAsync();
@@ -152,6 +156,12 @@ else
         PrepareChartData();
         
         _loading = false;
+    }
+
+    private void OnWeightUnitChanged()
+    {
+        PrepareChartData();
+        InvokeAsync(StateHasChanged);
     }
 
     private void PrepareChartData()
@@ -168,7 +178,7 @@ else
             .ToArray();
 
         var values = orderedData
-            .Select(kv => (double)kv.Value)
+            .Select(kv => (double)SettingsService.ConvertToDisplayUnit(kv.Value))
             .ToArray();
 
         // Determine appropriate Y-axis format based on maximum value
@@ -212,5 +222,10 @@ else
             return $"{duration.Value.Hours}h {duration.Value.Minutes}m";
         
         return $"{duration.Value.Minutes}m";
+    }
+
+    public void Dispose()
+    {
+        SettingsService.WeightUnitChanged -= OnWeightUnitChanged;
     }
 }

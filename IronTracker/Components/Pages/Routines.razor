@@ -2,6 +2,8 @@
 @inject WorkoutService WorkoutService
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
+@inject SettingsService SettingsService
+@implements IDisposable
 
 <PageTitle>Routines - IronTracker</PageTitle>
 
@@ -93,7 +95,7 @@ else
                                                 <HeaderContent>
                                                     <MudTh>Exercise</MudTh>
                                                     <MudTh>Sets x Reps</MudTh>
-                                                    <MudTh>Weights (lbs)</MudTh>
+                                                    <MudTh>Weights (@SettingsService.GetUnitAbbreviation())</MudTh>
                                                     <MudTh Style="width: 100px;">Actions</MudTh>
                                                 </HeaderContent>
                                                 <RowTemplate>
@@ -155,7 +157,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        SettingsService.WeightUnitChanged += OnWeightUnitChanged;
         await LoadDataAsync();
+    }
+
+    private void OnWeightUnitChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadDataAsync()
@@ -174,6 +182,11 @@ else
         }
         
         _loading = false;
+    }
+
+    public void Dispose()
+    {
+        SettingsService.WeightUnitChanged -= OnWeightUnitChanged;
     }
 
     private string FormatTargetConfig(string? targetConfig)
@@ -197,7 +210,17 @@ else
         if (parts.Length == 0)
             return "Not set";
 
-        return string.Join(", ", parts);
+        // Convert each weight to display unit
+        var convertedParts = parts.Select(p =>
+        {
+            if (decimal.TryParse(p.Trim(), out var weight))
+            {
+                return SettingsService.ConvertToDisplayUnit(weight).ToString("0.#");
+            }
+            return p;
+        });
+
+        return string.Join(", ", convertedParts);
     }
 
     private void StartSession(int dayId)

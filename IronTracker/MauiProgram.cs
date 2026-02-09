@@ -35,6 +35,7 @@ public static class MauiProgram
         builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
         builder.Services.AddScoped<ISessionManager, SessionManager>();
         builder.Services.AddScoped<WorkoutService>();
+        builder.Services.AddSingleton<SettingsService>();
 
         // Register the audio manager for timer sounds
         builder.Services.AddSingleton(AudioManager.Current);

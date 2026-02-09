@@ -27,7 +27,7 @@ public class SetLog
     public int RepsPerformed { get; set; }
     
     /// <summary>
-    /// Weight used in kilograms.
+    /// Weight used in pounds (lbs).
     /// </summary>
     public decimal WeightUsed { get; set; }
     

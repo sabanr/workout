@@ -1,4 +1,6 @@
 @* SetTracker.razor - Tracks sets for a single exercise *@
+@inject SettingsService SettingsService
+@implements IDisposable
 
 <MudPaper Class="pa-4" Elevation="1">
     <MudText Typo="Typo.h6" Class="mb-3">@Exercise.Name</MudText>
@@ -12,7 +14,7 @@
                 <th style="width: 60px;">Set</th>
                 <th style="width: 80px;">Target</th>
                 <th>Reps</th>
-                <th>Weight (lbs)</th>
+                <th>Weight (@SettingsService.GetUnitAbbreviation())</th>
                 <th style="width: 80px;">Done</th>
             </tr>
         </thead>
@@ -40,11 +42,11 @@
                     </td>
                     <td>
                         <MudNumericField T="decimal" 
-                                        @bind-Value="set.Weight" 
+                                        @bind-Value="set.DisplayWeight" 
                                         Variant="Variant.Outlined"
-                                        Min="0" 
-                                        Max="1000"
-                                        Step="5M"
+                                        Min="@SettingsService.GetMinWeight()" 
+                                        Max="@SettingsService.GetMaxWeight()"
+                                        Step="@SettingsService.GetWeightStepSize()"
                                         Disabled="@set.IsCompleted"
                                         Margin="Margin.Dense"
                                         HideSpinButtons="true"
@@ -100,11 +102,53 @@
     public int CompletedSetsCount => _sets.Count(s => s.IsCompleted);
     public bool IsExerciseComplete => _sets.Count > 0 && _sets.All(s => s.IsCompleted);
 
+    protected override void OnInitialized()
+    {
+        SettingsService.WeightUnitChanged += OnWeightUnitChanged;
+    }
+
     protected override void OnParametersSet()
     {
         _targetReps = Exercise.GetTargetReps();
         _targetWeights = Exercise.GetTargetWeights();
         InitializeSets();
+    }
+
+    private void OnWeightUnitChanged()
+    {
+        // Convert existing display weights to the new unit
+        // For incomplete sets, we need to convert from the old display unit to lbs,
+        // then from lbs to the new display unit
+        foreach (var set in _sets.Where(s => !s.IsCompleted))
+        {
+            // The current DisplayWeight is in the old unit
+            // First convert to lbs (storage unit), then to new display unit
+            var weightInLbs = ConvertFromOldDisplayUnit(set.DisplayWeight);
+            set.DisplayWeight = SettingsService.ConvertToDisplayUnit(weightInLbs);
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Converts a weight from the old display unit to lbs.
+    /// This is needed when the unit changes while the user is editing.
+    /// </summary>
+    private decimal ConvertFromOldDisplayUnit(decimal weightInOldDisplayUnit)
+    {
+        // The old unit is the opposite of the current unit
+        // If current is Lbs, old was Kg
+        // If current is Kg, old was Lbs
+        if (SettingsService.WeightUnit == WeightUnit.Lbs)
+        {
+            // Current is Lbs, so old was Kg: kg * 2.20462 = lbs
+            return Math.Round(weightInOldDisplayUnit * 2.20462m, 2);
+        }
+        else
+        {
+            // Current is Kg, so old was Lbs: lbs (already in lbs)
+            return weightInOldDisplayUnit;
+        }
     }
 
     private void InitializeSets()
@@ -117,21 +161,24 @@
             var existingLog = ExistingLogs?.FirstOrDefault(l => l.SetNumber == setNumber);
             
             // Weight priority: existing log > template weight > last session weight > 0
-            decimal weight = existingLog?.WeightUsed ?? 0;
-            if (weight == 0 && i < _targetWeights.Length && _targetWeights[i] > 0)
+            decimal weightInLbs = existingLog?.WeightUsed ?? 0;
+            if (weightInLbs == 0 && i < _targetWeights.Length && _targetWeights[i] > 0)
             {
-                weight = _targetWeights[i];
+                weightInLbs = _targetWeights[i];
             }
-            else if (weight == 0 && LastWeights != null && LastWeights.TryGetValue(setNumber, out var lastWeight))
+            else if (weightInLbs == 0 && LastWeights != null && LastWeights.TryGetValue(setNumber, out var lastWeight))
             {
-                weight = lastWeight;
+                weightInLbs = lastWeight;
             }
+            
+            // Convert to display unit
+            var displayWeight = SettingsService.ConvertToDisplayUnit(weightInLbs);
             
             _sets.Add(new SetEntry
             {
                 SetNumber = setNumber,
                 Reps = existingLog?.RepsPerformed ?? _targetReps[i],
-                Weight = weight,
+                DisplayWeight = displayWeight,
                 IsCompleted = existingLog != null,
                 LogId = existingLog?.Id
             });
@@ -145,13 +192,15 @@
         // Show template weight as hint if defined
         if (setIndex < _targetWeights.Length && _targetWeights[setIndex] > 0)
         {
-            return $"Target: {_targetWeights[setIndex]}";
+            var targetDisplay = SettingsService.ConvertToDisplayUnit(_targetWeights[setIndex]);
+            return $"Target: {targetDisplay}";
         }
         
         // Fall back to last session weight
         if (LastWeights != null && LastWeights.TryGetValue(setNumber, out var lastWeight) && lastWeight > 0)
         {
-            return $"Last: {lastWeight}";
+            var lastDisplay = SettingsService.ConvertToDisplayUnit(lastWeight);
+            return $"Last: {lastDisplay}";
         }
         
         return "";
@@ -164,13 +213,16 @@
 
         set.IsCompleted = true;
 
+        // Convert display weight back to lbs for storage
+        var weightInLbs = SettingsService.ConvertToStorageUnit(set.DisplayWeight);
+
         var args = new SetCompletedEventArgs
         {
             SessionId = SessionId,
             ExerciseName = Exercise.Name,
             SetNumber = set.SetNumber,
             Reps = set.Reps,
-            Weight = set.Weight
+            Weight = weightInLbs
         };
 
         await OnSetCompleted.InvokeAsync(args);
@@ -183,11 +235,16 @@
         StateHasChanged();
     }
 
+    public void Dispose()
+    {
+        SettingsService.WeightUnitChanged -= OnWeightUnitChanged;
+    }
+
     private class SetEntry
     {
         public int SetNumber { get; set; }
         public int Reps { get; set; }
-        public decimal Weight { get; set; }
+        public decimal DisplayWeight { get; set; }
         public bool IsCompleted { get; set; }
         public int? LogId { get; set; }
     }

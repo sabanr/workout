@@ -58,7 +58,7 @@ else
                             <CardHeaderContent>
                                 <MudText Typo="Typo.h6">@session.RoutineDay?.Name</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                    @session.StartTime.ToLocalTime().ToString("h:mm tt") - 
+                                    @session.StartTime.ToLocalTime().ToString("MMM dd, yyyy HH:mm tt") - 
                                     @if (session.IsActive)
                                     {
                                         <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">

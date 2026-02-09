@@ -1,6 +1,6 @@
 # IronTracker - Agent Guidelines
 
-This document provides coding agents with essential information about the IronTracker codebase, including build commands, code style, and architectural patterns.
+Coding guidelines for the IronTracker workout tracking app.
 
 ## Project Overview
 
@@ -8,135 +8,44 @@ This document provides coding agents with essential information about the IronTr
 **Framework**: .NET 10 MAUI Blazor Hybrid  
 **UI Library**: MudBlazor 8.0.0  
 **Database**: Entity Framework Core 9.0.1 with SQLite  
-**Platforms**: macOS (Catalyst), iOS, Android, Windows  
+**Platforms**: macOS (Catalyst), iOS, Android, Windows
 
-## Build & Run Commands
+## Build Commands
 
-All commands should be run from the `IronTracker/` directory (not the parent directory).
-
-### Build
+Run from `IronTracker/` directory:
 ```bash
-# macOS (Catalyst) - Primary development platform
-dotnet build -f net10.0-maccatalyst
+# Build
+dotnet build -f net10.0-maccatalyst  # macOS (primary)
+dotnet build -f net10.0-ios          # iOS
+dotnet build -f net10.0-android      # Android
+dotnet build -f net10.0-windows10.0.19041.0  # Windows
 
-# iOS
-dotnet build -f net10.0-ios
-
-# Android
-dotnet build -f net10.0-android
-
-# Windows (only available on Windows OS)
-dotnet build -f net10.0-windows10.0.19041.0
-```
-
-### Run
-```bash
-# macOS (Catalyst)
+# Run
 dotnet run -f net10.0-maccatalyst
 
-# iOS (requires device/simulator)
-dotnet run -f net10.0-ios
-
-# Android (requires emulator/device)
-dotnet run -f net10.0-android
+# Clean
+dotnet clean && dotnet build -f net10.0-maccatalyst
 ```
 
-### Clean Build
-```bash
-dotnet clean
-dotnet build -f net10.0-maccatalyst
-```
-
-## Testing
-
-**Status**: No test project currently exists in the solution.
-
-**To add tests**:
-1. Create a new xUnit or NUnit test project: `IronTracker.Tests`
-2. Add reference to main project
-3. Test naming convention: `MethodName_Scenario_ExpectedResult`
-4. Run tests: `dotnet test`
-
-**Unit test individual components**:
-```bash
-# When test project exists
-dotnet test --filter "FullyQualifiedName~IronTracker.Tests.Services"
-dotnet test --filter "FullyQualifiedName~WorkoutServiceTests.SaveSetAsync_ValidData_ReturnsSetLog"
-```
-
-## Code Style Guidelines
-
-### General Formatting
-- **Indentation**: 4 spaces (no tabs)
-- **Line endings**: LF (Unix-style)
-- **File encoding**: UTF-8
-- **Max line length**: No strict limit, but prefer ~120 chars for readability
-- **Braces**: K&R style (opening brace on same line for methods/classes)
-
-### Naming Conventions
-- **Classes/Interfaces**: PascalCase (`WorkoutService`, `IWorkoutRepository`)
-- **Methods/Properties**: PascalCase (`GetRoutinesAsync`, `TargetConfig`)
-- **Private fields**: camelCase with underscore prefix (`_repository`, `_sessionManager`)
-- **Local variables**: camelCase (`sessionId`, `exerciseName`)
-- **Constants**: PascalCase (`DefaultRestSeconds`)
-- **Async methods**: Always suffix with `Async`
-
-### C# Features
-- **Nullable reference types**: ENABLED - Use `?` for nullable types, `= null!` for DI-injected properties
-- **Implicit usings**: ENABLED in project settings
-- **String handling**: Prefer string interpolation `$"{var}"` over concatenation
-- **LINQ**: Use liberally for collections
-- **Expression-bodied members**: Use for simple one-liners
-  ```csharp
-  public Task<List<Routine>> GetRoutinesAsync() => _repository.GetRoutinesAsync();
-  ```
-- **Pattern matching**: Use modern C# patterns (switch expressions, is patterns)
-- **File-scoped namespaces**: Optional but preferred for new files
-
-### Type Conventions
-- Use `var` when type is obvious from right-hand side
-- Explicit types for primitive types and when clarity is needed
-- Always use `async Task<T>` for async methods (not `async void` except event handlers)
-- Use `List<T>` for return types, `IEnumerable<T>` for parameters when possible
-- Prefer `string.Empty` over `""`
-- Use `decimal` for currency/weights, `int` for counts, `DateTime` for timestamps
-
-### Imports
-Standard import order (handled by implicit usings):
-1. System namespaces (auto-included)
-2. Third-party packages (Microsoft.*, MudBlazor.*)
-3. Project namespaces (IronTracker.*)
-
-Example:
-```csharp
-using Microsoft.EntityFrameworkCore;
-using MudBlazor.Services;
-using IronTracker.Models;
-using IronTracker.Services.Interfaces;
-```
-
-## Architecture & Patterns
+## Architecture
 
 ### Project Structure
 ```
 IronTracker/
-├── Components/
-│   ├── Layout/          # MainLayout, NavMenu
-│   ├── Pages/           # Blazor pages (Home, ActiveSession, Routines, History)
-│   └── *.razor          # Reusable components and dialogs
-├── Data/
-│   ├── AppDbContext.cs  # EF Core DbContext
-│   └── DbSeeder.cs      # Database initialization
-├── Models/              # Domain models (entities)
-├── Services/
-│   ├── Interfaces/      # Service contracts
-│   └── *.cs            # Service implementations
-├── Platforms/           # Platform-specific code
-└── wwwroot/            # Static web assets
+├── Components/     # Blazor components
+│   ├── Layout/     # MainLayout, NavMenu
+│   ├── Pages/      # Blazor pages
+│   └── *.razor     # Reusable components
+├── Data/           # AppDbContext, DbSeeder
+├── Models/         # Domain entities
+├── Services/       # Business logic
+│   ├── Interfaces/
+│   └── *.cs
+└── wwwroot/        # Static assets
 ```
 
 ### Dependency Injection
-All services use constructor injection. Register in `MauiProgram.cs`:
+Register in `MauiProgram.cs`:
 ```csharp
 builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
 builder.Services.AddScoped<WorkoutService>();
@@ -148,92 +57,80 @@ Inject in components:
 private WorkoutService WorkoutService { get; set; } = null!;
 ```
 
-### Service Layer Pattern
-- **WorkoutService**: High-level business logic, orchestrates repository + session manager
-- **WorkoutRepository**: Data access (CRUD operations)
-- **SessionManager**: Active session state management
-- **Interfaces**: Define contracts in `Services/Interfaces/`
+### Service Pattern
+- **WorkoutService**: High-level orchestrator
+- **WorkoutRepository**: Data access (CRUD)
+- **SessionManager**: Active session state
+- Interfaces in `Services/Interfaces/`
 
 ### Database (EF Core)
-- **DbContext**: `AppDbContext` in `Data/` folder
-- **Migrations**: Use `dotnet ef migrations add MigrationName` (from IronTracker/ directory)
-- **Connection string**: SQLite at `FileSystem.AppDataDirectory/irontracker.db`
-- **Conventions**:
-  - Navigation properties always initialized: `= null!`
-  - Use `IsRequired()`, `HasMaxLength()` in `OnModelCreating`
-  - Add indexes for frequently queried fields
-  - Cascade deletes for parent-child relationships
+- Use `IDbContextFactory<AppDbContext>` (never inject `AppDbContext` directly)
+- SQLite at `FileSystem.AppDataDirectory/irontracker.db`
+- Migrations: `dotnet ef migrations add Name -f net10.0-maccatalyst`
+- Navigation properties: always `= null!`
+- Use `IsRequired()`, `HasMaxLength()` in `OnModelCreating`
+- Cascade deletes for parent-child
 
 ### Blazor Components
-- **File naming**: PascalCase with `.razor` extension
-- **Code-behind**: Use `@code` blocks in .razor files (no separate .cs files)
-- **Parameters**: Mark with `[Parameter]` attribute
-- **Cascading parameters**: Use `[CascadingParameter]` for MudBlazor dialogs
-- **Event handling**: Use `OnClick`, `@bind-Value`, `@bind-Value:after` for events
-- **Lifecycle**: Prefer `OnInitializedAsync` for async initialization
+- PascalCase `.razor` files
+- Use `@code` blocks (no separate .cs files)
+- `[Parameter]` for parameters
+- `[CascadingParameter]` for MudBlazor dialogs
+- `OnClick`, `@bind-Value`, `@bind-Value:after` for events
+- Prefer `OnInitializedAsync` for async init
 
 ### Error Handling
-- **Validation**: Use MudBlazor form validation and `IsValid()` helper methods
-- **Async exceptions**: Let bubble up to component level, show MudBlazor snackbar
-- **Null safety**: Leverage nullable reference types, use null-conditional operators
-- **Database errors**: Wrap in try-catch at service layer when appropriate
+- MudBlazor form validation with `IsValid()`
+- Async exceptions bubble to component level
+- Use nullable reference types
+- Database errors: try-catch at service layer
 
-## Documentation Standards
+## Documentation
 
-### XML Documentation
-ALL public APIs (classes, methods, properties) must have XML doc comments:
-
+### XML Docs (required for all public APIs)
 ```csharp
-/// <summary>
-/// Brief description of what this does.
-/// </summary>
-/// <param name="paramName">What this parameter represents</param>
-/// <returns>What is returned</returns>
+/// <summary>Brief description.</summary>
+/// <param name="paramName">Description</param>
+/// <returns>Description</returns>
 public async Task<WorkoutSession> StartSessionAsync(int routineDayId)
 ```
 
 ### Code Comments
-- Use `//` for inline comments explaining "why", not "what"
-- Razor comments: `@* Comment *@`
-- Avoid obvious comments; code should be self-documenting
+- Use `//` for "why", not "what"
+- Razor: `@* comment *@`
+- Avoid obvious comments
 
-## Platform-Specific Notes
+## Platform Notes
 
 ### File Paths
-Always use `FileSystem.AppDataDirectory` for cross-platform compatibility:
+Always use `FileSystem.AppDataDirectory`:
 ```csharp
 var dbPath = Path.Combine(FileSystem.AppDataDirectory, "irontracker.db");
 ```
 
-### Multi-targeting
-Project targets multiple frameworks. Use conditional compilation if needed:
+### Conditional Compilation
 ```csharp
 #if ANDROID
-    // Android-specific code
+    // Android code
 #elif IOS
-    // iOS-specific code
+    // iOS code
 #endif
 ```
 
-## Common Patterns
+## Patterns
 
-### Async/Await
-Always use async/await for database and service calls:
+### DbContext Usage
 ```csharp
-var routines = await WorkoutService.GetRoutinesAsync();
+await using var context = await _contextFactory.CreateDbContextAsync();
+var routines = await context.Routines.ToListAsync();
 ```
 
-### String Parsing
-Use `TryParse` for safe conversions:
+### Safe Parsing
 ```csharp
-if (int.TryParse(input, out var result))
-{
-    // Use result
-}
+if (int.TryParse(input, out var result)) { /* use result */ }
 ```
 
-### LINQ Queries
-Prefer method syntax for readability:
+### LINQ
 ```csharp
 var exercises = day.Exercises
     .Where(e => e.IsActive)
@@ -241,8 +138,16 @@ var exercises = day.Exercises
     .ToList();
 ```
 
-## Git Workflow
+## Gotchas
+
+1. **DbContext Threading**: Always use `IDbContextFactory` - Blazor uses multiple threads
+2. **Active Session**: Only ONE allowed system-wide (enforced by `SessionManager`)
+3. **Cascade Deletes**: Deleting `Routine` → deletes `RoutineDay` → `ExerciseTemplate`
+4. **UTC Storage**: All `DateTime` stored as UTC; use `ToLocalTime()` in UI
+5. **StateHasChanged**: Call in event handlers when modifying data from child components
+
+## Git
 
 - Commit messages: Present tense ("Add feature" not "Added feature")
-- Keep commits focused and atomic
-- No secrets or connection strings in source control
+- Keep commits atomic
+- No secrets in source control

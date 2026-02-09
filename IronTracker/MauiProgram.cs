@@ -4,6 +4,7 @@ using MudBlazor.Services;
 using IronTracker.Data;
 using IronTracker.Services;
 using IronTracker.Services.Interfaces;
+using Plugin.Maui.Audio;
 
 namespace IronTracker;
 
@@ -34,6 +35,9 @@ public static class MauiProgram
         builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
         builder.Services.AddScoped<ISessionManager, SessionManager>();
         builder.Services.AddScoped<WorkoutService>();
+
+        // Register the audio manager for timer sounds
+        builder.Services.AddSingleton(AudioManager.Current);
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

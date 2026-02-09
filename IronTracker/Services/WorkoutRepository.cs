@@ -94,7 +94,7 @@ public class WorkoutRepository : IWorkoutRepository
         
         // Calculate start date in local time, then convert to UTC for database query
         var startDateLocal = DateTime.Now.Date.AddDays(-(weeksBack * 7));
-        var startDateUtc = DateTime.SpecifyKind(startDateLocal, DateTimeKind.Local).ToUniversalTime();
+        var startDateUtc = startDateLocal.ToUniversalTime();
         
         var logs = await context.SetLogs
             .Where(l => l.CompletedAt >= startDateUtc)

@@ -94,15 +94,16 @@ public class WorkoutRepository : IWorkoutRepository
         
         // Calculate start date in local time, then convert to UTC for database query
         var startDateLocal = DateTime.Now.Date.AddDays(-(weeksBack * 7));
-        var startDateUtc = startDateLocal.ToUniversalTime();
+        var startDateUtc = DateTime.SpecifyKind(startDateLocal, DateTimeKind.Local).ToUniversalTime();
         
         var logs = await context.SetLogs
             .Where(l => l.CompletedAt >= startDateUtc)
             .ToListAsync();
 
         // Group by week start (Monday) using local time
+        // SQLite stores DateTime as text, so we must specify it's UTC before converting to local
         var weeklyVolume = logs
-            .GroupBy(l => GetWeekStart(l.CompletedAt.ToLocalTime()))
+            .GroupBy(l => GetWeekStart(DateTime.SpecifyKind(l.CompletedAt, DateTimeKind.Utc).ToLocalTime()))
             .ToDictionary(
                 g => g.Key,
                 g => g.Sum(l => l.RepsPerformed * l.WeightUsed)
@@ -126,8 +127,9 @@ public class WorkoutRepository : IWorkoutRepository
             return 0;
 
         // Convert to local dates for streak calculation
+        // SQLite stores DateTime as text, so we must specify it's UTC before converting to local
         var localDates = sessionTimes
-            .Select(s => s.ToLocalTime().Date)
+            .Select(s => DateTime.SpecifyKind(s, DateTimeKind.Utc).ToLocalTime().Date)
             .Distinct()
             .OrderByDescending(d => d)
             .ToList();

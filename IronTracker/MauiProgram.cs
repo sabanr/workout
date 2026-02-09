@@ -26,6 +26,7 @@ public static class MauiProgram
 
         // Configure SQLite database
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "irontracker.db");
+        Console.WriteLine($"IronTracker DB path: {dbPath}");
         builder.Services.AddDbContextFactory<AppDbContext>(options =>
             options.UseSqlite($"Data Source={dbPath}"));
 

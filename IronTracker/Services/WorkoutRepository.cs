@@ -82,21 +82,23 @@ public class WorkoutRepository : IWorkoutRepository
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         
-        var startDate = DateTime.UtcNow.Date.AddDays(-(weeksBack * 7));
+        // Show daily data for last 3 months instead of weekly data
+        var startDate = DateTime.Now.Date.AddMonths(-3);
         
         var logs = await context.SetLogs
-            .Where(l => l.CompletedAt >= startDate)
+            .Include(l => l.WorkoutSession)
+            .Where(l => l.CompletedAt >= startDate && l.WorkoutSession.EndTime != null)
             .ToListAsync();
 
-        // Group by week start (Monday)
-        var weeklyVolume = logs
-            .GroupBy(l => GetWeekStart(l.CompletedAt))
+        // Group by day instead of week
+        var dailyVolume = logs
+            .GroupBy(l => l.CompletedAt.ToLocalTime().Date)
             .ToDictionary(
                 g => g.Key,
                 g => g.Sum(l => l.RepsPerformed * l.WeightUsed)
             );
 
-        return weeklyVolume;
+        return dailyVolume;
     }
 
     public async Task<int> GetConsecutiveDaysStreakAsync()
@@ -106,7 +108,7 @@ public class WorkoutRepository : IWorkoutRepository
         var sessions = await context.WorkoutSessions
             .Where(s => s.EndTime != null)
             .OrderByDescending(s => s.StartTime)
-            .Select(s => s.StartTime.Date)
+            .Select(s => s.StartTime.ToLocalTime().Date)
             .Distinct()
             .ToListAsync();
 
@@ -114,7 +116,7 @@ public class WorkoutRepository : IWorkoutRepository
             return 0;
 
         var streak = 0;
-        var expectedDate = DateTime.UtcNow.Date;
+        var expectedDate = DateTime.Now.Date;
 
         // If no session today, check if there was one yesterday
         if (sessions.First() != expectedDate)

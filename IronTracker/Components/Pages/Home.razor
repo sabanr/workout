@@ -17,7 +17,7 @@ else
     <MudGrid>
         @* Streak Card *@
         <MudItem xs="12" sm="6" md="4">
-            <MudCard>
+            <MudCard Style="min-height: 200px; height: 200px;">
                 <MudCardContent Class="d-flex flex-column align-center pa-6">
                     <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" 
                              Color="@(_stats!.ConsecutiveDaysStreak > 0 ? Color.Warning : Color.Default)" 
@@ -32,8 +32,8 @@ else
 
         @* Quick Start Card *@
         <MudItem xs="12" sm="6" md="4">
-            <MudCard>
-                <MudCardContent Class="d-flex flex-column align-center pa-6">
+            <MudCard Style="min-height: 200px; height: 200px;">
+                <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="height: 100%;">
                     @if (_hasActiveSession)
                     {
                         <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Success" Size="Size.Large" />
@@ -60,7 +60,7 @@ else
 
         @* Total Sessions Card *@
         <MudItem xs="12" sm="6" md="4">
-            <MudCard>
+            <MudCard Style="min-height: 200px; height: 200px;">
                 <MudCardContent Class="d-flex flex-column align-center pa-6">
                     <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Color="Color.Info" Size="Size.Large" />
                     <MudText Typo="Typo.h2" Class="my-2">@_stats!.RecentSessions.Count</MudText>
@@ -69,12 +69,12 @@ else
             </MudCard>
         </MudItem>
 
-        @* Weekly Volume Chart *@
+        @* Daily Volume Chart (Last 3 Months) *@
         <MudItem xs="12" md="8">
             <MudCard>
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Weekly Volume (@SettingsService.GetUnitAbbreviation())</MudText>
+                        <MudText Typo="Typo.h6">Daily Training Volume - Last 3 Months (@SettingsService.GetUnitAbbreviation())</MudText>
                     </CardHeaderContent>
                 </MudCardHeader>
                 <MudCardContent>

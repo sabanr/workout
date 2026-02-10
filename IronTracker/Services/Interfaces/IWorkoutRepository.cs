@@ -38,7 +38,7 @@ public interface IWorkoutRepository
     Task<List<WorkoutSession>> GetRecentSessionsAsync(int count = 10);
 
     /// <summary>
-    /// Calculates the weekly volume (sum of reps x weight) for reporting.
+    /// Calculates the daily volume (sum of reps x weight) for the last 3 months for reporting.
     /// </summary>
     Task<Dictionary<DateTime, decimal>> GetWeeklyVolumeAsync(int weeksBack = 5);
 

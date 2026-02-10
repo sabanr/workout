@@ -105,28 +105,56 @@ public class WorkoutRepository : IWorkoutRepository
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         
-        var sessions = await context.WorkoutSessions
+        // Get all completed sessions ordered by start time DESC
+        var rawSessions = await context.WorkoutSessions
             .Where(s => s.EndTime != null)
             .OrderByDescending(s => s.StartTime)
-            .Select(s => s.StartTime.ToLocalTime().Date)
-            .Distinct()
             .ToListAsync();
 
-        if (sessions.Count == 0)
+        if (rawSessions.Count == 0)
             return 0;
 
-        var streak = 0;
-        var expectedDate = DateTime.Now.Date;
-
-        // If no session today, check if there was one yesterday
-        if (sessions.First() != expectedDate)
+        // Convert to local dates and remove duplicates manually (more reliable than LINQ with SQLite)
+        var sessionDates = new List<DateTime>();
+        var seenDates = new HashSet<DateTime>();
+        
+        foreach (var session in rawSessions)
         {
-            expectedDate = expectedDate.AddDays(-1);
-            if (sessions.First() != expectedDate)
-                return 0;
+            var localDate = session.StartTime.ToLocalTime().Date;
+            if (seenDates.Add(localDate)) // Add returns true if it was new
+            {
+                sessionDates.Add(localDate);
+            }
         }
 
-        foreach (var sessionDate in sessions)
+        // sessionDates is now ordered DESC and distinct
+        var streak = 0;
+        var currentDate = DateTime.Now.Date;
+
+        // Find the most recent workout date
+        var mostRecentWorkoutDate = sessionDates.First();
+        
+        // Start from most recent workout date, allow for today or yesterday
+        var startDate = currentDate;
+        if (mostRecentWorkoutDate == currentDate)
+        {
+            // Most recent workout was today, start counting from today
+            startDate = currentDate;
+        }
+        else if (mostRecentWorkoutDate == currentDate.AddDays(-1))
+        {
+            // Most recent workout was yesterday, start counting from yesterday
+            startDate = currentDate.AddDays(-1);
+        }
+        else
+        {
+            // Most recent workout was more than 1 day ago, no current streak
+            return 0;
+        }
+
+        // Count consecutive days backwards from startDate
+        var expectedDate = startDate;
+        foreach (var sessionDate in sessionDates)
         {
             if (sessionDate == expectedDate)
             {
@@ -135,8 +163,10 @@ public class WorkoutRepository : IWorkoutRepository
             }
             else if (sessionDate < expectedDate)
             {
+                // Gap found, streak is broken
                 break;
             }
+            // if sessionDate > expectedDate, continue (should not happen with proper ordering)
         }
 
         return streak;

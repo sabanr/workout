@@ -1,7 +1,10 @@
 @page "/"
+@using IronTracker.Models
+@using IronTracker.Services
+@using IronTracker.Services.Interfaces
 @inject WorkoutService WorkoutService
-@inject NavigationManager Navigation
 @inject SettingsService SettingsService
+@inject NavigationManager Navigation
 @implements IDisposable
 
 <PageTitle>Dashboard - IronTracker</PageTitle>

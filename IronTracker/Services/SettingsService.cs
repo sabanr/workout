@@ -16,6 +16,11 @@ public class SettingsService
     public event Action? WeightUnitChanged;
 
     /// <summary>
+    /// Event that fires when any dashboard visibility setting changes.
+    /// </summary>
+    public event Action? DashboardVisibilityChanged;
+
+    /// <summary>
     /// Gets or sets the current weight unit preference.
     /// Defaults to Lbs if not set.
     /// </summary>
@@ -41,6 +46,76 @@ public class SettingsService
     {
         get => Preferences.Get(IsDarkModeKey, true);
         set => Preferences.Set(IsDarkModeKey, value);
+    }
+
+    /// <summary>
+    /// Gets or sets whether the consecutive days streak card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowStreakCard
+    {
+        get => Preferences.Get(nameof(ShowStreakCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowStreakCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the quick start card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowQuickStartCard
+    {
+        get => Preferences.Get(nameof(ShowQuickStartCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowQuickStartCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the total recent sessions card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowTotalSessionsCard
+    {
+        get => Preferences.Get(nameof(ShowTotalSessionsCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowTotalSessionsCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the daily volume chart is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowVolumeChart
+    {
+        get => Preferences.Get(nameof(ShowVolumeChart), true);
+        set
+        {
+            Preferences.Set(nameof(ShowVolumeChart), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the recent activity list is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowRecentActivity
+    {
+        get => Preferences.Get(nameof(ShowRecentActivity), true);
+        set
+        {
+            Preferences.Set(nameof(ShowRecentActivity), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
     }
 
     /// <summary>

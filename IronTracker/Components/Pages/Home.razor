@@ -5,11 +5,18 @@
 @inject WorkoutService WorkoutService
 @inject SettingsService SettingsService
 @inject NavigationManager Navigation
+@inject IDialogService DialogService
 @implements IDisposable
 
 <PageTitle>Dashboard - IronTracker</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">Dashboard</MudText>
+<div class="d-flex justify-space-between align-center mb-4">
+    <MudText Typo="Typo.h4">Dashboard</MudText>
+    <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                   Size="Size.Medium"
+                   OnClick="OpenDashboardSettings"
+                   Title="Dashboard Settings" />
+</div>
 
 @if (_loading)
 {
@@ -19,122 +26,137 @@ else
 {
     <MudGrid>
         @* Streak Card *@
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Style="min-height: 200px; height: 200px;">
-                <MudCardContent Class="d-flex flex-column align-center pa-6">
-                    <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" 
-                             Color="@(_stats!.ConsecutiveDaysStreak > 0 ? Color.Warning : Color.Default)" 
-                             Size="Size.Large" />
-                    <MudText Typo="Typo.h2" Class="my-2">@_stats!.ConsecutiveDaysStreak</MudText>
-                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
-                        Day@(_stats.ConsecutiveDaysStreak != 1 ? "s" : "") Streak
-                    </MudText>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+        @if (SettingsService.ShowStreakCard)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Style="min-height: 200px; height: 200px;">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment"
+                                 Color="@(_stats!.ConsecutiveDaysStreak > 0 ? Color.Warning : Color.Default)"
+                                 Size="Size.Large" />
+                        <MudText Typo="Typo.h2" Class="my-2">@_stats!.ConsecutiveDaysStreak</MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+                            Day@(_stats.ConsecutiveDaysStreak != 1 ? "s" : "") Streak
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
 
         @* Quick Start Card *@
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Style="min-height: 200px; height: 200px;">
-                <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="height: 100%;">
-                    @if (_hasActiveSession)
-                    {
-                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Success" Size="Size.Large" />
-                        <MudText Typo="Typo.h6" Class="my-2">Session Active</MudText>
-                        <MudButton Variant="Variant.Filled" 
-                                   Color="Color.Primary" 
-                                   OnClick="@(() => Navigation.NavigateTo("/session"))">
-                            Continue Workout
-                        </MudButton>
-                    }
-                    else
-                    {
-                        <MudIcon Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Primary" Size="Size.Large" />
-                        <MudText Typo="Typo.h6" Class="my-2">Ready to Train?</MudText>
-                        <MudButton Variant="Variant.Filled" 
-                                   Color="Color.Primary" 
-                                   OnClick="@(() => Navigation.NavigateTo("/session"))">
-                            Start Workout
-                        </MudButton>
-                    }
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+        @if (SettingsService.ShowQuickStartCard)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Style="min-height: 200px; height: 200px;">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="height: 100%;">
+                        @if (_hasActiveSession)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Success" Size="Size.Large" />
+                            <MudText Typo="Typo.h6" Class="my-2">Session Active</MudText>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => Navigation.NavigateTo("/session"))">
+                                Continue Workout
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Primary" Size="Size.Large" />
+                            <MudText Typo="Typo.h6" Class="my-2">Ready to Train?</MudText>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => Navigation.NavigateTo("/session"))">
+                                Start Workout
+                            </MudButton>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
 
         @* Total Sessions Card *@
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Style="min-height: 200px; height: 200px;">
-                <MudCardContent Class="d-flex flex-column align-center pa-6">
-                    <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Color="Color.Info" Size="Size.Large" />
-                    <MudText Typo="Typo.h2" Class="my-2">@_stats!.RecentSessions.Count</MudText>
-                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Recent Sessions</MudText>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+        @if (SettingsService.ShowTotalSessionsCard)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Style="min-height: 200px; height: 200px;">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Color="Color.Info" Size="Size.Large" />
+                        <MudText Typo="Typo.h2" Class="my-2">@_stats!.RecentSessions.Count</MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Recent Sessions</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
 
         @* Daily Volume Chart (Last 3 Months) *@
-        <MudItem xs="12" md="8">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Daily Training Volume - Last 3 Months (@SettingsService.GetUnitAbbreviation())</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    @if (_chartLabels.Length > 0)
-                    {
-                        <MudChart ChartType="ChartType.Bar" 
-                                  ChartSeries="_chartSeries" 
-                                  XAxisLabels="_chartLabels"
-                                  Width="100%"
-                                  Height="300px"
-                                  ChartOptions="_chartOptions" />
-                    }
-                    else
-                    {
-                        <MudText Color="Color.Secondary" Class="text-center pa-8">
-                            No workout data yet. Complete some sessions to see your progress!
-                        </MudText>
-                    }
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+        @if (SettingsService.ShowVolumeChart)
+        {
+            <MudItem xs="12" md="8">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Daily Training Volume - Last 3 Months (@SettingsService.GetUnitAbbreviation())</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (_chartLabels.Length > 0)
+                        {
+                            <MudChart ChartType="ChartType.Bar"
+                                      ChartSeries="_chartSeries"
+                                      XAxisLabels="_chartLabels"
+                                      Width="100%"
+                                      Height="300px"
+                                      ChartOptions="_chartOptions" />
+                        }
+                        else
+                        {
+                            <MudText Color="Color.Secondary" Class="text-center pa-8">
+                                No workout data yet. Complete some sessions to see your progress!
+                            </MudText>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
 
         @* Recent Sessions *@
-        <MudItem xs="12" md="4">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Recent Activity</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent Style="max-height: 340px; overflow-y: auto;">
-                    @if (_stats!.RecentSessions.Count > 0)
-                    {
-                        <MudList T="WorkoutSession" Dense="true">
-                            @foreach (var session in _stats.RecentSessions)
-                            {
-                                <MudListItem Icon="@Icons.Material.Filled.FitnessCenter">
-                                    <div class="d-flex flex-column">
-                                        <MudText Typo="Typo.body2">@session.RoutineDay?.Name</MudText>
-                                        <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                            @session.StartTime.ToLocalTime().ToString("ddd, MMM d") - 
-                                            @FormatDuration(session.Duration)
-                                        </MudText>
-                                    </div>
-                                </MudListItem>
-                            }
-                        </MudList>
-                    }
-                    else
-                    {
-                        <MudText Color="Color.Secondary" Class="text-center pa-4">
-                            No sessions yet
-                        </MudText>
-                    }
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+        @if (SettingsService.ShowRecentActivity)
+        {
+            <MudItem xs="12" md="4">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Recent Activity</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Style="max-height: 340px; overflow-y: auto;">
+                        @if (_stats!.RecentSessions.Count > 0)
+                        {
+                            <MudList T="WorkoutSession" Dense="true">
+                                @foreach (var session in _stats.RecentSessions)
+                                {
+                                    <MudListItem Icon="@Icons.Material.Filled.FitnessCenter">
+                                        <div class="d-flex flex-column">
+                                            <MudText Typo="Typo.body2">@session.RoutineDay?.Name</MudText>
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                @session.StartTime.ToLocalTime().ToString("ddd, MMM d") -
+                                                @FormatDuration(session.Duration)
+                                            </MudText>
+                                        </div>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        }
+                        else
+                        {
+                            <MudText Color="Color.Secondary" Class="text-center pa-4">
+                                No sessions yet
+                            </MudText>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
     </MudGrid>
 }
 
@@ -150,14 +172,15 @@ else
     protected override async Task OnInitializedAsync()
     {
         SettingsService.WeightUnitChanged += OnWeightUnitChanged;
-        
+        SettingsService.DashboardVisibilityChanged += OnDashboardVisibilityChanged;
+
         _loading = true;
-        
+
         _hasActiveSession = await WorkoutService.HasActiveSessionAsync();
         _stats = await WorkoutService.GetDashboardStatsAsync();
-        
+
         PrepareChartData();
-        
+
         _loading = false;
     }
 
@@ -165,6 +188,16 @@ else
     {
         PrepareChartData();
         InvokeAsync(StateHasChanged);
+    }
+
+    private void OnDashboardVisibilityChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OpenDashboardSettings()
+    {
+        await DialogService.ShowAsync<DashboardSettingsDialog>("Dashboard Settings");
     }
 
     private void PrepareChartData()
@@ -230,5 +263,6 @@ else
     public void Dispose()
     {
         SettingsService.WeightUnitChanged -= OnWeightUnitChanged;
+        SettingsService.DashboardVisibilityChanged -= OnDashboardVisibilityChanged;
     }
 }

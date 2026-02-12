@@ -1,0 +1,50 @@
+@* DashboardSettingsDialog.razor - Dialog for configuring dashboard metrics visibility *@
+@inject SettingsService SettingsService
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="mr-2" />
+            Dashboard Settings
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+            Choose which metrics to display on your dashboard
+        </MudText>
+
+        <MudStack Spacing="2">
+            <MudSwitch @bind-Value="SettingsService.ShowStreakCard"
+                      Color="Color.Primary"
+                      Label="Consecutive Days Streak" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowQuickStartCard"
+                      Color="Color.Primary"
+                      Label="Quick Start / Session Status" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowTotalSessionsCard"
+                      Color="Color.Primary"
+                      Label="Total Recent Sessions" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowVolumeChart"
+                      Color="Color.Primary"
+                      Label="Daily Training Volume Chart" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowRecentActivity"
+                      Color="Color.Primary"
+                      Label="Recent Activity List" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close" Variant="Variant.Filled" Color="Color.Primary">
+            Done
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private void Close() => MudDialog.Close();
+}

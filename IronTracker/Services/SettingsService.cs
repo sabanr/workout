@@ -9,6 +9,10 @@ public class SettingsService
 {
     private const string WeightUnitKey = "WeightUnit";
     private const string IsDarkModeKey = "IsDarkMode";
+    private const string WindowWidthKey = "WindowWidth";
+    private const string WindowHeightKey = "WindowHeight";
+    private const string WindowXKey = "WindowX";
+    private const string WindowYKey = "WindowY";
 
     /// <summary>
     /// Event that fires when the weight unit preference changes.
@@ -46,6 +50,46 @@ public class SettingsService
     {
         get => Preferences.Get(IsDarkModeKey, true);
         set => Preferences.Set(IsDarkModeKey, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the window width.
+    /// Defaults to 1200 if not set.
+    /// </summary>
+    public double WindowWidth
+    {
+        get => Preferences.Get(WindowWidthKey, 1200.0);
+        set => Preferences.Set(WindowWidthKey, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the window height.
+    /// Defaults to 800 if not set.
+    /// </summary>
+    public double WindowHeight
+    {
+        get => Preferences.Get(WindowHeightKey, 800.0);
+        set => Preferences.Set(WindowHeightKey, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the window X position.
+    /// Returns -1 if not set (indicates no saved position).
+    /// </summary>
+    public double WindowX
+    {
+        get => Preferences.Get(WindowXKey, -1.0);
+        set => Preferences.Set(WindowXKey, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the window Y position.
+    /// Returns -1 if not set (indicates no saved position).
+    /// </summary>
+    public double WindowY
+    {
+        get => Preferences.Get(WindowYKey, -1.0);
+        set => Preferences.Set(WindowYKey, value);
     }
 
     /// <summary>

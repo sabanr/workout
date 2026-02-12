@@ -5,6 +5,7 @@ namespace IronTracker;
 public partial class App : Application
 {
 	private SettingsService? _settingsService;
+	private System.Timers.Timer? _saveWindowSizeTimer;
 
 	public App()
 	{
@@ -31,8 +32,10 @@ public partial class App : Application
 				window.Y = _settingsService.WindowY;
 			}
 
-			// Save window size and position when they change
-			window.SizeChanged += (sender, e) =>
+			// Initialize debounce timer for size changes (500ms delay)
+			_saveWindowSizeTimer = new System.Timers.Timer(500);
+			_saveWindowSizeTimer.AutoReset = false;
+			_saveWindowSizeTimer.Elapsed += (sender, e) =>
 			{
 				if (_settingsService != null && window.Width > 0 && window.Height > 0)
 				{
@@ -41,15 +44,37 @@ public partial class App : Application
 				}
 			};
 
+			// Save window size with debouncing when it changes
+			window.SizeChanged += (sender, e) =>
+			{
+				// Reset timer on each size change to debounce rapid resizing
+				_saveWindowSizeTimer?.Stop();
+				_saveWindowSizeTimer?.Start();
+			};
+
 			// Track window position changes
 			window.Destroying += (sender, e) =>
 			{
+				// Ensure any pending size save completes
+				if (_saveWindowSizeTimer?.Enabled == true)
+				{
+					_saveWindowSizeTimer.Stop();
+					if (_settingsService != null && window.Width > 0 && window.Height > 0)
+					{
+						_settingsService.WindowWidth = window.Width;
+						_settingsService.WindowHeight = window.Height;
+					}
+				}
+
 				// Save position when window is closing
 				if (_settingsService != null && window.X >= 0 && window.Y >= 0)
 				{
 					_settingsService.WindowX = window.X;
 					_settingsService.WindowY = window.Y;
 				}
+
+				// Cleanup
+				_saveWindowSizeTimer?.Dispose();
 			};
 		}
 

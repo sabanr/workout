@@ -94,6 +94,16 @@ h1:focus {
     transform: translateY(-2px);
 }
 
+/* Completed set row styling - subtle opacity fade */
+.completed-set {
+    opacity: 0.6;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.completed-set:hover {
+    opacity: 0.8;
+}
+
 /* Mobile optimizations */
 @media (max-width: 600px) {
     .mud-expansion-panel-content {

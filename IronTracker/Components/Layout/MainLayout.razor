@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @inject SettingsService SettingsService
+@inject NavigationManager NavigationManager
 @inject IStringLocalizer<AppResources> L
 @implements IDisposable
 
@@ -19,7 +20,11 @@
                    Class="mr-2"
                    Style="min-width: 48px;"
                    Title="@L["ToggleLanguage"]">
-            @GetLanguageFlag()
+            <MudImage Src="@GetLanguageFlagIconPath()"
+                      Alt="@L["ToggleLanguage"]"
+                      Width="24"
+                      Height="24"
+                      ObjectFit="ObjectFit.Contain" />
         </MudButton>
         <MudButton Variant="Variant.Text"
                    Color="Color.Inherit"
@@ -95,6 +100,7 @@
     private void ToggleLanguage()
     {
         SettingsService.ToggleLanguage();
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
     }
 
     private void OnLanguageChanged()
@@ -107,9 +113,11 @@
         return SettingsService.WeightUnit == Models.WeightUnit.Lbs ? "lbs" : "kg";
     }
 
-    private string GetLanguageFlag()
+    private string GetLanguageFlagIconPath()
     {
-        return string.Equals(SettingsService.LanguageCode, SettingsService.SpanishArgentinaLanguageCode, StringComparison.OrdinalIgnoreCase) ? "🇦🇷" : "🇺🇸";
+        return string.Equals(SettingsService.LanguageCode, SettingsService.SpanishArgentinaLanguageCode, StringComparison.OrdinalIgnoreCase)
+            ? "/images/flag-ar.svg"
+            : "/images/flag-us.svg";
     }
 
     private string GetAppVersion()

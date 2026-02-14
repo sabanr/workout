@@ -21,7 +21,7 @@
     <MudStack Row="true" Spacing="2" Class="mt-2">
         @if (!_isRunning)
         {
-                <MudButton Variant="Variant.Filled" 
+            <MudButton Variant="Variant.Filled" 
                        Color="Color.Primary" 
                        StartIcon="@Icons.Material.Filled.PlayArrow"
                        OnClick="Start">
@@ -30,7 +30,7 @@
         }
         else
         {
-                <MudButton Variant="Variant.Outlined" 
+            <MudButton Variant="Variant.Outlined" 
                        Color="Color.Warning" 
                        StartIcon="@Icons.Material.Filled.SkipNext"
                        OnClick="Skip">

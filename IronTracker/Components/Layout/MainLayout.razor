@@ -109,7 +109,7 @@
 
     private string GetLanguageFlag()
     {
-        return string.Equals(SettingsService.LanguageCode, "es-AR", StringComparison.OrdinalIgnoreCase) ? "🇦🇷" : "🇺🇸";
+        return string.Equals(SettingsService.LanguageCode, SettingsService.SpanishArgentinaLanguageCode, StringComparison.OrdinalIgnoreCase) ? "🇦🇷" : "🇺🇸";
     }
 
     private string GetAppVersion()

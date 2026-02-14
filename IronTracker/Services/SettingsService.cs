@@ -8,6 +8,9 @@ namespace IronTracker.Services;
 /// </summary>
 public class SettingsService
 {
+    public const string EnglishLanguageCode = "en-US";
+    public const string SpanishArgentinaLanguageCode = "es-AR";
+
     private const string WeightUnitKey = "WeightUnit";
     private const string IsDarkModeKey = "IsDarkMode";
     private const string WindowWidthKey = "WindowWidth";
@@ -175,7 +178,7 @@ public class SettingsService
     /// </summary>
     public string LanguageCode
     {
-        get => Preferences.Get(LanguageCodeKey, "en-US");
+        get => Preferences.Get(LanguageCodeKey, EnglishLanguageCode);
         set
         {
             var currentValue = LanguageCode;
@@ -209,7 +212,9 @@ public class SettingsService
     /// </summary>
     public void ToggleLanguage()
     {
-        LanguageCode = string.Equals(LanguageCode, "es-AR", StringComparison.OrdinalIgnoreCase) ? "en-US" : "es-AR";
+        LanguageCode = string.Equals(LanguageCode, SpanishArgentinaLanguageCode, StringComparison.OrdinalIgnoreCase)
+            ? EnglishLanguageCode
+            : SpanishArgentinaLanguageCode;
     }
 
     private static void ApplyCulture(string languageCode)

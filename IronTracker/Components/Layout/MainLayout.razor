@@ -88,6 +88,8 @@
 
     private string GetAppVersion()
     {
-        return AppInfo.VersionString;
+        // Use assembly version for more reliable cross-platform versioning
+        var version = typeof(MainLayout).Assembly.GetName().Version;
+        return version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : AppInfo.VersionString;
     }
 }

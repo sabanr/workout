@@ -28,6 +28,9 @@
         <!-- Versions -->
         <ApplicationDisplayVersion>1.5.1</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
+        <AssemblyVersion>1.5.1.0</AssemblyVersion>
+        <FileVersion>1.5.1.0</FileVersion>
+        <Version>1.5.1</Version>
 
         <!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
         <WindowsPackageType>None</WindowsPackageType>

@@ -3,8 +3,9 @@
 @using IronTracker.Components
 @inject WorkoutService WorkoutService
 @inject NavigationManager Navigation
+@inject IStringLocalizer<AppResources> L
 
-<PageTitle>Active Session - IronTracker</PageTitle>
+<PageTitle>@L["ActiveSession"] - IronTracker</PageTitle>
 
 @if (_loading)
 {
@@ -13,12 +14,12 @@
 else if (_session == null && _routineDay == null)
 {
     @* No active session - show routine selection *@
-    <MudText Typo="Typo.h4" Class="mb-4">Start a Workout</MudText>
+    <MudText Typo="Typo.h4" Class="mb-4">@L["StartAWorkout"]</MudText>
     
     @if (_routines == null || _routines.Count == 0)
     {
         <MudAlert Severity="Severity.Info">
-            No routines found. Create a routine first.
+            @L["NoRoutinesCreateFirst"]
         </MudAlert>
     }
     else
@@ -65,14 +66,14 @@ else
                 <div>
                     <MudText Typo="Typo.h5">@_routineDay?.Name</MudText>
                     <MudText Typo="Typo.caption" Color="Color.Secondary">
-                        Started: @_session?.StartTime.ToLocalTime().ToString("HH:mm")
+                        @L["StartedAt", _session?.StartTime.ToLocalTime().ToString("HH:mm")]
                     </MudText>
                 </div>
                 <MudButton Variant="Variant.Filled" 
                            Color="Color.Error" 
                            StartIcon="@Icons.Material.Filled.Stop"
                            OnClick="EndSessionAsync">
-                    End Session
+                    @L["EndSession"]
                 </MudButton>
             </MudPaper>
         </MudItem>
@@ -82,7 +83,7 @@ else
             @* Desktop Layout *@
             <MudItem md="4" lg="3">
                 <MudPaper Class="pa-3" Elevation="1" Style="position: sticky; top: 80px;">
-                    <MudText Typo="Typo.subtitle1" Class="mb-2">Exercises</MudText>
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">@L["Exercises"]</MudText>
                     <MudNavMenu>
                         @if (_exercises != null)
                         {
@@ -114,7 +115,7 @@ else
                 else
                 {
                     <MudAlert Severity="Severity.Info">
-                        Select an exercise to start tracking sets.
+                        @L["SelectExerciseToStart"]
                     </MudAlert>
                 }
             </MudItem>

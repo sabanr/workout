@@ -3,17 +3,18 @@
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
 @inject SettingsService SettingsService
+@inject IStringLocalizer<AppResources> L
 @implements IDisposable
 
-<PageTitle>Routines - IronTracker</PageTitle>
+<PageTitle>@L["Routines"] - IronTracker</PageTitle>
 
 <div class="d-flex justify-space-between align-center mb-4">
-    <MudText Typo="Typo.h4">My Routines</MudText>
+    <MudText Typo="Typo.h4">@L["MyRoutines"]</MudText>
     <MudButton Variant="Variant.Filled" 
                Color="Color.Primary" 
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="OpenCreateRoutineDialog">
-        New Routine
+        @L["NewRoutine"]
     </MudButton>
 </div>
 
@@ -24,7 +25,7 @@
 else if (_routines == null || _routines.Count == 0)
 {
     <MudAlert Severity="Severity.Info">
-        No routines found. Click "New Routine" to create your first workout routine.
+        @L["NoRoutinesFound"]
     </MudAlert>
 }
 else
@@ -55,13 +56,13 @@ else
                     <MudCardContent>
                         <div class="d-flex justify-space-between align-center mb-2">
                             <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                                @routine.Days.Count day@(routine.Days.Count != 1 ? "s" : "")
+                                @L["DaysCount", routine.Days.Count]
                             </MudText>
                             <MudButton Variant="Variant.Text" 
                                       Size="Size.Small"
                                       StartIcon="@Icons.Material.Filled.Add"
                                       OnClick="@(() => OpenAddDayDialog(routine))">
-                                Add Day
+                                @L["AddDay"]
                             </MudButton>
                         </div>
                         
@@ -75,7 +76,7 @@ else
                                             <MudText Typo="Typo.subtitle1">@day.Name</MudText>
                                             <MudSpacer />
                                             <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">
-                                                @day.Exercises.Count exercises
+                                                @L["ExercisesCount", day.Exercises.Count]
                                             </MudChip>
                                             <MudIconButton Icon="@Icons.Material.Filled.Edit" 
                                                           Size="Size.Small"
@@ -93,17 +94,17 @@ else
                                         {
                                             <MudTable Items="@exercises" Dense="true" Hover="true" Elevation="0">
                                                 <HeaderContent>
-                                                    <MudTh>Exercise</MudTh>
-                                                    <MudTh>Sets x Reps</MudTh>
-                                                    <MudTh>Weights (@SettingsService.GetUnitAbbreviation())</MudTh>
-                                                    <MudTh Style="width: 100px;">Actions</MudTh>
+                                                    <MudTh>@L["Exercise"]</MudTh>
+                                                    <MudTh>@L["SetsXReps"]</MudTh>
+                                                    <MudTh>@L["Weights"] (@SettingsService.GetUnitAbbreviation())</MudTh>
+                                                    <MudTh Style="width: 100px;">@L["Actions"]</MudTh>
                                                 </HeaderContent>
                                                 <RowTemplate>
-                                                    <MudTd DataLabel="Exercise">@context.Name</MudTd>
-                                                    <MudTd DataLabel="Sets x Reps">
+                                                    <MudTd DataLabel="@L["Exercise"]">@context.Name</MudTd>
+                                                    <MudTd DataLabel="@L["SetsXReps"]">
                                                         <MudText Typo="Typo.body2">@FormatTargetConfig(context.TargetConfig)</MudText>
                                                     </MudTd>
-                                                    <MudTd DataLabel="Weights">
+                                                    <MudTd DataLabel="@L["Weights"]">
                                                         <MudText Typo="Typo.body2" Color="@(string.IsNullOrWhiteSpace(context.TargetWeights) ? Color.Secondary : Color.Default)">
                                                             @FormatTargetWeights(context.TargetWeights)
                                                         </MudText>
@@ -125,13 +126,13 @@ else
                                                           Size="Size.Small"
                                                           StartIcon="@Icons.Material.Filled.Add"
                                                           OnClick="@(() => OpenAddExerciseDialog(day))">
-                                                    Add Exercise
+                                                    @L["AddExercise"]
                                                 </MudButton>
                                                 <MudButton Variant="Variant.Filled" 
                                                            Color="Color.Primary"
                                                            StartIcon="@Icons.Material.Filled.PlayArrow"
                                                            OnClick="@(() => StartSession(day.Id))">
-                                                    Start This Day
+                                                    @L["StartThisDay"]
                                                 </MudButton>
                                             </div>
                                         }
@@ -198,17 +199,17 @@ else
         if (parts.Length == 0)
             return targetConfig;
 
-        return $"{parts.Length} sets: {string.Join(", ", parts)} reps";
+        return L["SetsRepsFormat", parts.Length, string.Join(", ", parts)];
     }
 
     private string FormatTargetWeights(string? targetWeights)
     {
         if (string.IsNullOrWhiteSpace(targetWeights))
-            return "Not set";
+            return L["NotSet"];
 
         var parts = targetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
-            return "Not set";
+            return L["NotSet"];
 
         // Convert each weight to display unit
         var convertedParts = parts.Select(p =>
@@ -237,7 +238,7 @@ else
             { x => x.IsNew, true }
         };
         
-        var dialog = await DialogService.ShowAsync<RoutineDialog>("New Routine", parameters);
+        var dialog = await DialogService.ShowAsync<RoutineDialog>(L["NewRoutine"].Value, parameters);
         var result = await dialog.Result;
         
         if (result != null && !result.Canceled && result.Data is Routine routine)
@@ -255,7 +256,7 @@ else
             { x => x.IsNew, false }
         };
         
-        var dialog = await DialogService.ShowAsync<RoutineDialog>("Edit Routine", parameters);
+        var dialog = await DialogService.ShowAsync<RoutineDialog>(L["EditRoutine"].Value, parameters);
         var result = await dialog.Result;
         
         if (result != null && !result.Canceled && result.Data is Routine updated)
@@ -270,9 +271,9 @@ else
     private async Task DeleteRoutineAsync(Routine routine)
     {
         var confirm = await DialogService.ShowMessageBox(
-            "Delete Routine",
-            $"Are you sure you want to delete '{routine.Name}'? This will also delete all days and exercises.",
-            yesText: "Delete", cancelText: "Cancel");
+            L["DeleteRoutineTitle"],
+            L["DeleteRoutineConfirmation", routine.Name],
+            yesText: L["Delete"], cancelText: L["Cancel"]);
         
         if (confirm == true)
         {
@@ -296,7 +297,7 @@ else
             { x => x.IsNew, true }
         };
         
-        var dialog = await DialogService.ShowAsync<DayDialog>("Add Day", parameters);
+        var dialog = await DialogService.ShowAsync<DayDialog>(L["AddDay"].Value, parameters);
         var result = await dialog.Result;
         
         if (result != null && !result.Canceled && result.Data is RoutineDay day)
@@ -314,7 +315,7 @@ else
             { x => x.IsNew, false }
         };
         
-        var dialog = await DialogService.ShowAsync<DayDialog>("Edit Day", parameters);
+        var dialog = await DialogService.ShowAsync<DayDialog>(L["EditDay"].Value, parameters);
         var result = await dialog.Result;
         
         if (result != null && !result.Canceled && result.Data is RoutineDay updated)
@@ -329,9 +330,9 @@ else
     private async Task DeleteDayAsync(RoutineDay day)
     {
         var confirm = await DialogService.ShowMessageBox(
-            "Delete Day",
-            $"Are you sure you want to delete '{day.Name}'? This will also delete all exercises.",
-            yesText: "Delete", cancelText: "Cancel");
+            L["DeleteDayTitle"],
+            L["DeleteDayConfirmation", day.Name],
+            yesText: L["Delete"], cancelText: L["Cancel"]);
         
         if (confirm == true)
         {
@@ -357,7 +358,7 @@ else
             { x => x.IsNew, true }
         };
         
-        var dialog = await DialogService.ShowAsync<ExerciseDialog>("Add Exercise", parameters);
+        var dialog = await DialogService.ShowAsync<ExerciseDialog>(L["AddExercise"].Value, parameters);
         var result = await dialog.Result;
         
         if (result != null && !result.Canceled && result.Data is ExerciseTemplate exercise)
@@ -384,7 +385,7 @@ else
             { x => x.IsNew, false }
         };
         
-        var dialog = await DialogService.ShowAsync<ExerciseDialog>("Edit Exercise", parameters);
+        var dialog = await DialogService.ShowAsync<ExerciseDialog>(L["EditExercise"].Value, parameters);
         var result = await dialog.Result;
         
         if (result != null && !result.Canceled && result.Data is ExerciseTemplate updated)
@@ -401,9 +402,9 @@ else
     private async Task DeleteExerciseAsync(ExerciseTemplate exercise)
     {
         var confirm = await DialogService.ShowMessageBox(
-            "Delete Exercise",
-            $"Are you sure you want to delete '{exercise.Name}'?",
-            yesText: "Delete", cancelText: "Cancel");
+            L["DeleteExerciseTitle"],
+            L["DeleteExerciseConfirmation", exercise.Name],
+            yesText: L["Delete"], cancelText: L["Cancel"]);
         
         if (confirm == true)
         {

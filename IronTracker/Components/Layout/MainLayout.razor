@@ -1,5 +1,7 @@
 @inherits LayoutComponentBase
 @inject SettingsService SettingsService
+@inject IStringLocalizer<AppResources> L
+@implements IDisposable
 
 <MudThemeProvider @ref="_themeProvider" @bind-IsDarkMode="@_isDarkMode" />
 <MudPopoverProvider />
@@ -13,6 +15,18 @@
         <MudSpacer />
         <MudButton Variant="Variant.Text"
                    Color="Color.Inherit"
+                   OnClick="@ToggleLanguage"
+                   Class="mr-2"
+                   Style="min-width: 48px;"
+                   Title="@L["ToggleLanguage"]">
+            <MudImage Src="@GetLanguageFlagIconPath()"
+                      Alt="@L["ToggleLanguage"]"
+                      Width="24"
+                      Height="24"
+                      ObjectFit="ObjectFit.Contain" />
+        </MudButton>
+        <MudButton Variant="Variant.Text"
+                   Color="Color.Inherit"
                    OnClick="@ToggleWeightUnit"
                    Class="mr-2"
                    Style="min-width: 48px;">
@@ -21,20 +35,22 @@
         <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
                        Color="Color.Inherit"
                        OnClick="@ToggleDarkMode"
-                       aria-label="@(_isDarkMode ? "Light Mode" : "Dark Mode")" />
+                       aria-label="@(_isDarkMode ? L["LightMode"] : L["DarkMode"])" />
         <MudText Typo="Typo.caption" Color="Color.Inherit" Class="ml-3">@($"v{GetAppVersion()}")</MudText>
     </MudAppBar>
     
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Variant="@DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Menu</MudText>
+            <MudText Typo="Typo.h6">@L["Menu"]</MudText>
         </MudDrawerHeader>
-        <NavMenu />
+        <NavMenu @key="_languageRenderKey" />
     </MudDrawer>
     
     <MudMainContent Class="pt-16 px-4">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-4">
-            @Body
+            <div @key="_languageRenderKey">
+                @Body
+            </div>
         </MudContainer>
     </MudMainContent>
 </MudLayout>
@@ -42,12 +58,14 @@
 @code {
     private bool _drawerOpen = true;
     private bool _isDarkMode;
+    private int _languageRenderKey;
     private MudThemeProvider _themeProvider = null!;
 
     protected override void OnInitialized()
     {
         // Load saved dark mode preference, or default to system preference
         _isDarkMode = SettingsService.IsDarkMode;
+        SettingsService.LanguageChanged += OnLanguageChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -81,9 +99,27 @@
         StateHasChanged();
     }
 
+    private void ToggleLanguage()
+    {
+        SettingsService.ToggleLanguage();
+    }
+
+    private void OnLanguageChanged()
+    {
+        _languageRenderKey++;
+        InvokeAsync(StateHasChanged);
+    }
+
     private string GetWeightUnitLabel()
     {
         return SettingsService.WeightUnit == Models.WeightUnit.Lbs ? "lbs" : "kg";
+    }
+
+    private string GetLanguageFlagIconPath()
+    {
+        return string.Equals(SettingsService.LanguageCode, SettingsService.SpanishArgentinaLanguageCode, StringComparison.OrdinalIgnoreCase)
+            ? "/images/flag-ar.svg"
+            : "/images/flag-us.svg";
     }
 
     private string GetAppVersion()
@@ -91,5 +127,10 @@
         // Use assembly version for more reliable cross-platform versioning
         var version = typeof(MainLayout).Assembly.GetName().Version;
         return version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : AppInfo.VersionString;
+    }
+
+    public void Dispose()
+    {
+        SettingsService.LanguageChanged -= OnLanguageChanged;
     }
 }

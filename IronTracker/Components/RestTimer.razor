@@ -1,4 +1,5 @@
 @* RestTimer.razor - Countdown timer for rest between sets *@
+@using System.Diagnostics
 @using Plugin.Maui.Audio
 
 <MudPaper Class="pa-4 d-flex flex-column align-center" Elevation="2">
@@ -68,6 +69,7 @@
     private bool _isRunning;
     private System.Threading.Timer? _timer;
     private IAudioPlayer? _audioPlayer;
+    private Stream? _audioStream;
 
     [Inject]
     private IAudioManager AudioManager { get; set; } = null!;
@@ -117,13 +119,19 @@
     {
         try
         {
-            using var stream = await FileSystem.OpenAppPackageFileAsync("mysound.mp3");
-            _audioPlayer = AudioManager.CreatePlayer(stream);
+            // Dispose previous audio player and stream if they exist
+            _audioPlayer?.Dispose();
+            _audioStream?.Dispose();
+
+            // Open the audio file and keep the stream alive during playback
+            _audioStream = await FileSystem.OpenAppPackageFileAsync("mysound.mp3");
+            _audioPlayer = AudioManager.CreatePlayer(_audioStream);
             _audioPlayer.Play();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Silently fail if sound cannot be played
+            Debug.WriteLine($"Error playing sound: {ex.Message}");
+            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
         }
     }
 
@@ -173,5 +181,6 @@
     {
         _timer?.Dispose();
         _audioPlayer?.Dispose();
+        _audioStream?.Dispose();
     }
 }

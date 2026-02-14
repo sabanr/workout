@@ -1,3 +1,5 @@
+@inject IStringLocalizer<AppResources> L
+
 <Router AppAssembly="typeof(MauiProgram).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
@@ -7,7 +9,7 @@
         <LayoutView Layout="typeof(Layout.MainLayout)">
             <MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
                 <MudAlert Severity="Severity.Warning">
-                    Page not found. <MudLink Href="/">Return to Dashboard</MudLink>
+                    @L["PageNotFound"] <MudLink Href="/">@L["ReturnToDashboard"]</MudLink>
                 </MudAlert>
             </MudContainer>
         </LayoutView>

@@ -1,33 +1,34 @@
 @* ExerciseDialog.razor - Dialog for creating/editing exercises *@
 @inject SettingsService SettingsService
+@inject IStringLocalizer<AppResources> L
 @implements IDisposable
 
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Class="mr-2" />
-            @(IsNew ? "Add Exercise" : "Edit Exercise")
+            @(IsNew ? L["AddExercise"] : L["EditExercise"])
         </MudText>
     </TitleContent>
     <DialogContent>
         <MudTextField @bind-Value="Exercise.Name" 
-                     Label="Exercise Name" 
+                     Label="@L["ExerciseName"]" 
                      Required="true"
-                     RequiredError="Name is required"
-                     Placeholder="e.g., Bench Press"
+                     RequiredError="@L["NameIsRequired"]"
+                     Placeholder="@L["ExerciseNamePlaceholder"]"
                      Class="mb-4" />
         <MudTextField @bind-Value="Exercise.TargetConfig" 
-                     Label="Target Reps (per set)" 
+                     Label="@L["TargetRepsPerSet"]" 
                      Required="true"
-                     RequiredError="Target config is required"
-                     Placeholder="e.g., 15-12-10-8"
-                     HelperText="Enter reps for each set separated by dashes"
+                     RequiredError="@L["TargetConfigRequired"]"
+                     Placeholder="@L["TargetConfigPlaceholder"]"
+                     HelperText="@L["EnterRepsSeparatedByDashes"]"
                      Class="mb-4" />
         <div class="d-flex align-center gap-2 mb-4">
             <MudTextField @bind-Value="_displayTargetWeights"
                          @bind-Value:after="OnWeightsChanged"
                          Label="@GetTargetWeightsLabel()"
-                         Placeholder="e.g., 20-25-30-35"
+                         Placeholder="@L["TargetWeightsPlaceholder"]"
                          HelperText="@GetWeightHelperText()"
                          Style="flex: 1" />
             @if (!string.IsNullOrWhiteSpace(_suggestedWeights))
@@ -35,16 +36,16 @@
                 <MudButton Variant="Variant.Outlined" 
                           Color="Color.Primary"
                           Size="Size.Small"
-                          OnClick="ApplySuggestedWeights"
-                          Style="margin-top: 8px;">
-                    Apply: @_suggestedWeights
+                           OnClick="ApplySuggestedWeights"
+                           Style="margin-top: 8px;">
+                    @L["Apply"]: @_suggestedWeights
                 </MudButton>
             }
         </div>
         <MudNumericField @bind-Value="Exercise.SortOrder" 
-                        Label="Order" 
+                        Label="@L["Order"]" 
                         Min="1"
-                        HelperText="Position in the day's exercise list" />
+                        HelperText="@L["PositionInDaysExerciseList"]" />
         
         @if (!string.IsNullOrWhiteSpace(Exercise.TargetConfig))
         {
@@ -54,12 +55,12 @@
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
         <MudButton Color="Color.Primary" 
                   Variant="Variant.Filled"
                   Disabled="@(!IsValid())"
                   OnClick="Submit">
-            @(IsNew ? "Add" : "Save")
+            @(IsNew ? L["Add"] : L["Save"])
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -195,13 +196,13 @@
     private string GetWeightHelperText()
     {
         if (!string.IsNullOrWhiteSpace(_suggestedWeights))
-            return $"Click 'Apply' to use suggested weights with {SettingsService.GetWeightIncrementText()}";
-        return "Enter weight for each set separated by dashes (optional)";
+            return L["ClickApplyForSuggestedWeights", SettingsService.GetWeightIncrementText()];
+        return L["EnterWeightSeparatedByDashesOptional"];
     }
 
     private string GetTargetWeightsLabel()
     {
-        return $"Target Weights ({SettingsService.GetUnitAbbreviation()} per set)";
+        return L["TargetWeightsPerSetLabel", SettingsService.GetUnitAbbreviation()];
     }
 
     private bool IsValid()
@@ -237,7 +238,7 @@
 
         var repParts = Exercise.TargetConfig.Split('-', StringSplitOptions.RemoveEmptyEntries);
         if (repParts.Length == 0 || !repParts.All(p => int.TryParse(p.Trim(), out _)))
-            return "Invalid format - use numbers separated by dashes";
+            return L["InvalidNumberFormat"];
 
         var weightParts = string.IsNullOrWhiteSpace(_displayTargetWeights)
             ? Array.Empty<string>()
@@ -249,12 +250,12 @@
         {
             var unit = SettingsService.GetUnitAbbreviation();
             var setDetails = repParts
-                .Select((r, i) => $"Set {i + 1}: {r} reps @ {weightParts[i]} {unit}")
+                .Select((r, i) => L["SetPreviewItem", i + 1, r, weightParts[i], unit].Value)
                 .ToArray();
-            return $"Preview: {string.Join(", ", setDetails)}";
+            return L["PreviewLabel", string.Join(", ", setDetails)];
         }
         
-        return $"Preview: {repParts.Length} set{(repParts.Length != 1 ? "s" : "")} targeting {string.Join(", ", repParts)} reps";
+        return L["PreviewSetsTargetingReps", repParts.Length, string.Join(", ", repParts)];
     }
 
     /// <summary>

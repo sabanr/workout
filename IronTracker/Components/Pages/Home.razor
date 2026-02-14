@@ -6,16 +6,17 @@
 @inject SettingsService SettingsService
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
+@inject IStringLocalizer<AppResources> L
 @implements IDisposable
 
-<PageTitle>Dashboard - IronTracker</PageTitle>
+<PageTitle>@L["Dashboard"] - IronTracker</PageTitle>
 
 <div class="d-flex justify-space-between align-center mb-4">
-    <MudText Typo="Typo.h4">Dashboard</MudText>
+    <MudText Typo="Typo.h4">@L["Dashboard"]</MudText>
     <MudIconButton Icon="@Icons.Material.Filled.Settings"
                    Size="Size.Medium"
                    OnClick="OpenDashboardSettings"
-                   Title="Dashboard Settings" />
+                   Title="@L["DashboardSettings"]" />
 </div>
 
 @if (_loading)
@@ -36,7 +37,7 @@ else
                                  Size="Size.Large" />
                         <MudText Typo="Typo.h2" Class="my-2">@_stats!.ConsecutiveDaysStreak</MudText>
                         <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
-                            Day@(_stats.ConsecutiveDaysStreak != 1 ? "s" : "") Streak
+                            @L["DaysStreakLabel"]
                         </MudText>
                     </MudCardContent>
                 </MudCard>
@@ -52,21 +53,21 @@ else
                         @if (_hasActiveSession)
                         {
                             <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Success" Size="Size.Large" />
-                            <MudText Typo="Typo.h6" Class="my-2">Session Active</MudText>
+                            <MudText Typo="Typo.h6" Class="my-2">@L["SessionActive"]</MudText>
                             <MudButton Variant="Variant.Filled"
                                        Color="Color.Primary"
                                        OnClick="@(() => Navigation.NavigateTo("/session"))">
-                                Continue Workout
+                                @L["ContinueWorkout"]
                             </MudButton>
                         }
                         else
                         {
                             <MudIcon Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Primary" Size="Size.Large" />
-                            <MudText Typo="Typo.h6" Class="my-2">Ready to Train?</MudText>
+                            <MudText Typo="Typo.h6" Class="my-2">@L["ReadyToTrain"]</MudText>
                             <MudButton Variant="Variant.Filled"
                                        Color="Color.Primary"
                                        OnClick="@(() => Navigation.NavigateTo("/session"))">
-                                Start Workout
+                                @L["StartWorkout"]
                             </MudButton>
                         }
                     </MudCardContent>
@@ -82,7 +83,7 @@ else
                     <MudCardContent Class="d-flex flex-column align-center pa-6">
                         <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Color="Color.Info" Size="Size.Large" />
                         <MudText Typo="Typo.h2" Class="my-2">@_stats!.RecentSessions.Count</MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Recent Sessions</MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@L["RecentSessions"]</MudText>
                     </MudCardContent>
                 </MudCard>
             </MudItem>
@@ -95,7 +96,7 @@ else
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">Daily Training Volume - Last 3 Months (@SettingsService.GetUnitAbbreviation())</MudText>
+                            <MudText Typo="Typo.h6">@L["DailyTrainingVolumeLast3Months", SettingsService.GetUnitAbbreviation()]</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
@@ -111,7 +112,7 @@ else
                         else
                         {
                             <MudText Color="Color.Secondary" Class="text-center pa-8">
-                                No workout data yet. Complete some sessions to see your progress!
+                                @L["NoWorkoutDataYet"]
                             </MudText>
                         }
                     </MudCardContent>
@@ -126,7 +127,7 @@ else
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">Recent Activity</MudText>
+                            <MudText Typo="Typo.h6">@L["RecentActivity"]</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent Style="max-height: 340px; overflow-y: auto;">
@@ -150,7 +151,7 @@ else
                         else
                         {
                             <MudText Color="Color.Secondary" Class="text-center pa-4">
-                                No sessions yet
+                                @L["NoSessionsYet"]
                             </MudText>
                         }
                     </MudCardContent>
@@ -197,7 +198,7 @@ else
 
     private async Task OpenDashboardSettings()
     {
-        await DialogService.ShowAsync<DashboardSettingsDialog>("Dashboard Settings");
+        await DialogService.ShowAsync<DashboardSettingsDialog>(L["DashboardSettings"].Value);
     }
 
     private void PrepareChartData()
@@ -243,7 +244,7 @@ else
         {
             new ChartSeries
             {
-                Name = "Volume",
+                Name = L["Volume"],
                 Data = values
             }
         };
@@ -252,7 +253,7 @@ else
     private string FormatDuration(TimeSpan? duration)
     {
         if (!duration.HasValue)
-            return "In progress";
+            return L["InProgress"];
         
         if (duration.Value.TotalHours >= 1)
             return $"{duration.Value.Hours}h {duration.Value.Minutes}m";

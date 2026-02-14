@@ -1,3 +1,4 @@
+@inject IStringLocalizer<AppResources> L
 @* DashboardSettingsDialog.razor - Dialog for configuring dashboard metrics visibility *@
 @inject SettingsService SettingsService
 
@@ -5,39 +6,39 @@
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="mr-2" />
-            Dashboard Settings
+            @L["DashboardSettings"]
         </MudText>
     </TitleContent>
     <DialogContent>
         <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
-            Choose which metrics to display on your dashboard
+            @L["DashboardSettingsDescription"]
         </MudText>
 
         <MudStack Spacing="2">
             <MudSwitch @bind-Value="SettingsService.ShowStreakCard"
                       Color="Color.Primary"
-                      Label="Consecutive Days Streak" />
+                      Label="@L["ConsecutiveDaysStreak"]" />
 
             <MudSwitch @bind-Value="SettingsService.ShowQuickStartCard"
                       Color="Color.Primary"
-                      Label="Quick Start / Session Status" />
+                      Label="@L["QuickStartSessionStatus"]" />
 
             <MudSwitch @bind-Value="SettingsService.ShowTotalSessionsCard"
                       Color="Color.Primary"
-                      Label="Total Recent Sessions" />
+                      Label="@L["TotalRecentSessions"]" />
 
             <MudSwitch @bind-Value="SettingsService.ShowVolumeChart"
                       Color="Color.Primary"
-                      Label="Daily Training Volume Chart" />
+                      Label="@L["DailyTrainingVolumeChart"]" />
 
             <MudSwitch @bind-Value="SettingsService.ShowRecentActivity"
                       Color="Color.Primary"
-                      Label="Recent Activity List" />
+                      Label="@L["RecentActivityList"]" />
         </MudStack>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Close" Variant="Variant.Filled" Color="Color.Primary">
-            Done
+            @L["Done"]
         </MudButton>
     </DialogActions>
 </MudDialog>

@@ -1,0 +1,348 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="ActiveSession" xml:space="preserve">
+    <value>Active Session</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="AddDay" xml:space="preserve">
+    <value>Add Day</value>
+  </data>
+  <data name="AddExercise" xml:space="preserve">
+    <value>Add Exercise</value>
+  </data>
+  <data name="AddThirtySeconds" xml:space="preserve">
+    <value>+30s</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="BestSet" xml:space="preserve">
+    <value>Best Set</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="ClickApplyForSuggestedWeights" xml:space="preserve">
+    <value>Click 'Apply' to use suggested weights with {0}</value>
+  </data>
+  <data name="ConsecutiveDaysStreak" xml:space="preserve">
+    <value>Consecutive Days Streak</value>
+  </data>
+  <data name="ContinueWorkout" xml:space="preserve">
+    <value>Continue Workout</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="CreateRoutine" xml:space="preserve">
+    <value>Create Routine</value>
+  </data>
+  <data name="DailyTrainingVolumeChart" xml:space="preserve">
+    <value>Daily Training Volume Chart</value>
+  </data>
+  <data name="DailyTrainingVolumeLast3Months" xml:space="preserve">
+    <value>Daily Training Volume - Last 3 Months ({0})</value>
+  </data>
+  <data name="DarkMode" xml:space="preserve">
+    <value>Dark Mode</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="DashboardSettings" xml:space="preserve">
+    <value>Dashboard Settings</value>
+  </data>
+  <data name="DashboardSettingsDescription" xml:space="preserve">
+    <value>Choose which metrics to display on your dashboard</value>
+  </data>
+  <data name="DateRange" xml:space="preserve">
+    <value>Date Range</value>
+  </data>
+  <data name="DayName" xml:space="preserve">
+    <value>Day Name</value>
+  </data>
+  <data name="DayNamePlaceholder" xml:space="preserve">
+    <value>e.g., Chest &amp; Triceps</value>
+  </data>
+  <data name="DaysCount" xml:space="preserve">
+    <value>{0} day(s)</value>
+  </data>
+  <data name="DaysPreset" xml:space="preserve">
+    <value>{0} Days</value>
+  </data>
+  <data name="DaysStreakLabel" xml:space="preserve">
+    <value>Day Streak</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteDayConfirmation" xml:space="preserve">
+    <value>Are you sure you want to delete '{0}'? This will also delete all exercises.</value>
+  </data>
+  <data name="DeleteDayTitle" xml:space="preserve">
+    <value>Delete Day</value>
+  </data>
+  <data name="DeleteExerciseConfirmation" xml:space="preserve">
+    <value>Are you sure you want to delete '{0}'?</value>
+  </data>
+  <data name="DeleteExerciseTitle" xml:space="preserve">
+    <value>Delete Exercise</value>
+  </data>
+  <data name="DeleteRoutineConfirmation" xml:space="preserve">
+    <value>Are you sure you want to delete '{0}'? This will also delete all days and exercises.</value>
+  </data>
+  <data name="DeleteRoutineTitle" xml:space="preserve">
+    <value>Delete Routine</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="EditDay" xml:space="preserve">
+    <value>Edit Day</value>
+  </data>
+  <data name="EditExercise" xml:space="preserve">
+    <value>Edit Exercise</value>
+  </data>
+  <data name="EditRoutine" xml:space="preserve">
+    <value>Edit Routine</value>
+  </data>
+  <data name="EndSession" xml:space="preserve">
+    <value>End Session</value>
+  </data>
+  <data name="EnterRepsSeparatedByDashes" xml:space="preserve">
+    <value>Enter reps for each set separated by dashes</value>
+  </data>
+  <data name="EnterWeightSeparatedByDashesOptional" xml:space="preserve">
+    <value>Enter weight for each set separated by dashes (optional)</value>
+  </data>
+  <data name="Exercise" xml:space="preserve">
+    <value>Exercise</value>
+  </data>
+  <data name="ExerciseCompleted" xml:space="preserve">
+    <value>Exercise completed!</value>
+  </data>
+  <data name="ExerciseName" xml:space="preserve">
+    <value>Exercise Name</value>
+  </data>
+  <data name="ExerciseNamePlaceholder" xml:space="preserve">
+    <value>e.g., Bench Press</value>
+  </data>
+  <data name="Exercises" xml:space="preserve">
+    <value>Exercises</value>
+  </data>
+  <data name="ExercisesCount" xml:space="preserve">
+    <value>{0} exercises</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="InProgress" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="InProgressTitleCase" xml:space="preserve">
+    <value>In Progress</value>
+  </data>
+  <data name="InvalidNumberFormat" xml:space="preserve">
+    <value>Invalid format - use numbers separated by dashes</value>
+  </data>
+  <data name="LastWeightHint" xml:space="preserve">
+    <value>Last: {0}</value>
+  </data>
+  <data name="LightMode" xml:space="preserve">
+    <value>Light Mode</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="MyRoutines" xml:space="preserve">
+    <value>My Routines</value>
+  </data>
+  <data name="NameIsRequired" xml:space="preserve">
+    <value>Name is required</value>
+  </data>
+  <data name="NewRoutine" xml:space="preserve">
+    <value>New Routine</value>
+  </data>
+  <data name="NoRoutinesCreateFirst" xml:space="preserve">
+    <value>No routines found. Create a routine first.</value>
+  </data>
+  <data name="NoRoutinesFound" xml:space="preserve">
+    <value>No routines found. Click "New Routine" to create your first workout routine.</value>
+  </data>
+  <data name="NoSessionsInDateRange" xml:space="preserve">
+    <value>No workout sessions found in the selected date range. Complete some workouts to see your history!</value>
+  </data>
+  <data name="NoSessionsYet" xml:space="preserve">
+    <value>No sessions yet</value>
+  </data>
+  <data name="NoWorkoutDataYet" xml:space="preserve">
+    <value>No workout data yet. Complete some sessions to see your progress!</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+  <data name="OptionalDescription" xml:space="preserve">
+    <value>Optional description</value>
+  </data>
+  <data name="Order" xml:space="preserve">
+    <value>Order</value>
+  </data>
+  <data name="PageNotFound" xml:space="preserve">
+    <value>Page not found.</value>
+  </data>
+  <data name="PositionInDaysExerciseList" xml:space="preserve">
+    <value>Position in the day's exercise list</value>
+  </data>
+  <data name="PositionInRoutine" xml:space="preserve">
+    <value>Position in the routine</value>
+  </data>
+  <data name="PreviewLabel" xml:space="preserve">
+    <value>Preview: {0}</value>
+  </data>
+  <data name="PreviewSetsTargetingReps" xml:space="preserve">
+    <value>Preview: {0} set(s) targeting {1} reps</value>
+  </data>
+  <data name="QuickStartSessionStatus" xml:space="preserve">
+    <value>Quick Start / Session Status</value>
+  </data>
+  <data name="ReadyToTrain" xml:space="preserve">
+    <value>Ready to Train?</value>
+  </data>
+  <data name="RecentActivity" xml:space="preserve">
+    <value>Recent Activity</value>
+  </data>
+  <data name="RecentActivityList" xml:space="preserve">
+    <value>Recent Activity List</value>
+  </data>
+  <data name="RecentSessions" xml:space="preserve">
+    <value>Recent Sessions</value>
+  </data>
+  <data name="Reps" xml:space="preserve">
+    <value>Reps</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="RestTimer" xml:space="preserve">
+    <value>Rest Timer</value>
+  </data>
+  <data name="ReturnToDashboard" xml:space="preserve">
+    <value>Return to Dashboard</value>
+  </data>
+  <data name="RoutineName" xml:space="preserve">
+    <value>Routine Name</value>
+  </data>
+  <data name="RoutineNamePlaceholder" xml:space="preserve">
+    <value>e.g., Push/Pull/Legs</value>
+  </data>
+  <data name="Routines" xml:space="preserve">
+    <value>Routines</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SelectExerciseToStart" xml:space="preserve">
+    <value>Select an exercise to start tracking sets.</value>
+  </data>
+  <data name="SessionActive" xml:space="preserve">
+    <value>Session Active</value>
+  </data>
+  <data name="SessionsFound" xml:space="preserve">
+    <value>{0} session(s) found</value>
+  </data>
+  <data name="Set" xml:space="preserve">
+    <value>Set</value>
+  </data>
+  <data name="SetPreviewItem" xml:space="preserve">
+    <value>Set {0}: {1} reps @ {2} {3}</value>
+  </data>
+  <data name="Sets" xml:space="preserve">
+    <value>Sets</value>
+  </data>
+  <data name="SetsRepsFormat" xml:space="preserve">
+    <value>{0} sets: {1} reps</value>
+  </data>
+  <data name="SetsXReps" xml:space="preserve">
+    <value>Sets x Reps</value>
+  </data>
+  <data name="Skip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="StartAWorkout" xml:space="preserve">
+    <value>Start a Workout</value>
+  </data>
+  <data name="StartThisDay" xml:space="preserve">
+    <value>Start This Day</value>
+  </data>
+  <data name="StartWorkout" xml:space="preserve">
+    <value>Start Workout</value>
+  </data>
+  <data name="StartedAt" xml:space="preserve">
+    <value>Started: {0}</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="TargetConfigPlaceholder" xml:space="preserve">
+    <value>e.g., 15-12-10-8</value>
+  </data>
+  <data name="TargetConfigRequired" xml:space="preserve">
+    <value>Target config is required</value>
+  </data>
+  <data name="TargetRepsPerSet" xml:space="preserve">
+    <value>Target Reps (per set)</value>
+  </data>
+  <data name="TargetWeightHint" xml:space="preserve">
+    <value>Target: {0}</value>
+  </data>
+  <data name="TargetWeightsPerSetLabel" xml:space="preserve">
+    <value>Target Weights ({0} per set)</value>
+  </data>
+  <data name="TargetWeightsPlaceholder" xml:space="preserve">
+    <value>e.g., 20-25-30-35</value>
+  </data>
+  <data name="ToggleLanguage" xml:space="preserve">
+    <value>Toggle language</value>
+  </data>
+  <data name="TotalRecentSessions" xml:space="preserve">
+    <value>Total Recent Sessions</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>View Details</value>
+  </data>
+  <data name="Volume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+  <data name="Weights" xml:space="preserve">
+    <value>Weights</value>
+  </data>
+  <data name="WorkoutHistory" xml:space="preserve">
+    <value>Workout History</value>
+  </data>
+</root>

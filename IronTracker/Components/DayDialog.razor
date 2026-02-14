@@ -1,31 +1,33 @@
+@inject IStringLocalizer<AppResources> L
+
 @* DayDialog.razor - Dialog for creating/editing routine days *@
 
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Today" Class="mr-2" />
-            @(IsNew ? "Add Day" : "Edit Day")
+            @(IsNew ? L["AddDay"] : L["EditDay"])
         </MudText>
     </TitleContent>
     <DialogContent>
         <MudTextField @bind-Value="Day.Name" 
-                     Label="Day Name" 
+                     Label="@L["DayName"]" 
                      Required="true"
-                     RequiredError="Name is required"
-                     Placeholder="e.g., Chest & Triceps"
+                     RequiredError="@L["NameIsRequired"]"
+                     Placeholder="@L["DayNamePlaceholder"]"
                      Class="mb-4" />
         <MudNumericField @bind-Value="Day.SortOrder" 
-                        Label="Order" 
+                        Label="@L["Order"]" 
                         Min="1"
-                        HelperText="Position in the routine" />
+                        HelperText="@L["PositionInRoutine"]" />
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
         <MudButton Color="Color.Primary" 
                   Variant="Variant.Filled"
                   Disabled="@(string.IsNullOrWhiteSpace(Day.Name))"
                   OnClick="Submit">
-            @(IsNew ? "Add" : "Save")
+            @(IsNew ? L["Add"] : L["Save"])
         </MudButton>
     </DialogActions>
 </MudDialog>

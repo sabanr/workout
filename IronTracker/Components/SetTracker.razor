@@ -1,21 +1,22 @@
 @* SetTracker.razor - Tracks sets for a single exercise *@
 @inject SettingsService SettingsService
+@inject IStringLocalizer<AppResources> L
 @implements IDisposable
 
 <MudPaper Class="pa-4" Elevation="1">
     <MudText Typo="Typo.h6" Class="mb-3">@Exercise.Name</MudText>
     <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-3">
-        Target: @Exercise.TargetConfig
+        @L["Target"]: @Exercise.TargetConfig
     </MudText>
     
     <MudSimpleTable Dense="true" Hover="true" Bordered="true">
         <thead>
             <tr>
-                <th style="width: 60px;">Set</th>
-                <th style="width: 80px;">Target</th>
-                <th>Reps</th>
-                <th>Weight (@SettingsService.GetUnitAbbreviation())</th>
-                <th style="width: 80px;">Done</th>
+                <th style="width: 60px;">@L["Set"]</th>
+                <th style="width: 80px;">@L["Target"]</th>
+                <th>@L["Reps"]</th>
+                <th>@L["Weight"] (@SettingsService.GetUnitAbbreviation())</th>
+                <th style="width: 80px;">@L["Done"]</th>
             </tr>
         </thead>
         <tbody>
@@ -74,7 +75,7 @@
     @if (CompletedSetsCount == _sets.Count && _sets.Count > 0)
     {
         <MudAlert Severity="Severity.Success" Class="mt-3" Dense="true">
-            Exercise completed!
+            @L["ExerciseCompleted"]
         </MudAlert>
     }
 </MudPaper>
@@ -193,14 +194,14 @@
         if (setIndex < _targetWeights.Length && _targetWeights[setIndex] > 0)
         {
             var targetDisplay = SettingsService.ConvertToDisplayUnit(_targetWeights[setIndex]);
-            return $"Target: {targetDisplay}";
+            return L["TargetWeightHint", targetDisplay];
         }
         
         // Fall back to last session weight
         if (LastWeights != null && LastWeights.TryGetValue(setNumber, out var lastWeight) && lastWeight > 0)
         {
             var lastDisplay = SettingsService.ConvertToDisplayUnit(lastWeight);
-            return $"Last: {lastDisplay}";
+            return L["LastWeightHint", lastDisplay];
         }
         
         return "";

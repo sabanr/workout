@@ -1,9 +1,10 @@
 @* RestTimer.razor - Countdown timer for rest between sets *@
 @using System.Diagnostics
 @using Plugin.Maui.Audio
+@inject IStringLocalizer<AppResources> L
 
 <MudPaper Class="pa-4 d-flex flex-column align-center" Elevation="2">
-    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Rest Timer</MudText>
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@L["RestTimer"]</MudText>
     
     <MudText Typo="Typo.h2" Class="my-4" Color="@GetTimerColor()">
         @TimeSpan.FromSeconds(_remainingSeconds).ToString(@"mm\:ss")
@@ -20,20 +21,20 @@
     <MudStack Row="true" Spacing="2" Class="mt-2">
         @if (!_isRunning)
         {
-            <MudButton Variant="Variant.Filled" 
+                <MudButton Variant="Variant.Filled" 
                        Color="Color.Primary" 
                        StartIcon="@Icons.Material.Filled.PlayArrow"
                        OnClick="Start">
-                Start
+                @L["Start"]
             </MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Outlined" 
+                <MudButton Variant="Variant.Outlined" 
                        Color="Color.Warning" 
                        StartIcon="@Icons.Material.Filled.SkipNext"
                        OnClick="Skip">
-                Skip
+                @L["Skip"]
             </MudButton>
         }
         
@@ -42,14 +43,14 @@
                    StartIcon="@Icons.Material.Filled.Add"
                    OnClick="AddTime"
                    Disabled="@(!_isRunning)">
-            +30s
+            @L["AddThirtySeconds"]
         </MudButton>
         
         <MudButton Variant="Variant.Outlined" 
                    Color="Color.Default" 
                    StartIcon="@Icons.Material.Filled.Refresh"
                    OnClick="Reset">
-            Reset
+            @L["Reset"]
         </MudButton>
     </MudStack>
 </MudPaper>

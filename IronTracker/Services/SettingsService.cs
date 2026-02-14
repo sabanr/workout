@@ -1,4 +1,5 @@
 using IronTracker.Models;
+using System.Globalization;
 
 namespace IronTracker.Services;
 
@@ -13,6 +14,7 @@ public class SettingsService
     private const string WindowHeightKey = "WindowHeight";
     private const string WindowXKey = "WindowX";
     private const string WindowYKey = "WindowY";
+    private const string LanguageCodeKey = "LanguageCode";
 
     /// <summary>
     /// Event that fires when the weight unit preference changes.
@@ -23,6 +25,11 @@ public class SettingsService
     /// Event that fires when any dashboard visibility setting changes.
     /// </summary>
     public event Action? DashboardVisibilityChanged;
+
+    /// <summary>
+    /// Event that fires when the language changes.
+    /// </summary>
+    public event Action? LanguageChanged;
 
     /// <summary>
     /// Gets or sets the current weight unit preference.
@@ -163,11 +170,55 @@ public class SettingsService
     }
 
     /// <summary>
+    /// Gets or sets the current UI language code.
+    /// Defaults to en-US if not set.
+    /// </summary>
+    public string LanguageCode
+    {
+        get => Preferences.Get(LanguageCodeKey, "en-US");
+        set
+        {
+            var currentValue = LanguageCode;
+            if (string.Equals(currentValue, value, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            Preferences.Set(LanguageCodeKey, value);
+            ApplyCulture(value);
+            LanguageChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Initializes the current UI culture from saved settings.
+    /// </summary>
+    public void InitializeCulture()
+    {
+        ApplyCulture(LanguageCode);
+    }
+
+    /// <summary>
     /// Toggles between Lbs and Kg weight units.
     /// </summary>
     public void ToggleWeightUnit()
     {
         WeightUnit = WeightUnit == WeightUnit.Lbs ? WeightUnit.Kg : WeightUnit.Lbs;
+    }
+
+    /// <summary>
+    /// Toggles between English and Spanish (Argentina).
+    /// </summary>
+    public void ToggleLanguage()
+    {
+        LanguageCode = string.Equals(LanguageCode, "es-AR", StringComparison.OrdinalIgnoreCase) ? "en-US" : "es-AR";
+    }
+
+    private static void ApplyCulture(string languageCode)
+    {
+        var culture = new CultureInfo(languageCode);
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
     }
 
     /// <summary>

@@ -21,6 +21,7 @@ public static class MauiProgram
             });
 
         builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddLocalization();
 
         // Add MudBlazor services
         builder.Services.AddMudServices();
@@ -46,6 +47,7 @@ public static class MauiProgram
 #endif
 
         var app = builder.Build();
+        app.Services.GetRequiredService<SettingsService>().InitializeCulture();
 
         // Initialize database and seed data
         InitializeDatabaseAsync(app.Services).GetAwaiter().GetResult();

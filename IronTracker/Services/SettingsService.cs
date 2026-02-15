@@ -30,11 +30,6 @@ public class SettingsService
     public event Action? DashboardVisibilityChanged;
 
     /// <summary>
-    /// Event that fires when the language changes.
-    /// </summary>
-    public event Action? LanguageChanged;
-
-    /// <summary>
     /// Gets or sets the current weight unit preference.
     /// Defaults to Lbs if not set.
     /// </summary>
@@ -187,7 +182,6 @@ public class SettingsService
 
             Preferences.Set(LanguageCodeKey, value);
             ApplyCulture(value);
-            LanguageChanged?.Invoke();
         }
     }
 

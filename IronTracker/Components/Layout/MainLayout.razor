@@ -1,7 +1,6 @@
 @inherits LayoutComponentBase
 @inject SettingsService SettingsService
 @inject IStringLocalizer<AppResources> L
-@implements IDisposable
 
 <MudThemeProvider @ref="_themeProvider" @bind-IsDarkMode="@_isDarkMode" />
 <MudPopoverProvider />
@@ -43,12 +42,12 @@
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">@L["Menu"]</MudText>
         </MudDrawerHeader>
-        <NavMenu @key="_languageRenderKey" />
+        <NavMenu />
     </MudDrawer>
     
     <MudMainContent Class="pt-16 px-4">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-4">
-            <div @key="_languageRenderKey">
+            <div>
                 @Body
             </div>
         </MudContainer>
@@ -58,21 +57,17 @@
 @code {
     private bool _drawerOpen = true;
     private bool _isDarkMode;
-    private int _languageRenderKey;
     private MudThemeProvider _themeProvider = null!;
 
     protected override void OnInitialized()
     {
-        // Load saved dark mode preference, or default to system preference
         _isDarkMode = SettingsService.IsDarkMode;
-        SettingsService.LanguageChanged += OnLanguageChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // If no preference was saved, check system preference
             if (!Preferences.ContainsKey("IsDarkMode"))
             {
                 _isDarkMode = await _themeProvider.GetSystemPreference();
@@ -102,12 +97,10 @@
     private void ToggleLanguage()
     {
         SettingsService.ToggleLanguage();
-    }
-
-    private void OnLanguageChanged()
-    {
-        _languageRenderKey++;
-        InvokeAsync(StateHasChanged);
+        // Reload the native WebView to apply the new culture
+        // NavigationManager.forceLoad doesn't work for culture changes in MAUI Blazor
+        var mainPage = Application.Current?.MainPage as MainPage;
+        mainPage?.ReloadWebView();
     }
 
     private string GetWeightUnitLabel()
@@ -124,13 +117,7 @@
 
     private string GetAppVersion()
     {
-        // Use assembly version for more reliable cross-platform versioning
         var version = typeof(MainLayout).Assembly.GetName().Version;
         return version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : AppInfo.VersionString;
-    }
-
-    public void Dispose()
-    {
-        SettingsService.LanguageChanged -= OnLanguageChanged;
     }
 }

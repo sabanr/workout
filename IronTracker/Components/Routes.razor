@@ -1,4 +1,13 @@
 @inject IStringLocalizer<AppResources> L
+@inject SettingsService SettingsService
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Re-apply culture every time Blazor starts (including after WebView reload)
+        SettingsService.InitializeCulture();
+    }
+}
 
 <Router AppAssembly="typeof(MauiProgram).Assembly">
     <Found Context="routeData">

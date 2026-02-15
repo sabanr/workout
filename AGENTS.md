@@ -25,7 +25,51 @@ dotnet run -f net10.0-maccatalyst
 
 # Clean
 dotnet clean && dotnet build -f net10.0-maccatalyst
+
+# EF Core Migrations
+dotnet ef migrations add MigrationName -f net10.0-maccatalyst
+dotnet ef database update -f net10.0-maccatalyst
 ```
+
+## Code Style
+
+### Formatting (enforced by .editorconfig)
+- **Indent**: 4 spaces (2 for JSON/XML/CSProj)
+- **Line endings**: LF (`\n`)
+- **Max line length**: 120 characters
+- **Charset**: UTF-8
+- **Braces**: Same line (K&R style)
+
+### Imports
+```csharp
+// 1. System namespaces first
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+// 2. Third-party packages
+using MudBlazor.Services;
+using Plugin.Maui.Audio;
+
+// 3. Project namespaces
+using IronTracker.Data;
+using IronTracker.Services;
+```
+- Sort system directives first
+- Separate import directive groups with blank line
+- Use file-scoped namespaces
+
+### Naming Conventions
+- **Classes/Interfaces/Methods/Properties**: PascalCase
+- **Private fields**: `_camelCase` with underscore prefix
+- **Constants**: PascalCase
+- **Async methods**: Suffix with `Async`
+- **Interfaces**: Prefix with `I`
+
+### Types
+- Enable nullable reference types (`<Nullable>enable</Nullable>`)
+- Use `var` when type is apparent
+- Navigation properties: `= null!` for EF Core
+- Prefer `Task<T>` over `void` for async
 
 ## Architecture
 
@@ -66,7 +110,6 @@ private WorkoutService WorkoutService { get; set; } = null!;
 ### Database (EF Core)
 - Use `IDbContextFactory<AppDbContext>` (never inject `AppDbContext` directly)
 - SQLite at `FileSystem.AppDataDirectory/irontracker.db`
-- Migrations: `dotnet ef migrations add Name -f net10.0-maccatalyst`
 - Navigation properties: always `= null!`
 - Use `IsRequired()`, `HasMaxLength()` in `OnModelCreating`
 - Cascade deletes for parent-child
@@ -79,7 +122,7 @@ private WorkoutService WorkoutService { get; set; } = null!;
 - `OnClick`, `@bind-Value`, `@bind-Value:after` for events
 - Prefer `OnInitializedAsync` for async init
 
-### Error Handling
+## Error Handling
 - MudBlazor form validation with `IsValid()`
 - Async exceptions bubble to component level
 - Use nullable reference types

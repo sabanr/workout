@@ -61,7 +61,7 @@ public class SessionManager : ISessionManager
     public async Task<WorkoutSession?> EndSessionAsync()
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        
+
         var activeSession = await context.WorkoutSessions
             .Include(s => s.SetLogs)
             .FirstOrDefaultAsync(s => s.EndTime == null);
@@ -70,6 +70,23 @@ public class SessionManager : ISessionManager
             return null;
 
         activeSession.EndTime = DateTime.UtcNow;
+        await context.SaveChangesAsync();
+
+        return activeSession;
+    }
+
+    public async Task<WorkoutSession?> CancelSessionAsync()
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+
+        var activeSession = await context.WorkoutSessions
+            .Include(s => s.SetLogs)
+            .FirstOrDefaultAsync(s => s.EndTime == null);
+
+        if (activeSession == null)
+            return null;
+
+        context.WorkoutSessions.Remove(activeSession);
         await context.SaveChangesAsync();
 
         return activeSession;

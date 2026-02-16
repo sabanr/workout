@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(gh issue view:*)",
-      "Bash(dotnet run:*)"
+      "Bash(dotnet run:*)",
+      "Bash(gh issue list:*)",
+      "Bash(dotnet build:*)"
     ]
   }
 }

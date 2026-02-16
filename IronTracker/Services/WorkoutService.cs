@@ -91,6 +91,11 @@ public class WorkoutService
     public Task<WorkoutSession?> EndSessionAsync() => _sessionManager.EndSessionAsync();
 
     /// <summary>
+    /// Cancels the active session without saving.
+    /// </summary>
+    public Task<WorkoutSession?> CancelSessionAsync() => _sessionManager.CancelSessionAsync();
+
+    /// <summary>
     /// Checks if there's an active session.
     /// </summary>
     public Task<bool> HasActiveSessionAsync() => _sessionManager.HasActiveSessionAsync();

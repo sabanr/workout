@@ -39,6 +39,15 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
+  <data name="CancelSession" xml:space="preserve">
+    <value>Cancelar sesión</value>
+  </data>
+  <data name="CancelSessionConfirmMessage" xml:space="preserve">
+    <value>¿Seguro que quieres cancelar esta sesión? Se perderá todo el progreso y no se guardará nada.</value>
+  </data>
+  <data name="CancelSessionConfirmTitle" xml:space="preserve">
+    <value>Cancelar sesión de entrenamiento</value>
+  </data>
   <data name="ClickApplyForSuggestedWeights" xml:space="preserve">
     <value>Haz clic en 'Aplicar' para usar los pesos sugeridos con incrementos de {0}</value>
   </data>

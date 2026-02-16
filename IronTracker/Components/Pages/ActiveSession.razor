@@ -4,6 +4,7 @@
 @inject WorkoutService WorkoutService
 @inject NavigationManager Navigation
 @inject IStringLocalizer<AppResources> L
+@inject IDialogService DialogService
 
 <PageTitle>@L["ActiveSession"] - IronTracker</PageTitle>
 
@@ -69,12 +70,18 @@ else
                         @L["StartedAt", _session?.StartTime.ToLocalTime().ToString("HH:mm")]
                     </MudText>
                 </div>
-                <MudButton Variant="Variant.Filled" 
-                           Color="Color.Error" 
-                           StartIcon="@Icons.Material.Filled.Stop"
-                           OnClick="EndSessionAsync">
-                    @L["EndSession"]
-                </MudButton>
+                <MudButtonGroup Variant="Variant.Filled">
+                    <MudButton Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.Stop"
+                               OnClick="EndSessionAsync">
+                        @L["EndSession"]
+                    </MudButton>
+                    <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                   Color="Color.Default"
+                                   Size="Size.Medium"
+                                   Title="@L["CancelSession"]"
+                                   OnClick="CancelSessionAsync" />
+                </MudButtonGroup>
             </MudPaper>
         </MudItem>
 
@@ -297,6 +304,25 @@ else
         _exercises = null;
         _currentExercise = null;
         Navigation.NavigateTo("/");
+    }
+
+    private async Task CancelSessionAsync()
+    {
+        var confirm = await DialogService.ShowMessageBox(
+            L["CancelSessionConfirmTitle"],
+            L["CancelSessionConfirmMessage"],
+            yesText: L["CancelSession"],
+            cancelText: L["Cancel"]);
+
+        if (confirm == true)
+        {
+            await WorkoutService.CancelSessionAsync();
+            _session = null;
+            _routineDay = null;
+            _exercises = null;
+            _currentExercise = null;
+            Navigation.NavigateTo("/");
+        }
     }
 
     private void SelectExercise(ExerciseTemplate exercise)

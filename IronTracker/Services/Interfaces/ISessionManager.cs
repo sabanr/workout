@@ -23,6 +23,11 @@ public interface ISessionManager
     Task<WorkoutSession?> EndSessionAsync();
 
     /// <summary>
+    /// Cancels the currently active session and deletes all associated data.
+    /// </summary>
+    Task<WorkoutSession?> CancelSessionAsync();
+
+    /// <summary>
     /// Saves a set log for the active session.
     /// </summary>
     Task<SetLog> SaveSetAsync(SetLog setLog);

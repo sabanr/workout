@@ -18,12 +18,7 @@ public partial class MainPage : ContentPage
 		androidWebView?.LoadUrl("file:///android_asset/wwwroot/index.html");
 #elif IOS || MACCATALYST
 		var wkWebView = blazorWebView.Handler?.PlatformView as WebKit.WKWebView;
-		if (wkWebView != null)
-		{
-			var url = new Foundation.NSUrl("app://localhost/index.html");
-			var request = new Foundation.NSUrlRequest(url);
-			wkWebView.LoadRequest(request);
-		}
+		wkWebView?.Reload();
 #elif WINDOWS
 		var webView2 = blazorWebView.Handler?.PlatformView as Microsoft.UI.Xaml.Controls.WebView2;
 		if (webView2?.CoreWebView2 != null)

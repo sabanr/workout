@@ -1,7 +1,7 @@
 # ================================
 # Configuration
 # ================================
-$source = "C:\Users\rsaban\AppData\Local\User Name\dev.rsaban.irontracker\Data\irontracker.db"
+$source = "~\AppData\Local\User Name\dev.rsaban.irontracker\Data\irontracker.db"
 $sqlite = "sqlite3.exe"
 $backupFolder = "$env:OneDriveConsumer\IronTracker\Backups"
 
@@ -29,4 +29,5 @@ $destination = Join-Path $backupFolder "database_$date.db"
 Get-ChildItem $backupFolder -Filter "database_*.db" |
 Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } |
 Remove-Item -Force
+
 

@@ -145,6 +145,15 @@ public async Task<WorkoutSession> StartSessionAsync(int routineDayId)
 
 ## Platform Notes
 
+### Database File Location
+
+| Platform | Path |
+|----------|------|
+| **macOS Catalyst** | `~/Library/Containers/dev.rsaban.irontracker/Data/Library/irontracker.db` |
+| **iOS** | `(app sandbox)/Library/irontracker.db` |
+| **Android** | `/data/data/dev.rsaban.irontracker/files/irontracker.db` |
+| **Windows** | `%LOCALAPPDATA%\Packages\dev.rsaban.irontracker\LocalState\irontracker.db` |
+
 ### File Paths
 Always use `FileSystem.AppDataDirectory`:
 ```csharp

@@ -49,11 +49,57 @@ public class WorkoutService
         var weeklyVolume = await _repository.GetWeeklyVolumeAsync(5);
         var recentSessions = await _repository.GetRecentSessionsAsync(5);
 
+        // Calculate last 30 days stats (rolling window)
+        var now = DateTime.Now;
+        var startOfPeriod = now.Date.AddDays(-30);
+        var endOfPeriod = now.Date.AddDays(1).AddTicks(-1); // End of today
+        
+        // Use UTC range for database query
+        var startUtc = startOfPeriod.ToUniversalTime();
+        var endUtc = endOfPeriod.ToUniversalTime();
+        
+        var periodSessions = await _repository.GetSessionHistoryAsync(startUtc, endUtc);
+        
+        // Count all sessions started in this period
+        var workoutsThisMonth = periodSessions.Count;
+        
+        // Volume can come from any session that has logs (even if not finished yet)
+        var volumeThisMonth = periodSessions.Sum(s => s.TotalVolume);
+        
+        // Duration only makes sense for completed sessions
+        var durations = periodSessions
+            .Where(s => s.EndTime != null && s.Duration.HasValue)
+            .Select(s => s.Duration!.Value.TotalMinutes)
+            .ToList();
+            
+        var avgDuration = durations.Any() 
+            ? TimeSpan.FromMinutes(durations.Average()) 
+            : TimeSpan.Zero;
+
+        var favoriteRoutine = periodSessions
+            .Where(s => s.RoutineDay != null)
+            .GroupBy(s => s.RoutineDay.Name)
+            .OrderByDescending(g => g.Count())
+            .Select(g => g.Key)
+            .FirstOrDefault();
+
+        // Calculate training frequency percentage (unique days with sessions / 30)
+        var uniqueDaysCount = periodSessions
+            .Select(s => s.StartTime.ToLocalTime().Date)
+            .Distinct()
+            .Count();
+        var frequency = (double)uniqueDaysCount / 30.0 * 100.0;
+
         return new DashboardStats
         {
             ConsecutiveDaysStreak = streak,
             WeeklyVolume = weeklyVolume,
-            RecentSessions = recentSessions
+            RecentSessions = recentSessions,
+            WorkoutsThisMonth = workoutsThisMonth,
+            VolumeThisMonth = volumeThisMonth,
+            AverageDuration = avgDuration,
+            FavoriteRoutineName = favoriteRoutine,
+            TrainingFrequency = frequency
         };
     }
 
@@ -183,4 +229,11 @@ public class DashboardStats
     public int ConsecutiveDaysStreak { get; set; }
     public Dictionary<DateTime, decimal> WeeklyVolume { get; set; } = new();
     public List<WorkoutSession> RecentSessions { get; set; } = new();
+    
+    // New monthly metrics
+    public int WorkoutsThisMonth { get; set; }
+    public decimal VolumeThisMonth { get; set; }
+    public TimeSpan AverageDuration { get; set; }
+    public string? FavoriteRoutineName { get; set; }
+    public double TrainingFrequency { get; set; }
 }

@@ -75,15 +75,79 @@ else
             </MudItem>
         }
 
-        @* Total Sessions Card *@
-        @if (SettingsService.ShowTotalSessionsCard)
+        @* Rolling Stats Cards (Last 30 Days) *@
+        @if (SettingsService.ShowWorkoutsCard)
         {
             <MudItem xs="12" sm="6" md="4">
                 <MudCard Style="min-height: 200px; height: 200px;">
                     <MudCardContent Class="d-flex flex-column align-center pa-6">
-                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Color="Color.Info" Size="Size.Large" />
-                        <MudText Typo="Typo.h2" Class="my-2">@_stats!.RecentSessions.Count</MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@L["RecentSessions"]</MudText>
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h2" Class="my-2">@_stats!.WorkoutsThisMonth</MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
+                            @L["Workouts"] (30d)
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+
+        @if (SettingsService.ShowVolumeCard)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Style="min-height: 200px; height: 200px;">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Secondary" Size="Size.Large" />
+                        <MudText Typo="Typo.h2" Class="my-2">@FormatVolume(_stats!.VolumeThisMonth)</MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
+                            @L["Volume"] (30d)
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+
+        @if (SettingsService.ShowAvgDurationCard)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Style="min-height: 200px; height: 200px;">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Info" Size="Size.Large" />
+                        <MudText Typo="Typo.h2" Class="my-2">@FormatDurationShort(_stats!.AverageDuration)</MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
+                            @L["AvgDuration"] (30d)
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+
+        @if (SettingsService.ShowFavoriteRoutineCard)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Style="min-height: 200px; height: 200px;">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Size="Size.Large" />
+                        <MudText Typo="@(GetTypographyForRoutine(_stats!.FavoriteRoutineName))" Class="my-2 text-truncate" Style="max-width: 100%;">
+                            @(_stats!.FavoriteRoutineName ?? "-")
+                        </MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
+                            @L["Favorite"] (30d)
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+
+        @if (SettingsService.ShowFrequencyCard)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Style="min-height: 200px; height: 200px;">
+                    <MudCardContent Class="d-flex flex-column align-center pa-6">
+                        <MudIcon Icon="@Icons.Material.Filled.ShowChart" Color="Color.Success" Size="Size.Large" />
+                        <MudText Typo="Typo.h2" Class="my-2">@($"{_stats!.TrainingFrequency:F0}%")</MudText>
+                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
+                            @L["Consistency"] (30d)
+                        </MudText>
                     </MudCardContent>
                 </MudCard>
             </MudItem>
@@ -259,6 +323,35 @@ else
             return $"{duration.Value.Hours}h {duration.Value.Minutes}m";
         
         return $"{duration.Value.Minutes}m";
+    }
+
+    private string FormatVolume(decimal volume)
+    {
+        var displayVolume = SettingsService.ConvertToDisplayUnit(volume);
+        var unit = SettingsService.GetUnitAbbreviation();
+        
+        if (displayVolume >= 1_000_000)
+            return $"{(displayVolume / 1_000_000):F1}M {unit}";
+        if (displayVolume >= 1_000)
+            return $"{(displayVolume / 1_000):F1}K {unit}";
+            
+        return $"{displayVolume:F0} {unit}";
+    }
+
+    private string FormatDurationShort(TimeSpan duration)
+    {
+        if (duration.TotalMinutes < 1)
+            return "-";
+        
+        return $"{Math.Round(duration.TotalMinutes)}m";
+    }
+
+    private Typo GetTypographyForRoutine(string? name)
+    {
+        if (string.IsNullOrEmpty(name)) return Typo.h2;
+        if (name.Length > 15) return Typo.h5;
+        if (name.Length > 10) return Typo.h4;
+        return Typo.h3;
     }
 
     public void Dispose()

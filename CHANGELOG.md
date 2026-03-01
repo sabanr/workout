@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.0] - 2026-03-01
+
+### Added
+- New rolling 30-day dashboard metrics: Sessions, Volume, Avg Duration, Favorite Routine, and Consistency.
+- Individual visibility settings for all dashboard metric cards.
+
+### Changed
+- Dashboard metrics now use a rolling 30-day window instead of current calendar month for better continuity.
+- Updated dashboard layout to use consistent 200px cards for all stats.
+
+### Fixed
+- Dashboard metrics showing zero at the start of a new month.
+- Loading issues for volume and duration calculations in dashboard.
+
 ## [1.7.0] - 2026-02-15
 
 ### Added

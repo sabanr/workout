@@ -23,9 +23,25 @@
                       Color="Color.Primary"
                       Label="@L["QuickStartSessionStatus"]" />
 
-            <MudSwitch @bind-Value="SettingsService.ShowTotalSessionsCard"
+            <MudSwitch @bind-Value="SettingsService.ShowWorkoutsCard"
                       Color="Color.Primary"
-                      Label="@L["TotalRecentSessions"]" />
+                      Label="@($"{L["Workouts"]} (30d)")" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowVolumeCard"
+                      Color="Color.Primary"
+                      Label="@($"{L["Volume"]} (30d)")" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowAvgDurationCard"
+                      Color="Color.Primary"
+                      Label="@($"{L["AvgDuration"]} (30d)")" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowFavoriteRoutineCard"
+                      Color="Color.Primary"
+                      Label="@($"{L["Favorite"]} (30d)")" />
+
+            <MudSwitch @bind-Value="SettingsService.ShowFrequencyCard"
+                      Color="Color.Primary"
+                      Label="@($"{L["Consistency"]} (30d)")" />
 
             <MudSwitch @bind-Value="SettingsService.ShowVolumeChart"
                       Color="Color.Primary"

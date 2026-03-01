@@ -140,6 +140,76 @@ public class SettingsService
     }
 
     /// <summary>
+    /// Gets or sets whether the workouts (sessions) card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowWorkoutsCard
+    {
+        get => Preferences.Get(nameof(ShowWorkoutsCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowWorkoutsCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the total volume card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowVolumeCard
+    {
+        get => Preferences.Get(nameof(ShowVolumeCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowVolumeCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the average duration card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowAvgDurationCard
+    {
+        get => Preferences.Get(nameof(ShowAvgDurationCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowAvgDurationCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the favorite routine card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowFavoriteRoutineCard
+    {
+        get => Preferences.Get(nameof(ShowFavoriteRoutineCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowFavoriteRoutineCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the training frequency card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowFrequencyCard
+    {
+        get => Preferences.Get(nameof(ShowFrequencyCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowFrequencyCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
     /// Gets or sets whether the daily volume chart is visible on the dashboard.
     /// Defaults to true if not set.
     /// </summary>

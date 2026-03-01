@@ -49,6 +49,7 @@ public class WorkoutRepository : IWorkoutRepository
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.WorkoutSessions
+            .AsNoTracking() // Improve performance for read-only dashboard
             .Include(s => s.RoutineDay)
             .Include(s => s.SetLogs)
             .Where(s => s.StartTime >= from && s.StartTime <= to)

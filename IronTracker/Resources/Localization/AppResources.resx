@@ -354,4 +354,19 @@
   <data name="WorkoutHistory" xml:space="preserve">
     <value>Workout History</value>
   </data>
+  <data name="ThisMonth" xml:space="preserve">
+    <value>Last 30 Days</value>
+  </data>
+  <data name="Workouts" xml:space="preserve">
+    <value>Sessions</value>
+  </data>
+  <data name="AvgDuration" xml:space="preserve">
+    <value>Avg Duration</value>
+  </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="Consistency" xml:space="preserve">
+    <value>Consistency</value>
+  </data>
 </root>

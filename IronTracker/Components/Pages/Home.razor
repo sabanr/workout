@@ -222,6 +222,49 @@ else
                 </MudCard>
             </MudItem>
         }
+
+        @* Personal Records *@
+        @if (SettingsService.ShowPersonalRecordsCard)
+        {
+            <MudItem xs="12" md="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@L["PersonalRecords"]</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Style="max-height: 340px; overflow-y: auto;">
+                        @if (_stats!.TopPersonalRecords.Count > 0)
+                        {
+                            <MudList T="PersonalRecord" Dense="true">
+                                @foreach (var pr in _stats.TopPersonalRecords)
+                                {
+                                    <MudListItem Icon="@Icons.Material.Filled.TrendingUp">
+                                        <div class="d-flex flex-column" Style="width: 100%;">
+                                            <MudText Typo="Typo.body2">@pr.ExerciseName</MudText>
+                                            <div class="d-flex justify-space-between">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                    @($"{pr.MaxWeight:F1}") @SettingsService.GetUnitAbbreviation()
+                                                </MudText>
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                                    @pr.AchievedAt.ToLocalTime().ToString("MMM d, yyyy")
+                                                </MudText>
+                                            </div>
+                                        </div>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        }
+                        else
+                        {
+                            <MudText Color="Color.Secondary" Class="text-center pa-4">
+                                @L["NoDataYet"]
+                            </MudText>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
     </MudGrid>
 }
 

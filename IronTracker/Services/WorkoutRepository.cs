@@ -269,7 +269,7 @@ public class WorkoutRepository : IWorkoutRepository
     public async Task<Dictionary<int, decimal>> GetLastWeightsForExerciseAsync(string exerciseName)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        
+
         // Get the most recent completed session that has this exercise
         var recentLogs = await context.SetLogs
             .Where(l => l.ExerciseName == exerciseName)
@@ -287,5 +287,41 @@ public class WorkoutRepository : IWorkoutRepository
         return recentLogs
             .Where(l => l.WorkoutSessionId == mostRecentSessionId)
             .ToDictionary(l => l.SetNumber, l => l.WeightUsed);
+    }
+
+    public async Task<List<PersonalRecord>> GetTopPersonalRecordsAsync(int count = 5)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+
+        // Get all set logs grouped by exercise
+        var setLogs = await context.SetLogs
+            .AsNoTracking()
+            .ToListAsync();
+
+        // Calculate personal records
+        var personalRecords = setLogs
+            .GroupBy(l => l.ExerciseName)
+            .Select(g => new
+            {
+                ExerciseName = g.Key,
+                MaxWeight = g.Max(l => l.WeightUsed),
+                AchievedAt = g.Where(l => l.WeightUsed == g.Max(l2 => l2.WeightUsed))
+                    .OrderByDescending(l => l.CompletedAt)
+                    .First()
+                    .CompletedAt,
+                SetCount = g.Count()
+            })
+            .OrderByDescending(pr => pr.MaxWeight)
+            .Take(count)
+            .Select(pr => new PersonalRecord
+            {
+                ExerciseName = pr.ExerciseName,
+                MaxWeight = pr.MaxWeight,
+                AchievedAt = pr.AchievedAt,
+                SetCount = pr.SetCount
+            })
+            .ToList();
+
+        return personalRecords;
     }
 }

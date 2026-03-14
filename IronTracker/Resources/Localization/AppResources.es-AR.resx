@@ -231,6 +231,9 @@
   <data name="PreviewSetsTargetingReps" xml:space="preserve">
     <value>Vista previa: {0} serie(s) con objetivo de {1} repeticiones</value>
   </data>
+  <data name="PersonalRecords" xml:space="preserve">
+    <value>Récords Personales</value>
+  </data>
   <data name="QuickStartSessionStatus" xml:space="preserve">
     <value>Inicio rápido / estado de sesión</value>
   </data>

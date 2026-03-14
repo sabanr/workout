@@ -238,6 +238,20 @@ public class SettingsService
     }
 
     /// <summary>
+    /// Gets or sets whether the personal records card is visible on the dashboard.
+    /// Defaults to true if not set.
+    /// </summary>
+    public bool ShowPersonalRecordsCard
+    {
+        get => Preferences.Get(nameof(ShowPersonalRecordsCard), true);
+        set
+        {
+            Preferences.Set(nameof(ShowPersonalRecordsCard), value);
+            DashboardVisibilityChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
     /// Gets or sets the current UI language code.
     /// Defaults to en-US if not set.
     /// </summary>

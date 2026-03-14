@@ -103,4 +103,9 @@ public interface IWorkoutRepository
     /// Returns a dictionary of SetNumber -> Weight.
     /// </summary>
     Task<Dictionary<int, decimal>> GetLastWeightsForExerciseAsync(string exerciseName);
+
+    /// <summary>
+    /// Gets the top personal records (highest weights) for each exercise.
+    /// </summary>
+    Task<List<PersonalRecord>> GetTopPersonalRecordsAsync(int count = 5);
 }

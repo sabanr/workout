@@ -231,6 +231,9 @@
   <data name="PreviewSetsTargetingReps" xml:space="preserve">
     <value>Preview: {0} set(s) targeting {1} reps</value>
   </data>
+  <data name="PersonalRecords" xml:space="preserve">
+    <value>Personal Records</value>
+  </data>
   <data name="QuickStartSessionStatus" xml:space="preserve">
     <value>Quick Start / Session Status</value>
   </data>

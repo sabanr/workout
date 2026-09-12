@@ -74,12 +74,22 @@
         <PackageReference Include="Plugin.Maui.Audio" Version="4.0.0" />
     </ItemGroup>
 
-    <!-- Remove unwanted language satellite assemblies after publish -->
+    <!--
+      WinUI ships localized .mui resources for every language it supports, and
+      SatelliteResourceLanguages only trims .NET satellite assemblies, so prune the rest here.
+      Globbing the .mui files rather than the folders is deliberate: MSBuild item globs never
+      match directories, and the folder names are too irregular for a locale pattern
+      (fil-PH, az-Latn-AZ, ca-Es-VALENCIA, gd-gb). The folders are removed once emptied.
+    -->
     <Target Name="RemoveUnwantedLanguages" AfterTargets="Publish">
         <ItemGroup>
-            <LanguageFolders Include="$(PublishDir)*" Exclude="$(PublishDir)en-us;$(PublishDir)es-AR" />
+            <UnwantedMuiResource Include="$(PublishDir)*\*.mui"
+                                 Exclude="$(PublishDir)en-us\*.mui;$(PublishDir)es-AR\*.mui" />
         </ItemGroup>
-        <RemoveDir Directories="@(LanguageFolders)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(LanguageFolders.Filename)', '^[a-z]{2}-[A-Z]{2}$'))" />
+        <Delete Files="@(UnwantedMuiResource)" />
+        <RemoveDir Directories="@(UnwantedMuiResource->'%(RootDir)%(Directory)'->Distinct())" />
+        <Message Importance="high"
+                 Text="RemoveUnwantedLanguages: pruned @(UnwantedMuiResource->Count()) unused .mui resource(s)" />
     </Target>
 
 </Project>

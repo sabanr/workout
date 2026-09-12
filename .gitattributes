@@ -1,0 +1,17 @@
+# Git stores every text file with LF and checks it out with LF on all
+# platforms, matching end_of_line = lf in .editorconfig.
+* text=auto eol=lf
+
+# Binary files: never translate the bytes.
+*.xlsx binary
+*.ttf  binary
+*.otf  binary
+*.mp3  binary
+*.wav  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.db   binary

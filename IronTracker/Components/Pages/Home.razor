@@ -153,14 +153,18 @@ else
             </MudItem>
         }
 
-        @* Daily Volume Chart (Last 3 Months) *@
+        @* Weekly Volume Chart (Last 3 Months) *@
         @if (SettingsService.ShowVolumeChart)
         {
             <MudItem xs="12" md="8">
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@L["DailyTrainingVolumeLast3Months", SettingsService.GetUnitAbbreviation()]</MudText>
+                            <MudText Typo="Typo.h6">@L["WeeklyTrainingVolume", SettingsService.GetUnitAbbreviation()]</MudText>
+                            @if (!string.IsNullOrEmpty(_chartSubtitle))
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">@_chartSubtitle</MudText>
+                            }
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
@@ -274,7 +278,8 @@ else
     private DashboardStats? _stats;
     private List<ChartSeries> _chartSeries = new();
     private string[] _chartLabels = Array.Empty<string>();
-    // Limit to 5 Y-axis ticks for better readability with formatted labels
+    private string _chartSubtitle = string.Empty;
+    // Y-axis step is recalculated from the data in PrepareChartData.
     private ChartOptions _chartOptions = new() { YAxisTicks = 5 };
 
     protected override async Task OnInitializedAsync()
@@ -310,6 +315,10 @@ else
 
     private void PrepareChartData()
     {
+        _chartSeries = new List<ChartSeries>();
+        _chartLabels = Array.Empty<string>();
+        _chartSubtitle = string.Empty;
+
         if (_stats?.WeeklyVolume == null || _stats.WeeklyVolume.Count == 0)
             return;
 
@@ -317,19 +326,28 @@ else
             .OrderBy(kv => kv.Key)
             .ToList();
 
-        _chartLabels = orderedData
-            .Select(kv => kv.Key.ToString("MMM d"))
-            .ToArray();
-
         var values = orderedData
             .Select(kv => (double)SettingsService.ConvertToDisplayUnit(kv.Value))
             .ToArray();
 
-        // Determine appropriate Y-axis format based on maximum value
+        // Every week in the window is present (rest weeks are 0), so an all-zero series means no data.
+        if (values.All(v => v <= 0))
+            return;
+
+        // Sparse x-axis labels: a date on roughly every fourth bar keeps the axis readable. The
+        // remaining labels are empty strings so the array length still drives bar spacing.
+        _chartLabels = BuildSparseLabels(orderedData.Select(kv => kv.Key).ToList());
+
+        _chartSubtitle = L["WeeklyVolumeSubtitle"];
+
+        var maxValue = values.Max();
+
+        // Y-axis step: aim for ~5 gridlines landing on round numbers.
+        _chartOptions.YAxisTicks = CalculateYAxisStep(maxValue);
+
         // Format string syntax: each comma divides by 1,000
         // e.g., "0,K" divides by 1,000 and adds "K"
         // e.g., "0,,.##M" divides by 1,000,000 and adds "M" with up to 2 decimals
-        var maxValue = values.DefaultIfEmpty(0).Max();
         if (maxValue >= 1_000_000)
         {
             _chartOptions.YAxisFormat = "0,,.##M"; // e.g., "1.25M"
@@ -355,6 +373,51 @@ else
                 Data = values
             }
         };
+    }
+
+    /// <summary>
+    /// Builds one label per bar, but only fills in about four of them (anchored on the most recent
+    /// week) so the dates stay readable instead of overlapping.
+    /// </summary>
+    private static string[] BuildSparseLabels(IReadOnlyList<DateTime> weekStarts)
+    {
+        const int targetLabelCount = 4;
+
+        var step = Math.Max(1, (int)Math.Ceiling(weekStarts.Count / (double)targetLabelCount));
+        var labels = new string[weekStarts.Count];
+        var lastIndex = weekStarts.Count - 1;
+
+        for (var i = 0; i < weekStarts.Count; i++)
+        {
+            labels[i] = (lastIndex - i) % step == 0
+                ? weekStarts[i].ToString("MMM d")
+                : string.Empty;
+        }
+
+        return labels;
+    }
+
+    /// <summary>
+    /// Picks a round Y-axis step (1, 2 or 5 x a power of ten) so roughly five gridlines cover the data.
+    /// </summary>
+    private static int CalculateYAxisStep(double maxValue)
+    {
+        if (maxValue <= 0)
+            return 1;
+
+        var rawStep = maxValue / 5.0;
+        var magnitude = Math.Pow(10, Math.Floor(Math.Log10(rawStep)));
+        var normalized = rawStep / magnitude;
+
+        var niceStep = normalized switch
+        {
+            <= 1 => 1,
+            <= 2 => 2,
+            <= 5 => 5,
+            _ => 10
+        };
+
+        return Math.Max(1, (int)(niceStep * magnitude));
     }
 
     private string FormatDuration(TimeSpan? duration)

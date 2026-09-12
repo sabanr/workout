@@ -79,27 +79,37 @@ public class WorkoutRepository : IWorkoutRepository
             .ToListAsync();
     }
 
-    public async Task<Dictionary<DateTime, decimal>> GetWeeklyVolumeAsync(int weeksBack = 5)
+    public async Task<Dictionary<DateTime, decimal>> GetWeeklyVolumeAsync(int weeksBack = 13)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        
-        // Show daily data for last 3 months instead of weekly data
-        var startDate = DateTime.Now.Date.AddMonths(-3);
-        
+
+        if (weeksBack < 1)
+            weeksBack = 1;
+
+        // Build the window in local time (weeks start on Monday), then query using UTC boundaries.
+        var currentWeekStart = GetWeekStart(DateTime.Now.Date);
+        var firstWeekStart = currentWeekStart.AddDays(-7 * (weeksBack - 1));
+        var startUtc = firstWeekStart.ToUniversalTime();
+
         var logs = await context.SetLogs
-            .Include(l => l.WorkoutSession)
-            .Where(l => l.CompletedAt >= startDate && l.WorkoutSession.EndTime != null)
+            .Where(l => l.CompletedAt >= startUtc)
+            .Select(l => new { l.CompletedAt, l.RepsPerformed, l.WeightUsed })
             .ToListAsync();
 
-        // Group by day instead of week
-        var dailyVolume = logs
-            .GroupBy(l => l.CompletedAt.ToLocalTime().Date)
-            .ToDictionary(
-                g => g.Key,
-                g => g.Sum(l => l.RepsPerformed * l.WeightUsed)
-            );
+        // Pre-fill every week in the window so rest weeks report 0 instead of vanishing from the series.
+        var weeklyVolume = new Dictionary<DateTime, decimal>();
+        for (var week = firstWeekStart; week <= currentWeekStart; week = week.AddDays(7)) {
+            weeklyVolume[week] = 0m;
+        }
 
-        return dailyVolume;
+        foreach (var log in logs) {
+            var weekStart = GetWeekStart(log.CompletedAt.ToLocalTime().Date);
+            if (weeklyVolume.ContainsKey(weekStart)) {
+                weeklyVolume[weekStart] += log.RepsPerformed * log.WeightUsed;
+            }
+        }
+
+        return weeklyVolume;
     }
 
     public async Task<int> GetConsecutiveDaysStreakAsync()
@@ -173,6 +183,9 @@ public class WorkoutRepository : IWorkoutRepository
         return streak;
     }
 
+    /// <summary>
+    /// Returns the Monday that starts the week containing <paramref name="date"/>.
+    /// </summary>
     private static DateTime GetWeekStart(DateTime date)
     {
         var diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;

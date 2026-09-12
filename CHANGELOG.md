@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.9.0] - 2026-09-12
+
+### Changed
+- Dashboard volume chart now shows weekly totals over the last 13 weeks instead of daily bars over 3 months.
+- Volume chart x-axis labels are now sparse (a date on roughly every fourth bar) instead of one crowded label per bar.
+
+### Fixed
+- Volume chart omitted sets from in-progress sessions, so it disagreed with the Volume (30d) card.
+- Volume chart window start compared a local date against UTC timestamps, shifting the range by the local UTC offset.
+- Volume chart y-axis landed on arbitrary values (`YAxisTicks` is tick spacing in MudBlazor, not tick count); the step is now a round 1/2/5 x power of ten.
+- Weeks without training are now plotted as zero instead of being dropped from the series, so the x-axis is a continuous timeline.
+
 ## [1.8.0] - 2026-03-01
 
 ### Added

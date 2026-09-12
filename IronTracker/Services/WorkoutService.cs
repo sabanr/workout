@@ -46,7 +46,7 @@ public class WorkoutService
     public async Task<DashboardStats> GetDashboardStatsAsync()
     {
         var streak = await _repository.GetConsecutiveDaysStreakAsync();
-        var weeklyVolume = await _repository.GetWeeklyVolumeAsync(5);
+        var weeklyVolume = await _repository.GetWeeklyVolumeAsync(13); // ~3 months of weekly buckets
         var recentSessions = await _repository.GetRecentSessionsAsync(5);
         var topPRs = await _repository.GetTopPersonalRecordsAsync(5);
 

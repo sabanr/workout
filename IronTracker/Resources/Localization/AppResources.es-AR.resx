@@ -63,12 +63,6 @@
   <data name="CreateRoutine" xml:space="preserve">
     <value>Crear rutina</value>
   </data>
-  <data name="DailyTrainingVolumeChart" xml:space="preserve">
-    <value>Gráfico de volumen diario</value>
-  </data>
-  <data name="DailyTrainingVolumeLast3Months" xml:space="preserve">
-    <value>Volumen diario de entrenamiento - últimos 3 meses ({0})</value>
-  </data>
   <data name="DarkMode" xml:space="preserve">
     <value>Modo oscuro</value>
   </data>
@@ -353,6 +347,15 @@
   </data>
   <data name="Weights" xml:space="preserve">
     <value>Pesos</value>
+  </data>
+  <data name="WeeklyTrainingVolume" xml:space="preserve">
+    <value>Volumen semanal de entrenamiento ({0})</value>
+  </data>
+  <data name="WeeklyTrainingVolumeChart" xml:space="preserve">
+    <value>Gráfico de volumen semanal</value>
+  </data>
+  <data name="WeeklyVolumeSubtitle" xml:space="preserve">
+    <value>Totales semanales · últimos 3 meses</value>
   </data>
   <data name="WorkoutHistory" xml:space="preserve">
     <value>Historial de entrenamientos</value>

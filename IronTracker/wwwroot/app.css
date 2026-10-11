@@ -758,7 +758,7 @@ h1:focus {
 /* Stat tiles */
 .home-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 12px;
     margin-bottom: 16px;
 }
@@ -965,4 +965,18 @@ h1:focus {
         right: -40px;
         opacity: 0.35;
     }
+}
+
+/* Track A: dashboard side column (Recent Activity + Personal Records) */
+.home-side {
+    display: grid;
+    gap: 16px;
+}
+
+.home-side-stacked {
+    grid-template-columns: 1fr;
+}
+
+.home-side-split {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }

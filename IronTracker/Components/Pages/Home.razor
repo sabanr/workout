@@ -102,7 +102,7 @@ else
         @* Weekly Volume Chart (Last 3 Months) *@
         @if (SettingsService.ShowVolumeChart)
         {
-            <MudItem xs="12" md="8">
+            <MudItem xs="12" md="@(SettingsService.ShowRecentActivity || SettingsService.ShowPersonalRecordsCard ? 8 : 12)">
                 <MudCard Elevation="0" Class="forge-card forge-card-static forge-rise stagger-4">
                     <MudCardHeader>
                         <CardHeaderContent>
@@ -136,10 +136,15 @@ else
             </MudItem>
         }
 
+        @* Lists stack in a right column beside the chart, or sit side by side when the chart is hidden *@
+        @if (SettingsService.ShowRecentActivity || SettingsService.ShowPersonalRecordsCard)
+        {
+        <MudItem xs="12" md="@(SettingsService.ShowVolumeChart ? 4 : 12)">
+        <div class="home-side @(SettingsService.ShowVolumeChart ? "home-side-stacked" : "home-side-split")">
         @* Recent Sessions *@
         @if (SettingsService.ShowRecentActivity)
         {
-            <MudItem xs="12" md="4">
+            <div>
                 <MudCard Elevation="0" Class="forge-card forge-card-static forge-rise stagger-5">
                     <MudCardHeader>
                         <CardHeaderContent>
@@ -172,13 +177,13 @@ else
                         }
                     </MudCardContent>
                 </MudCard>
-            </MudItem>
+            </div>
         }
 
         @* Personal Records *@
         @if (SettingsService.ShowPersonalRecordsCard)
         {
-            <MudItem xs="12" md="6">
+            <div>
                 <MudCard Elevation="0" Class="forge-card forge-card-static forge-rise stagger-6">
                     <MudCardHeader>
                         <CardHeaderContent>
@@ -216,7 +221,10 @@ else
                         }
                     </MudCardContent>
                 </MudCard>
-            </MudItem>
+            </div>
+        }
+        </div>
+        </MudItem>
         }
     </MudGrid>
 }

@@ -38,7 +38,7 @@ dotnet ef database update -f net10.0-maccatalyst
 - **Line endings**: LF (`\n`)
 - **Max line length**: 120 characters
 - **Charset**: UTF-8
-- **Braces**: Same line (K&R style)
+- **Braces**: New line (Allman style); `else`/`catch`/`finally` on their own line
 
 ### Imports
 ```csharp

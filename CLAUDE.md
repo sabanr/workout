@@ -115,7 +115,7 @@ Code style is enforced by `.editorconfig`. Key rules:
 - **Async methods**: Suffix with `Async`
 - **Imports**: System first, then third-party, then project namespaces
 - **Nullable**: Enabled project-wide (`<Nullable>enable</Nullable>`)
-- **Braces**: Same-line (K&R style, enforced by editorconfig)
+- **Braces**: New line (Allman style, enforced by editorconfig)
 
 See `AGENTS.md` for detailed code style guidelines and patterns.
 

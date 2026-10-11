@@ -21,8 +21,8 @@
     <MudStack Row="true" Spacing="2" Class="mt-2">
         @if (!_isRunning)
         {
-            <MudButton Variant="Variant.Filled" 
-                       Color="Color.Primary" 
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.PlayArrow"
                        OnClick="Start">
                 @L["Start"]
@@ -30,24 +30,24 @@
         }
         else
         {
-            <MudButton Variant="Variant.Outlined" 
-                       Color="Color.Warning" 
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Warning"
                        StartIcon="@Icons.Material.Filled.SkipNext"
                        OnClick="Skip">
                 @L["Skip"]
             </MudButton>
         }
-        
-        <MudButton Variant="Variant.Outlined" 
-                   Color="Color.Default" 
+
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Default"
                    StartIcon="@Icons.Material.Filled.Add"
                    OnClick="AddTime"
                    Disabled="@(!_isRunning)">
             @L["AddThirtySeconds"]
         </MudButton>
-        
-        <MudButton Variant="Variant.Outlined" 
-                   Color="Color.Default" 
+
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Default"
                    StartIcon="@Icons.Material.Filled.Refresh"
                    OnClick="Reset">
             @L["Reset"]
@@ -58,10 +58,10 @@
 @code {
     [Parameter]
     public int DefaultSeconds { get; set; } = 60;
-    
+
     [Parameter]
     public EventCallback OnTimerComplete { get; set; }
-    
+
     [Parameter]
     public EventCallback OnTimerSkipped { get; set; }
 
@@ -84,7 +84,7 @@
     public void Start()
     {
         if (_isRunning) return;
-        
+
         _isRunning = true;
         _timer = new System.Threading.Timer(Tick, null, 1000, 1000);
     }

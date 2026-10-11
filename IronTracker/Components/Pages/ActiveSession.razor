@@ -43,7 +43,7 @@ else if (_session == null && _routineDay == null)
                             <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
                                 @foreach (var day in routine.Days.OrderBy(d => d.SortOrder))
                                 {
-                                    <MudButton Variant="Variant.Filled" 
+                                    <MudButton Variant="Variant.Filled"
                                                Color="Color.Primary"
                                                OnClick="@(() => StartSessionAsync(day.Id))">
                                         @day.Name
@@ -85,7 +85,7 @@ else
                     </MudButtonGroup>
                 </div>
                 <div class="session-progress">
-                    <div class="session-progress-bar" role="progressbar" aria-valuemin="0"
+                    <div class="session-progress-bar" role="progressbar" aria-label="@L["Sets"]" aria-valuemin="0"
                          aria-valuemax="@TotalSets" aria-valuenow="@CompletedSets">
                         <div class="session-progress-fill" style="width: @ProgressPercent%;"></div>
                     </div>
@@ -119,7 +119,7 @@ else
                     </MudNavMenu>
                 </MudPaper>
             </MudItem>
-            
+
             <MudItem md="8" lg="6">
                 @if (_currentExercise != null)
                 {
@@ -136,10 +136,10 @@ else
                     </MudAlert>
                 }
             </MudItem>
-            
+
             <MudItem md="12" lg="3">
-                <RestTimer @ref="_restTimer" 
-                           DefaultSeconds="60" 
+                <RestTimer @ref="_restTimer"
+                           DefaultSeconds="60"
                            OnTimerComplete="HandleTimerComplete" />
             </MudItem>
         </MudHidden>
@@ -147,11 +147,11 @@ else
         <MudHidden Breakpoint="Breakpoint.MdAndUp">
             @* Mobile Layout - Accordion *@
             <MudItem xs="12">
-                <RestTimer @ref="_restTimer" 
-                           DefaultSeconds="60" 
+                <RestTimer @ref="_restTimer"
+                           DefaultSeconds="60"
                            OnTimerComplete="HandleTimerComplete" />
             </MudItem>
-            
+
             <MudItem xs="12">
                 <MudExpansionPanels MultiExpansion="false" Class="session-panels">
                     @if (_exercises != null)
@@ -216,27 +216,27 @@ else
     private async Task LoadDataAsync()
     {
         _loading = true;
-        
+
         // Check for active session
         _session = await WorkoutService.GetActiveSessionAsync();
-        
+
         if (_session != null)
         {
             _routineDay = _session.RoutineDay;
             _exercises = _routineDay.Exercises.OrderBy(e => e.SortOrder).ToList();
-            
+
             // Initialize expanded panels dictionary
             foreach (var exercise in _exercises)
             {
                 _expandedPanels[exercise.Name] = false;
             }
-            
+
             // Load existing logs for all exercises
             await LoadAllExerciseLogsAsync();
-            
+
             // Load last weights from previous sessions
             await LoadLastWeightsAsync();
-            
+
             // Select first incomplete exercise
             _currentExercise = _exercises.FirstOrDefault(e => !IsExerciseComplete(e.Name)) ?? _exercises.FirstOrDefault();
             if (_currentExercise != null)
@@ -249,7 +249,7 @@ else
         {
             _routines = await WorkoutService.GetRoutinesAsync();
         }
-        
+
         _loading = false;
     }
 
@@ -294,7 +294,7 @@ else
     {
         var exercise = _exercises?.FirstOrDefault(e => e.Name == exerciseName);
         if (exercise == null) return false;
-        
+
         var logs = GetLogsForExercise(exerciseName);
         return logs.Count >= exercise.SetCount;
     }

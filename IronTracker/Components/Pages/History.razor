@@ -41,10 +41,12 @@ else
         @L["SessionsFound", _sessions.Count]
     </span>
 
-    <MudTimeline TimelineOrientation="TimelineOrientation.Vertical" TimelinePosition="TimelinePosition.Start" Class="forge-timeline">
+    <MudTimeline TimelineOrientation="TimelineOrientation.Vertical"
+                 TimelinePosition="TimelinePosition.Start"
+                 Class="forge-timeline">
         @foreach (var (session, sessionIndex) in _sessions.Select((s, i) => (s, i)))
         {
-            <MudTimelineItem Color="@(session.IsActive ? Color.Warning : Color.Primary)" Size="Size.Medium">
+            <MudTimelineItem Color="@(session.IsActive ? Color.Warning : Color.Success)" Size="Size.Medium">
                 <ItemOpposite>
                     <span class="forge-display forge-timeline-day">
                         @session.StartTime.ToLocalTime().ToString("ddd")
@@ -54,7 +56,8 @@ else
                     </MudText>
                 </ItemOpposite>
                 <ItemContent>
-                    <MudCard Elevation="0" Class="@($"forge-card mb-2 forge-rise stagger-{Math.Min(sessionIndex + 1, 8)}")">
+                    <MudCard Elevation="0"
+                             Class="@($"forge-card mb-2 forge-rise {ForgeCss.Stagger(sessionIndex)}")">
                         <MudCardHeader>
                             <CardHeaderContent>
                                 <h2 class="forge-section-title mb-0">@session.RoutineDay?.Name</h2>
@@ -62,7 +65,8 @@ else
                                     @session.StartTime.ToLocalTime().ToString("MMM dd, yyyy HH:mm tt") -
                                     @if (session.IsActive)
                                     {
-                                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined" Class="forge-chip">
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined"
+                                                Class="forge-chip">
                                             @L["InProgressTitleCase"]
                                         </MudChip>
                                     }
@@ -75,8 +79,10 @@ else
                             <CardHeaderActions>
                                 @if (!session.IsActive)
                                 {
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="forge-chip forge-chip-volume">
-                                        @FormatVolume(SettingsService.ConvertToDisplayUnit(session.TotalVolume)) @SettingsService.GetUnitAbbreviation()
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary"
+                                             Class="forge-chip forge-chip-volume">
+                                        @FormatVolume(SettingsService.ConvertToDisplayUnit(session.TotalVolume))
+                                        @SettingsService.GetUnitAbbreviation()
                                     </MudChip>
                                 }
                             </CardHeaderActions>

@@ -96,6 +96,9 @@
   <data name="Delete" xml:space="preserve">
     <value>Eliminar</value>
   </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
   <data name="DeleteDayConfirmation" xml:space="preserve">
     <value>¿Seguro que quieres eliminar '{0}'? También se eliminarán todos los ejercicios.</value>
   </data>
@@ -359,5 +362,20 @@
   </data>
   <data name="WorkoutHistory" xml:space="preserve">
     <value>Historial de entrenamientos</value>
+  </data>
+  <data name="NoDataYet" xml:space="preserve">
+    <value>Todavía no hay datos</value>
+  </data>
+  <data name="Workouts" xml:space="preserve">
+    <value>Sesiones</value>
+  </data>
+  <data name="AvgDuration" xml:space="preserve">
+    <value>Duración promedio</value>
+  </data>
+  <data name="Favorite" xml:space="preserve">
+    <value>Favorita</value>
+  </data>
+  <data name="Consistency" xml:space="preserve">
+    <value>Constancia</value>
   </data>
 </root>

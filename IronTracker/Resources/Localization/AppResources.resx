@@ -96,6 +96,9 @@
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="DeleteDayConfirmation" xml:space="preserve">
     <value>Are you sure you want to delete '{0}'? This will also delete all exercises.</value>
   </data>
@@ -374,5 +377,8 @@
   </data>
   <data name="Consistency" xml:space="preserve">
     <value>Consistency</value>
+  </data>
+  <data name="NoDataYet" xml:space="preserve">
+    <value>No data yet</value>
   </data>
 </root>

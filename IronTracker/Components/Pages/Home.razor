@@ -34,7 +34,8 @@ else
                 <span class="forge-stat-label home-hero-kicker">
                     @(_hasActiveSession ? L["SessionActive"] : L["ReadyToTrain"])
                 </span>
-                <button type="button" class="forge-btn-ember home-hero-btn" @onclick="@(() => Navigation.NavigateTo("/session"))">
+                <button type="button" class="forge-btn-ember home-hero-btn"
+                        @onclick="@(() => Navigation.NavigateTo("/session"))">
                     <MudIcon Icon="@Icons.Material.Rounded.PlayArrow" />
                     @(_hasActiveSession ? L["ContinueWorkout"] : L["StartWorkout"])
                 </button>

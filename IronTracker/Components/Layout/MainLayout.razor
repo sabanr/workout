@@ -3,7 +3,7 @@
 @inject IStringLocalizer<AppResources> L
 
 @* Theme class lives on a wrapper that also contains the providers, so popovers and dialogs inherit the tokens *@
-<div class="forge-root @(_isDarkMode ? "forge-dark" : "forge-light")">
+<div class="forge-root @(_isDarkMode ? "" : "forge-light")">
     <MudThemeProvider @ref="_themeProvider" Theme="@ForgeTheme.Theme" @bind-IsDarkMode="@_isDarkMode" />
     <MudPopoverProvider />
     <MudDialogProvider />
@@ -11,7 +11,8 @@
 
     <MudLayout>
         <MudAppBar Elevation="0" Class="forge-appbar">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                           OnClick="@ToggleDrawer" />
             <ForgeLogo Size="30" Class="ml-3" />
             <span class="forge-wordmark ml-2">Iron<span>Tracker</span></span>
         </MudAppBar>
@@ -36,7 +37,9 @@
                     </div>
                     <button type="button" class="forge-theme-btn" @onclick="@ToggleDarkMode"
                             aria-label="@(_isDarkMode ? L["LightMode"] : L["DarkMode"])">
-                        <MudIcon Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                        <MudIcon Icon="@(_isDarkMode
+                                    ? Icons.Material.Filled.LightMode
+                                    : Icons.Material.Filled.DarkMode)"
                                  Size="Size.Small" />
                     </button>
                     <div class="forge-version">@($"v{GetAppVersion()}")</div>

@@ -33,7 +33,9 @@ else
         @foreach (var (routine, routineIndex) in _routines.Select((r, i) => (r, i)))
         {
             <MudItem xs="12">
-                <MudCard Elevation="0" Class="@($"forge-card forge-card-static forge-routine-card mb-4 forge-rise stagger-{Math.Min(routineIndex + 1, 8)}")">
+                <MudCard Elevation="0"
+                         Class="@($"forge-card forge-card-static forge-routine-card mb-4 " +
+                                  $"forge-rise {ForgeCss.Stagger(routineIndex)}")">
                     <MudCardHeader>
                         <CardHeaderContent>
                             <h2 class="forge-section-title mb-0">@routine.Name</h2>
@@ -44,9 +46,11 @@ else
                         </CardHeaderContent>
                         <CardHeaderActions>
                             <MudIconButton Icon="@Icons.Material.Rounded.Edit"
+                                           aria-label="@L["Edit"]"
                                           Size="Size.Small"
                                           OnClick="@(() => OpenEditRoutineDialog(routine))" />
                             <MudIconButton Icon="@Icons.Material.Rounded.Delete"
+                                           aria-label="@L["Delete"]"
                                           Size="Size.Small"
                                           Color="Color.Error"
                                           OnClick="@(() => DeleteRoutineAsync(routine))" />
@@ -69,17 +73,21 @@ else
                                 <MudExpansionPanel>
                                     <TitleContent>
                                         <div class="d-flex align-center gap-2" style="width: 100%">
-                                            <MudIcon Icon="@Icons.Material.Rounded.CalendarToday" Size="Size.Small" Color="Color.Primary" />
+                                            <MudIcon Icon="@Icons.Material.Rounded.CalendarToday" Size="Size.Small"
+                                                     Color="Color.Primary" />
                                             <span class="forge-day-name">@day.Name</span>
                                             <MudSpacer />
-                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Class="forge-chip">
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                                                     Class="forge-chip">
                                                 @L["ExercisesCount", day.Exercises.Count]
                                             </MudChip>
                                             <MudIconButton Icon="@Icons.Material.Rounded.Edit"
+                                                           aria-label="@L["Edit"]"
                                                           Size="Size.Small"
                                                           OnClick="@(() => OpenEditDayDialog(day))"
                                                           OnClick:stopPropagation="true" />
                                             <MudIconButton Icon="@Icons.Material.Rounded.Delete"
+                                                           aria-label="@L["Delete"]"
                                                           Size="Size.Small"
                                                           Color="Color.Error"
                                                           OnClick="@(() => DeleteDayAsync(day))"
@@ -87,30 +95,41 @@ else
                                         </div>
                                     </TitleContent>
                                     <ChildContent>
-                                        @if (_expandedDayExercises.TryGetValue(day.Id, out var exercises) && exercises != null)
+                                        @if (_expandedDayExercises.TryGetValue(day.Id, out var exercises)
+                                            && exercises != null)
                                         {
-                                            <MudTable Items="@exercises" Dense="true" Hover="true" Elevation="0" Class="forge-table">
+                                            <MudTable Items="@exercises" Dense="true" Hover="true" Elevation="0"
+                                                      Class="forge-table">
                                                 <HeaderContent>
                                                     <MudTh>@L["Exercise"]</MudTh>
                                                     <MudTh>@L["SetsXReps"]</MudTh>
-                                                    <MudTh>@L["Weights"] (@SettingsService.GetUnitAbbreviation())</MudTh>
+                                                    <MudTh>
+                                                        @L["Weights"] (@SettingsService.GetUnitAbbreviation())
+                                                    </MudTh>
                                                     <MudTh Style="width: 100px;">@L["Actions"]</MudTh>
                                                 </HeaderContent>
                                                 <RowTemplate>
                                                     <MudTd DataLabel="@L["Exercise"]">@context.Name</MudTd>
                                                     <MudTd DataLabel="@L["SetsXReps"]">
-                                                        <MudText Typo="Typo.body2">@FormatTargetConfig(context.TargetConfig)</MudText>
+                                                        <MudText Typo="Typo.body2">
+                                                            @FormatTargetConfig(context.TargetConfig)
+                                                        </MudText>
                                                     </MudTd>
                                                     <MudTd DataLabel="@L["Weights"]">
-                                                        <MudText Typo="Typo.body2" Color="@(string.IsNullOrWhiteSpace(context.TargetWeights) ? Color.Secondary : Color.Default)">
+                                                        <MudText Typo="Typo.body2"
+                                                                 Color="@(string.IsNullOrWhiteSpace(context.TargetWeights)
+                                                                                ? Color.Secondary
+                                                                                : Color.Default)">
                                                             @FormatTargetWeights(context.TargetWeights)
                                                         </MudText>
                                                     </MudTd>
                                                     <MudTd>
                                                         <MudIconButton Icon="@Icons.Material.Rounded.Edit"
+                                                                       aria-label="@L["Edit"]"
                                                                       Size="Size.Small"
                                                                       OnClick="@(() => OpenEditExerciseDialog(context))" />
                                                         <MudIconButton Icon="@Icons.Material.Rounded.Delete"
+                                                                       aria-label="@L["Delete"]"
                                                                       Size="Size.Small"
                                                                       Color="Color.Error"
                                                                       OnClick="@(() => DeleteExerciseAsync(context))" />
@@ -136,7 +155,8 @@ else
                                         }
                                         else
                                         {
-                                            <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+                                            <MudProgressCircular Color="Color.Primary" Size="Size.Small"
+                                                                 Indeterminate="true" />
                                         }
                                     </ChildContent>
                                 </MudExpansionPanel>
@@ -169,7 +189,7 @@ else
     {
         _loading = true;
         _routines = await WorkoutService.GetRoutinesAsync();
-        
+
         _expandedDayExercises.Clear();
         foreach (var routine in _routines ?? Enumerable.Empty<Routine>())
         {
@@ -179,7 +199,7 @@ else
                 _expandedDayExercises[day.Id] = dayWithExercises?.Exercises.OrderBy(e => e.SortOrder).ToList();
             }
         }
-        
+
         _loading = false;
     }
 
@@ -235,10 +255,10 @@ else
             { x => x.Routine, new Routine() },
             { x => x.IsNew, true }
         };
-        
+
         var dialog = await DialogService.ShowAsync<RoutineDialog>(L["NewRoutine"].Value, parameters);
         var result = await dialog.Result;
-        
+
         if (result != null && !result.Canceled && result.Data is Routine routine)
         {
             await WorkoutService.CreateRoutineAsync(routine);
@@ -253,10 +273,10 @@ else
             { x => x.Routine, new Routine { Id = routine.Id, Name = routine.Name, Description = routine.Description } },
             { x => x.IsNew, false }
         };
-        
+
         var dialog = await DialogService.ShowAsync<RoutineDialog>(L["EditRoutine"].Value, parameters);
         var result = await dialog.Result;
-        
+
         if (result != null && !result.Canceled && result.Data is Routine updated)
         {
             routine.Name = updated.Name;
@@ -272,7 +292,7 @@ else
             L["DeleteRoutineTitle"],
             L["DeleteRoutineConfirmation", routine.Name],
             yesText: L["Delete"], cancelText: L["Cancel"]);
-        
+
         if (confirm == true)
         {
             await WorkoutService.DeleteRoutineAsync(routine.Id);
@@ -283,21 +303,21 @@ else
     // Day dialogs
     private async Task OpenAddDayDialog(Routine routine)
     {
-        var newDay = new RoutineDay 
-        { 
+        var newDay = new RoutineDay
+        {
             RoutineId = routine.Id,
             SortOrder = routine.Days.Count + 1
         };
-        
+
         var parameters = new DialogParameters<DayDialog>
         {
             { x => x.Day, newDay },
             { x => x.IsNew, true }
         };
-        
+
         var dialog = await DialogService.ShowAsync<DayDialog>(L["AddDay"].Value, parameters);
         var result = await dialog.Result;
-        
+
         if (result != null && !result.Canceled && result.Data is RoutineDay day)
         {
             await WorkoutService.AddRoutineDayAsync(day);
@@ -312,10 +332,10 @@ else
             { x => x.Day, new RoutineDay { Id = day.Id, RoutineId = day.RoutineId, Name = day.Name, SortOrder = day.SortOrder } },
             { x => x.IsNew, false }
         };
-        
+
         var dialog = await DialogService.ShowAsync<DayDialog>(L["EditDay"].Value, parameters);
         var result = await dialog.Result;
-        
+
         if (result != null && !result.Canceled && result.Data is RoutineDay updated)
         {
             day.Name = updated.Name;
@@ -331,7 +351,7 @@ else
             L["DeleteDayTitle"],
             L["DeleteDayConfirmation", day.Name],
             yesText: L["Delete"], cancelText: L["Cancel"]);
-        
+
         if (confirm == true)
         {
             await WorkoutService.DeleteRoutineDayAsync(day.Id);
@@ -343,22 +363,22 @@ else
     private async Task OpenAddExerciseDialog(RoutineDay day)
     {
         var exercises = _expandedDayExercises.GetValueOrDefault(day.Id);
-        var newExercise = new ExerciseTemplate 
-        { 
+        var newExercise = new ExerciseTemplate
+        {
             RoutineDayId = day.Id,
             SortOrder = (exercises?.Count ?? 0) + 1,
             TargetConfig = "15-12-10-8"
         };
-        
+
         var parameters = new DialogParameters<ExerciseDialog>
         {
             { x => x.Exercise, newExercise },
             { x => x.IsNew, true }
         };
-        
+
         var dialog = await DialogService.ShowAsync<ExerciseDialog>(L["AddExercise"].Value, parameters);
         var result = await dialog.Result;
-        
+
         if (result != null && !result.Canceled && result.Data is ExerciseTemplate exercise)
         {
             await WorkoutService.AddExerciseAsync(exercise);
@@ -370,22 +390,22 @@ else
     {
         var parameters = new DialogParameters<ExerciseDialog>
         {
-            { x => x.Exercise, new ExerciseTemplate 
-                { 
-                    Id = exercise.Id, 
-                    RoutineDayId = exercise.RoutineDayId, 
-                    Name = exercise.Name, 
+            { x => x.Exercise, new ExerciseTemplate
+                {
+                    Id = exercise.Id,
+                    RoutineDayId = exercise.RoutineDayId,
+                    Name = exercise.Name,
                     TargetConfig = exercise.TargetConfig,
                     TargetWeights = exercise.TargetWeights,
-                    SortOrder = exercise.SortOrder 
-                } 
+                    SortOrder = exercise.SortOrder
+                }
             },
             { x => x.IsNew, false }
         };
-        
+
         var dialog = await DialogService.ShowAsync<ExerciseDialog>(L["EditExercise"].Value, parameters);
         var result = await dialog.Result;
-        
+
         if (result != null && !result.Canceled && result.Data is ExerciseTemplate updated)
         {
             exercise.Name = updated.Name;
@@ -403,7 +423,7 @@ else
             L["DeleteExerciseTitle"],
             L["DeleteExerciseConfirmation", exercise.Name],
             yesText: L["Delete"], cancelText: L["Cancel"]);
-        
+
         if (confirm == true)
         {
             await WorkoutService.DeleteExerciseAsync(exercise.Id);

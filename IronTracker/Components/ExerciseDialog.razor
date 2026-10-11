@@ -11,14 +11,14 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudTextField @bind-Value="Exercise.Name" 
-                     Label="@L["ExerciseName"]" 
+        <MudTextField @bind-Value="Exercise.Name"
+                     Label="@L["ExerciseName"]"
                      Required="true"
                      RequiredError="@L["NameIsRequired"]"
                      Placeholder="@L["ExerciseNamePlaceholder"]"
                      Class="mb-4" />
-        <MudTextField @bind-Value="Exercise.TargetConfig" 
-                     Label="@L["TargetRepsPerSet"]" 
+        <MudTextField @bind-Value="Exercise.TargetConfig"
+                     Label="@L["TargetRepsPerSet"]"
                      Required="true"
                      RequiredError="@L["TargetConfigRequired"]"
                      Placeholder="@L["TargetConfigPlaceholder"]"
@@ -33,7 +33,7 @@
                          Style="flex: 1" />
             @if (!string.IsNullOrWhiteSpace(_suggestedWeights))
             {
-                <MudButton Variant="Variant.Outlined" 
+                <MudButton Variant="Variant.Outlined"
                           Color="Color.Primary"
                           Size="Size.Small"
                            OnClick="ApplySuggestedWeights"
@@ -42,11 +42,11 @@
                 </MudButton>
             }
         </div>
-        <MudNumericField @bind-Value="Exercise.SortOrder" 
-                        Label="@L["Order"]" 
+        <MudNumericField @bind-Value="Exercise.SortOrder"
+                        Label="@L["Order"]"
                         Min="1"
                         HelperText="@L["PositionInDaysExerciseList"]" />
-        
+
         @if (!string.IsNullOrWhiteSpace(Exercise.TargetConfig))
         {
             <MudAlert Severity="Severity.Info" Class="mt-4 forge-preview" Dense="true">
@@ -56,7 +56,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
-        <MudButton Color="Color.Primary" Class="forge-action-btn" 
+        <MudButton Color="Color.Primary" Class="forge-action-btn"
                   Variant="Variant.Filled"
                   Disabled="@(!IsValid())"
                   OnClick="Submit">
@@ -211,12 +211,12 @@
             return false;
         if (string.IsNullOrWhiteSpace(Exercise.TargetConfig))
             return false;
-        
+
         // Validate reps format
         var repParts = Exercise.TargetConfig.Split('-', StringSplitOptions.RemoveEmptyEntries);
         if (repParts.Length == 0 || !repParts.All(p => int.TryParse(p.Trim(), out _)))
             return false;
-        
+
         // Validate weights format (if provided)
         if (!string.IsNullOrWhiteSpace(_displayTargetWeights))
         {
@@ -227,7 +227,7 @@
             if (weightParts.Length != repParts.Length)
                 return false;
         }
-        
+
         return true;
     }
 
@@ -243,9 +243,9 @@
         var weightParts = string.IsNullOrWhiteSpace(_displayTargetWeights)
             ? Array.Empty<string>()
             : _displayTargetWeights.Split('-', StringSplitOptions.RemoveEmptyEntries);
-        
+
         var hasWeights = weightParts.Length == repParts.Length && weightParts.All(p => decimal.TryParse(p.Trim(), out _));
-        
+
         if (hasWeights)
         {
             var unit = SettingsService.GetUnitAbbreviation();
@@ -254,7 +254,7 @@
                 .ToArray();
             return L["PreviewLabel", string.Join(", ", setDetails)];
         }
-        
+
         return L["PreviewSetsTargetingReps", repParts.Length, string.Join(", ", repParts)];
     }
 

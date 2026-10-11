@@ -8,7 +8,7 @@
     <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-3">
         @L["Target"]: @Exercise.TargetConfig
     </MudText>
-    
+
     <MudSimpleTable Dense="true" Hover="true" Bordered="true" Class="set-table">
         <thead>
             <tr>
@@ -32,20 +32,20 @@
                         <MudChip T="string" Size="Size.Small" Color="Color.Info">@_targetReps[setIndex]</MudChip>
                     </td>
                     <td>
-                        <MudNumericField T="int" 
-                                        @bind-Value="set.Reps" 
+                        <MudNumericField T="int"
+                                        @bind-Value="set.Reps"
                                         Variant="Variant.Outlined"
-                                        Min="0" 
+                                        Min="0"
                                         Max="100"
                                         Disabled="@set.IsCompleted"
                                         Margin="Margin.Dense"
                                         HideSpinButtons="true" />
                     </td>
                     <td>
-                        <MudNumericField T="decimal" 
-                                        @bind-Value="set.DisplayWeight" 
+                        <MudNumericField T="decimal"
+                                        @bind-Value="set.DisplayWeight"
                                         Variant="Variant.Outlined"
-                                        Min="@SettingsService.GetMinWeight()" 
+                                        Min="@SettingsService.GetMinWeight()"
                                         Max="@SettingsService.GetMaxWeight()"
                                         Step="@SettingsService.GetWeightStepSize()"
                                         Disabled="@set.IsCompleted"
@@ -56,11 +56,12 @@
                     <td class="text-center">
                         @if (set.IsCompleted)
                         {
-                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircle" Color="Color.Success" Class="forge-check-pop" />
+                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircle" Color="Color.Success"
+                                     Class="forge-check-pop" />
                         }
                         else
                         {
-                            <MudIconButton Icon="@Icons.Material.Filled.Check" 
+                            <MudIconButton Icon="@Icons.Material.Filled.Check"
                                           Color="Color.Primary"
                                           Size="Size.Small"
                                           OnClick="@(() => CompleteSetAsync(setIndex))"
@@ -71,7 +72,7 @@
             }
         </tbody>
     </MudSimpleTable>
-    
+
     @if (CompletedSetsCount == _sets.Count && _sets.Count > 0)
     {
         <MudAlert Severity="Severity.Success" Class="mt-3 forge-rise" Dense="true">
@@ -83,23 +84,23 @@
 @code {
     [Parameter, EditorRequired]
     public ExerciseTemplate Exercise { get; set; } = null!;
-    
+
     [Parameter]
     public int SessionId { get; set; }
-    
+
     [Parameter]
     public List<SetLog>? ExistingLogs { get; set; }
-    
+
     [Parameter]
     public Dictionary<int, decimal>? LastWeights { get; set; }
-    
+
     [Parameter]
     public EventCallback<SetCompletedEventArgs> OnSetCompleted { get; set; }
 
     private List<SetEntry> _sets = new();
     private int[] _targetReps = Array.Empty<int>();
     private decimal[] _targetWeights = Array.Empty<decimal>();
-    
+
     public int CompletedSetsCount => _sets.Count(s => s.IsCompleted);
     public bool IsExerciseComplete => _sets.Count > 0 && _sets.All(s => s.IsCompleted);
 
@@ -155,12 +156,12 @@
     private void InitializeSets()
     {
         _sets.Clear();
-        
+
         for (int i = 0; i < _targetReps.Length; i++)
         {
             var setNumber = i + 1;
             var existingLog = ExistingLogs?.FirstOrDefault(l => l.SetNumber == setNumber);
-            
+
             // Weight priority: existing log > template weight > last session weight > 0
             decimal weightInLbs = existingLog?.WeightUsed ?? 0;
             if (weightInLbs == 0 && i < _targetWeights.Length && _targetWeights[i] > 0)
@@ -171,10 +172,10 @@
             {
                 weightInLbs = lastWeight;
             }
-            
+
             // Convert to display unit
             var displayWeight = SettingsService.ConvertToDisplayUnit(weightInLbs);
-            
+
             _sets.Add(new SetEntry
             {
                 SetNumber = setNumber,
@@ -196,21 +197,21 @@
     private string GetWeightHint(int setIndex)
     {
         var setNumber = setIndex + 1;
-        
+
         // Show template weight as hint if defined
         if (setIndex < _targetWeights.Length && _targetWeights[setIndex] > 0)
         {
             var targetDisplay = SettingsService.ConvertToDisplayUnit(_targetWeights[setIndex]);
             return L["TargetWeightHint", targetDisplay];
         }
-        
+
         // Fall back to last session weight
         if (LastWeights != null && LastWeights.TryGetValue(setNumber, out var lastWeight) && lastWeight > 0)
         {
             var lastDisplay = SettingsService.ConvertToDisplayUnit(lastWeight);
             return L["LastWeightHint", lastDisplay];
         }
-        
+
         return "";
     }
 

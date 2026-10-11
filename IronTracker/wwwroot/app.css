@@ -30,8 +30,8 @@
 .forge-light {
     --forge-border-hot: #EBC3AE;
     --forge-highlight: rgba(255, 255, 255, 0.9);
-    --forge-glow: 0 0 18px rgba(226, 85, 26, 0.18);
-    --forge-glow-strong: 0 0 24px rgba(226, 85, 26, 0.3);
+    --forge-glow: 0 0 18px rgba(201, 68, 16, 0.18);
+    --forge-glow-strong: 0 0 24px rgba(201, 68, 16, 0.3);
     --forge-hatch: rgba(0, 0, 0, 0.025);
     --forge-sidebar-from: #FFFFFF;
     --forge-sidebar-to: #F3F1ED;
@@ -201,10 +201,6 @@ h1:focus {
     border-color: var(--forge-border);
 }
 
-.forge-glow {
-    box-shadow: var(--forge-glow);
-}
-
 .forge-glow-text {
     animation: glow-pulse 3s ease-in-out infinite;
 }
@@ -242,7 +238,9 @@ h1:focus {
 }
 
 .forge-btn-ember:focus-visible,
-.forge-root button:focus-visible {
+.forge-root button:focus-visible,
+.forge-root a:focus-visible,
+.forge-root .mud-nav-link:focus-visible {
     outline: 2px solid var(--forge-hot);
     outline-offset: 2px;
 }
@@ -282,7 +280,8 @@ h1:focus {
 .forge-drawer.mud-drawer {
     border-right: 1px solid var(--forge-border);
     background:
-        repeating-linear-gradient(135deg, var(--forge-hatch) 0, var(--forge-hatch) 1px, transparent 1px, transparent 7px),
+        repeating-linear-gradient(
+            135deg, var(--forge-hatch) 0, var(--forge-hatch) 1px, transparent 1px, transparent 7px),
         linear-gradient(180deg, var(--forge-sidebar-from), var(--forge-sidebar-to));
 }
 
@@ -332,11 +331,17 @@ h1:focus {
     color: var(--forge-text);
 }
 
+/* Active nav item (app drawer and session exercise nav share the look; the glow is drawer-only) */
 .forge-nav .mud-nav-link.active,
-.forge-nav .mud-nav-link.active:hover {
+.forge-nav .mud-nav-link.active:hover,
+.session-nav .mud-nav-link.session-ex-active {
     color: var(--forge-ember);
     border-color: rgba(var(--forge-ember-rgb), 0.45);
     background: linear-gradient(90deg, rgba(var(--forge-ember-rgb), 0.2), rgba(var(--forge-ember-rgb), 0.05));
+}
+
+.forge-nav .mud-nav-link.active,
+.forge-nav .mud-nav-link.active:hover {
     box-shadow: var(--forge-glow);
 }
 
@@ -415,10 +420,9 @@ h1:focus {
 }
 
 /* ---------- Keyframes + helpers ---------- */
-.forge-rise,
-.rise-in {
-    opacity: 0;
-    animation: rise-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+/* Backwards fill: the hidden "from" state applies during the delay only, so hover transforms still work after */
+.forge-rise {
+    animation: rise-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
 .stagger-1 { animation-delay: 0.05s; }
@@ -503,7 +507,6 @@ h1:focus {
 
 @media (prefers-reduced-motion: reduce) {
     .forge-rise,
-    .rise-in,
     .flame-flicker,
     .spark,
     .forge-glow-text,
@@ -512,12 +515,6 @@ h1:focus {
     .forge-chart [class*="mud-chart-serie"],
     .set-table .current-set {
         animation: none !important;
-    }
-
-    .forge-rise,
-    .rise-in {
-        opacity: 1;
-        transform: none;
     }
 
     .spark {
@@ -875,12 +872,6 @@ h1:focus {
     color: var(--forge-text);
 }
 
-.session-nav .mud-nav-link.session-ex-active {
-    color: var(--forge-ember);
-    border-color: rgba(var(--forge-ember-rgb), 0.45);
-    background: linear-gradient(90deg, rgba(var(--forge-ember-rgb), 0.2), rgba(var(--forge-ember-rgb), 0.05));
-}
-
 .session-panels .mud-expand-panel {
     background: var(--forge-surface);
     border: 1px solid var(--forge-border);
@@ -974,6 +965,4 @@ h1:focus {
         right: -40px;
         opacity: 0.35;
     }
-
 }
-

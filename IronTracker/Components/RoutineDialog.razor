@@ -10,20 +10,20 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudTextField @bind-Value="Routine.Name" 
-                     Label="@L["RoutineName"]" 
+        <MudTextField @bind-Value="Routine.Name"
+                     Label="@L["RoutineName"]"
                      Required="true"
                      RequiredError="@L["NameIsRequired"]"
                      Placeholder="@L["RoutineNamePlaceholder"]"
                      Class="mb-4" />
-        <MudTextField @bind-Value="Routine.Description" 
-                     Label="@L["Description"]" 
+        <MudTextField @bind-Value="Routine.Description"
+                     Label="@L["Description"]"
                      Lines="2"
                      Placeholder="@L["OptionalDescription"]" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
-        <MudButton Color="Color.Primary" Class="forge-action-btn" 
+        <MudButton Color="Color.Primary" Class="forge-action-btn"
                   Variant="Variant.Filled"
                   Disabled="@(string.IsNullOrWhiteSpace(Routine.Name))"
                   OnClick="Submit">

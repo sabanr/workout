@@ -12,9 +12,10 @@
 <PageTitle>@L["Dashboard"] - IronTracker</PageTitle>
 
 <div class="d-flex justify-space-between align-center mb-4">
-    <MudText Typo="Typo.h4">@L["Dashboard"]</MudText>
-    <MudIconButton Icon="@Icons.Material.Filled.Settings"
+    <h1 class="forge-display forge-page-title">@L["Dashboard"]</h1>
+    <MudIconButton Icon="@Icons.Material.Rounded.Settings"
                    Size="Size.Medium"
+                   Class="home-settings-btn"
                    OnClick="OpenDashboardSettings"
                    Title="@L["DashboardSettings"]" />
 </div>
@@ -25,149 +26,95 @@
 }
 else
 {
-    <MudGrid>
-        @* Streak Card *@
+    @* Quick Start hero *@
+    @if (SettingsService.ShowQuickStartCard)
+    {
+        <section class="forge-card forge-hero-bg home-hero forge-rise stagger-1">
+            <div class="home-hero-text">
+                <span class="forge-stat-label home-hero-kicker">
+                    @(_hasActiveSession ? L["SessionActive"] : L["ReadyToTrain"])
+                </span>
+                <button type="button" class="forge-btn-ember home-hero-btn" @onclick="@(() => Navigation.NavigateTo("/session"))">
+                    <MudIcon Icon="@Icons.Material.Rounded.PlayArrow" />
+                    @(_hasActiveSession ? L["ContinueWorkout"] : L["StartWorkout"])
+                </button>
+            </div>
+            <BarbellHero Class="home-hero-art" />
+        </section>
+    }
+
+    @* Rolling stats (last 30 days) *@
+    <section class="home-stats">
         @if (SettingsService.ShowStreakCard)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Style="min-height: 200px; height: 200px;">
-                    <MudCardContent Class="d-flex flex-column align-center pa-6">
-                        <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment"
-                                 Color="@(_stats!.ConsecutiveDaysStreak > 0 ? Color.Warning : Color.Default)"
-                                 Size="Size.Large" />
-                        <MudText Typo="Typo.h2" Class="my-2">@_stats!.ConsecutiveDaysStreak</MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
-                            @L["DaysStreakLabel"]
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+            <StatTile Label="@L["DaysStreakLabel"]" Value="@_stats!.ConsecutiveDaysStreak.ToString()" Stagger="2">
+                <Visual>
+                    @if (_stats!.ConsecutiveDaysStreak > 0)
+                    {
+                        <FlameIcon Width="28" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Rounded.LocalFireDepartment" Class="forge-muted" />
+                    }
+                </Visual>
+            </StatTile>
         }
 
-        @* Quick Start Card *@
-        @if (SettingsService.ShowQuickStartCard)
-        {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Style="min-height: 200px; height: 200px;">
-                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="height: 100%;">
-                        @if (_hasActiveSession)
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Success" Size="Size.Large" />
-                            <MudText Typo="Typo.h6" Class="my-2">@L["SessionActive"]</MudText>
-                            <MudButton Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                                       OnClick="@(() => Navigation.NavigateTo("/session"))">
-                                @L["ContinueWorkout"]
-                            </MudButton>
-                        }
-                        else
-                        {
-                            <MudIcon Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Primary" Size="Size.Large" />
-                            <MudText Typo="Typo.h6" Class="my-2">@L["ReadyToTrain"]</MudText>
-                            <MudButton Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                                       OnClick="@(() => Navigation.NavigateTo("/session"))">
-                                @L["StartWorkout"]
-                            </MudButton>
-                        }
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-        }
-
-        @* Rolling Stats Cards (Last 30 Days) *@
         @if (SettingsService.ShowWorkoutsCard)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Style="min-height: 200px; height: 200px;">
-                    <MudCardContent Class="d-flex flex-column align-center pa-6">
-                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Color="Color.Primary" Size="Size.Large" />
-                        <MudText Typo="Typo.h2" Class="my-2">@_stats!.WorkoutsThisMonth</MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
-                            @L["Workouts"] (30d)
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+            <StatTile Label="@($"{L["Workouts"]} (30d)")" Value="@_stats!.WorkoutsThisMonth.ToString()" Stagger="3" />
         }
 
         @if (SettingsService.ShowVolumeCard)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Style="min-height: 200px; height: 200px;">
-                    <MudCardContent Class="d-flex flex-column align-center pa-6">
-                        <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Color="Color.Secondary" Size="Size.Large" />
-                        <MudText Typo="Typo.h2" Class="my-2">@FormatVolume(_stats!.VolumeThisMonth)</MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
-                            @L["Volume"] (30d)
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+            <StatTile Label="@($"{L["Volume"]} (30d)")" Value="@FormatVolume(_stats!.VolumeThisMonth)" Stagger="4" />
         }
 
         @if (SettingsService.ShowAvgDurationCard)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Style="min-height: 200px; height: 200px;">
-                    <MudCardContent Class="d-flex flex-column align-center pa-6">
-                        <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Info" Size="Size.Large" />
-                        <MudText Typo="Typo.h2" Class="my-2">@FormatDurationShort(_stats!.AverageDuration)</MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
-                            @L["AvgDuration"] (30d)
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+            <StatTile Label="@($"{L["AvgDuration"]} (30d)")" Value="@FormatDurationShort(_stats!.AverageDuration)"
+                      Stagger="5" />
         }
 
         @if (SettingsService.ShowFavoriteRoutineCard)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Style="min-height: 200px; height: 200px;">
-                    <MudCardContent Class="d-flex flex-column align-center pa-6">
-                        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Size="Size.Large" />
-                        <MudText Typo="@(GetTypographyForRoutine(_stats!.FavoriteRoutineName))" Class="my-2 text-truncate" Style="max-width: 100%;">
-                            @(_stats!.FavoriteRoutineName ?? "-")
-                        </MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
-                            @L["Favorite"] (30d)
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+            <StatTile Label="@($"{L["Favorite"]} (30d)")" Value="@(_stats!.FavoriteRoutineName ?? "-")"
+                      Compact="true" Stagger="6" />
         }
 
         @if (SettingsService.ShowFrequencyCard)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <MudCard Style="min-height: 200px; height: 200px;">
-                    <MudCardContent Class="d-flex flex-column align-center pa-6">
-                        <MudIcon Icon="@Icons.Material.Filled.ShowChart" Color="Color.Success" Size="Size.Large" />
-                        <MudText Typo="Typo.h2" Class="my-2">@($"{_stats!.TrainingFrequency:F0}%")</MudText>
-                        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Align="Align.Center">
-                            @L["Consistency"] (30d)
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
+            <StatTile Label="@($"{L["Consistency"]} (30d)")" Value="@($"{_stats!.TrainingFrequency:F0}%")" Stagger="7">
+                <Visual>
+                    <svg class="home-gauge" viewBox="0 0 36 36" aria-hidden="true">
+                        <circle class="home-gauge-track" cx="18" cy="18" r="15.9" />
+                        <circle class="home-gauge-fill" cx="18" cy="18" r="15.9" pathLength="100"
+                                stroke-dasharray="@GetGaugeDash()" />
+                    </svg>
+                </Visual>
+            </StatTile>
         }
+    </section>
 
+    <MudGrid>
         @* Weekly Volume Chart (Last 3 Months) *@
         @if (SettingsService.ShowVolumeChart)
         {
             <MudItem xs="12" md="8">
-                <MudCard>
+                <MudCard Elevation="0" Class="forge-card forge-card-static forge-rise stagger-4">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@L["WeeklyTrainingVolume", SettingsService.GetUnitAbbreviation()]</MudText>
+                            <h2 class="forge-section-title mb-0">
+                                @L["WeeklyTrainingVolume", SettingsService.GetUnitAbbreviation()]
+                            </h2>
                             @if (!string.IsNullOrEmpty(_chartSubtitle))
                             {
                                 <MudText Typo="Typo.caption" Color="Color.Secondary">@_chartSubtitle</MudText>
                             }
                         </CardHeaderContent>
                     </MudCardHeader>
-                    <MudCardContent>
+                    <MudCardContent Class="forge-chart">
                         @if (_chartLabels.Length > 0)
                         {
                             <MudChart ChartType="ChartType.Bar"
@@ -192,19 +139,19 @@ else
         @if (SettingsService.ShowRecentActivity)
         {
             <MudItem xs="12" md="4">
-                <MudCard>
+                <MudCard Elevation="0" Class="forge-card forge-card-static forge-rise stagger-5">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@L["RecentActivity"]</MudText>
+                            <h2 class="forge-section-title mb-0">@L["RecentActivity"]</h2>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent Style="max-height: 340px; overflow-y: auto;">
                         @if (_stats!.RecentSessions.Count > 0)
                         {
-                            <MudList T="WorkoutSession" Dense="true">
+                            <MudList T="WorkoutSession" Dense="true" Class="home-list">
                                 @foreach (var session in _stats.RecentSessions)
                                 {
-                                    <MudListItem Icon="@Icons.Material.Filled.FitnessCenter">
+                                    <MudListItem Icon="@Icons.Material.Rounded.FitnessCenter" IconColor="Color.Primary">
                                         <div class="d-flex flex-column">
                                             <MudText Typo="Typo.body2">@session.RoutineDay?.Name</MudText>
                                             <MudText Typo="Typo.caption" Color="Color.Secondary">
@@ -231,19 +178,20 @@ else
         @if (SettingsService.ShowPersonalRecordsCard)
         {
             <MudItem xs="12" md="6">
-                <MudCard>
+                <MudCard Elevation="0" Class="forge-card forge-card-static forge-rise stagger-6">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@L["PersonalRecords"]</MudText>
+                            <h2 class="forge-section-title mb-0">@L["PersonalRecords"]</h2>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent Style="max-height: 340px; overflow-y: auto;">
                         @if (_stats!.TopPersonalRecords.Count > 0)
                         {
-                            <MudList T="PersonalRecord" Dense="true">
+                            <MudList T="PersonalRecord" Dense="true" Class="home-list">
                                 @foreach (var pr in _stats.TopPersonalRecords)
                                 {
-                                    <MudListItem Icon="@Icons.Material.Filled.TrendingUp">
+                                    <MudListItem Icon="@Icons.Material.Rounded.EmojiEvents" IconColor="Color.Secondary"
+                                                 Class="forge-shimmer">
                                         <div class="d-flex flex-column" Style="width: 100%;">
                                             <MudText Typo="Typo.body2">@pr.ExerciseName</MudText>
                                             <div class="d-flex justify-space-between">
@@ -279,8 +227,9 @@ else
     private List<ChartSeries> _chartSeries = new();
     private string[] _chartLabels = Array.Empty<string>();
     private string _chartSubtitle = string.Empty;
-    // Y-axis step is recalculated from the data in PrepareChartData.
-    private ChartOptions _chartOptions = new() { YAxisTicks = 5 };
+    // Y-axis step is recalculated from the data in PrepareChartData. The palette points at the theme's primary
+    // (ember) so the bars follow the light/dark palette.
+    private ChartOptions _chartOptions = new() { YAxisTicks = 5, ChartPalette = ["var(--mud-palette-primary)"] };
 
     protected override async Task OnInitializedAsync()
     {
@@ -424,10 +373,10 @@ else
     {
         if (!duration.HasValue)
             return L["InProgress"];
-        
+
         if (duration.Value.TotalHours >= 1)
             return $"{duration.Value.Hours}h {duration.Value.Minutes}m";
-        
+
         return $"{duration.Value.Minutes}m";
     }
 
@@ -435,12 +384,12 @@ else
     {
         var displayVolume = SettingsService.ConvertToDisplayUnit(volume);
         var unit = SettingsService.GetUnitAbbreviation();
-        
+
         if (displayVolume >= 1_000_000)
             return $"{(displayVolume / 1_000_000):F1}M {unit}";
         if (displayVolume >= 1_000)
             return $"{(displayVolume / 1_000):F1}K {unit}";
-            
+
         return $"{displayVolume:F0} {unit}";
     }
 
@@ -448,16 +397,15 @@ else
     {
         if (duration.TotalMinutes < 1)
             return "-";
-        
+
         return $"{Math.Round(duration.TotalMinutes)}m";
     }
 
-    private Typo GetTypographyForRoutine(string? name)
+    // Dash pattern for the consistency gauge: the ring has pathLength 100, so the filled arc is the percentage.
+    private string GetGaugeDash()
     {
-        if (string.IsNullOrEmpty(name)) return Typo.h2;
-        if (name.Length > 15) return Typo.h5;
-        if (name.Length > 10) return Typo.h4;
-        return Typo.h3;
+        var percent = Math.Clamp(_stats!.TrainingFrequency, 0, 100);
+        return FormattableString.Invariant($"{percent:F1} 100");
     }
 
     public void Dispose()

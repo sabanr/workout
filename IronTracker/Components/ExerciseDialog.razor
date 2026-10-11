@@ -5,8 +5,8 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Class="mr-2" />
+        <MudText Typo="Typo.h6" Class="forge-display forge-dialog-title">
+            <MudIcon Icon="@Icons.Material.Rounded.FitnessCenter" Class="mr-2 forge-dialog-icon" />
             @(IsNew ? L["AddExercise"] : L["EditExercise"])
         </MudText>
     </TitleContent>
@@ -49,14 +49,14 @@
         
         @if (!string.IsNullOrWhiteSpace(Exercise.TargetConfig))
         {
-            <MudAlert Severity="Severity.Info" Class="mt-4" Dense="true">
+            <MudAlert Severity="Severity.Info" Class="mt-4 forge-preview" Dense="true">
                 @FormatPreview()
             </MudAlert>
         }
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
-        <MudButton Color="Color.Primary" 
+        <MudButton Color="Color.Primary" Class="forge-action-btn" 
                   Variant="Variant.Filled"
                   Disabled="@(!IsValid())"
                   OnClick="Submit">

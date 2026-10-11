@@ -124,15 +124,6 @@ h1:focus {
     letter-spacing: 0.04em;
 }
 
-/* Workout session specific styles */
-.exercise-card {
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.exercise-card:hover {
-    transform: translateY(-2px);
-}
-
 /* Completed set row styling - subtle opacity fade */
 .completed-set {
     opacity: 0.6;
@@ -449,13 +440,6 @@ h1:focus {
     50% { text-shadow: 0 0 14px rgba(var(--forge-ember-rgb), 0.55); }
 }
 
-.forge-bar,
-.bar-grow {
-    transform-origin: bottom;
-    transform: scaleY(0);
-    animation: bar-grow 0.9s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
-}
-
 @keyframes bar-grow {
     from { transform: scaleY(0); }
     to { transform: scaleY(1); }
@@ -508,17 +492,6 @@ h1:focus {
     60%, 100% { left: 130%; }
 }
 
-/* Active/in-progress emphasis: pulsing ember border */
-.forge-ember-pulse {
-    border-color: rgba(var(--forge-ember-rgb), 0.6);
-    animation: ember-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes ember-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--forge-ember-rgb), 0), inset 0 1px 0 var(--forge-highlight); }
-    50% { box-shadow: 0 0 22px 2px rgba(var(--forge-ember-rgb), 0.4), inset 0 1px 0 var(--forge-highlight); }
-}
-
 .forge-check-pop {
     animation: check-pop 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
@@ -528,28 +501,16 @@ h1:focus {
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Rest-timer ring: set stroke-dasharray to the circumference, animate the offset to it via --ring-len */
-.forge-ring-drain {
-    animation: ring-drain var(--ring-duration, 60s) linear forwards;
-}
-
-@keyframes ring-drain {
-    from { stroke-dashoffset: 0; }
-    to { stroke-dashoffset: var(--ring-len, 283); }
-}
-
 @media (prefers-reduced-motion: reduce) {
     .forge-rise,
     .rise-in,
-    .forge-bar,
-    .bar-grow,
     .flame-flicker,
     .spark,
     .forge-glow-text,
     .forge-shimmer::after,
-    .forge-ember-pulse,
     .forge-check-pop,
-    .forge-ring-drain {
+    .forge-chart [class*="mud-chart-serie"],
+    .set-table .current-set {
         animation: none !important;
     }
 
@@ -559,17 +520,14 @@ h1:focus {
         transform: none;
     }
 
-    .forge-bar,
-    .bar-grow {
-        transform: none;
-    }
-
     .spark {
         opacity: 0;
     }
 
     .forge-card,
-    .forge-btn-ember {
+    .forge-btn-ember,
+    .session-progress-fill,
+    .rest-ring-fill {
         transition: none;
     }
 
@@ -578,3 +536,444 @@ h1:focus {
         transform: none;
     }
 }
+
+/* ==========================================================================
+   Track B: Routines, History and dialogs
+   ========================================================================== */
+.forge-page-title {
+    margin: 0;
+    font-weight: 700;
+    font-size: 2.25rem;
+    line-height: 1.1;
+    color: var(--forge-text);
+}
+
+.forge-page-title::after {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 3px;
+    margin-top: 6px;
+    border-radius: 2px;
+    background: var(--forge-ember);
+    box-shadow: var(--forge-glow);
+}
+
+.forge-day-name {
+    font-family: var(--forge-font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.forge-routine-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.forge-routine-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--forge-ember), transparent);
+}
+
+.forge-action-btn.mud-button-filled {
+    font-family: var(--forge-font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: var(--forge-glow);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.forge-action-btn.mud-button-filled:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--forge-glow-strong);
+}
+
+.forge-chip.mud-chip {
+    font-family: var(--forge-font-display);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.forge-chip-volume.mud-chip.mud-chip-filled {
+    background: rgba(var(--forge-ember-rgb), 0.18);
+    color: var(--forge-ember);
+    border: 1px solid rgba(var(--forge-ember-rgb), 0.45);
+}
+
+.forge-panels .mud-expand-panel {
+    background: var(--forge-surface-2);
+    border: 1px solid var(--forge-border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.forge-panels .mud-expand-panel:hover {
+    border-color: var(--forge-border-hot);
+}
+
+.forge-table .mud-table-head .mud-table-cell,
+.forge-table th {
+    font-family: var(--forge-font-display);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--forge-muted);
+}
+
+.forge-table.mud-table,
+.forge-table .mud-table-container {
+    background: transparent;
+}
+
+.forge-preset-group .mud-button-root {
+    font-family: var(--forge-font-display);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.forge-timeline-day {
+    display: block;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--forge-text);
+}
+
+.forge-timeline .mud-timeline-item-dot-inner {
+    box-shadow: var(--forge-glow);
+}
+
+.forge-timeline .mud-timeline-item-divider::before,
+.forge-timeline .mud-timeline-item-divider::after {
+    background: var(--forge-border);
+}
+
+/* Empty state */
+.forge-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.forge-empty-art {
+    width: min(100%, 320px);
+    height: auto;
+}
+
+.forge-empty-text {
+    margin: 0;
+    font-family: var(--forge-font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--forge-muted);
+}
+
+/* Dialogs */
+.forge-dialog-title {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.forge-dialog-icon {
+    color: var(--forge-ember);
+}
+
+.forge-preview.mud-alert {
+    border: 1px solid rgba(var(--forge-ember-rgb), 0.4);
+    background: rgba(var(--forge-ember-rgb), 0.1);
+    color: var(--forge-text);
+}
+
+.forge-preview .mud-alert-icon {
+    color: var(--forge-ember);
+}
+
+@media (max-width: 600px) {
+    .forge-page-title {
+        font-size: 1.75rem;
+    }
+}
+
+/* =============================================================
+   Track A: Dashboard (Home), Active Session, SetTracker, RestTimer
+   ============================================================= */
+
+.home-settings-btn {
+    border: 1px solid var(--forge-border);
+    border-radius: 9px;
+    background: var(--forge-surface);
+}
+
+/* Hero quick start */
+.home-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 148px;
+    padding: 0 32px;
+    margin-bottom: 16px;
+}
+
+.home-hero-text {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.home-hero-kicker {
+    color: var(--forge-hot);
+    font-size: 1.125rem;
+}
+
+.home-hero-btn .mud-icon-root {
+    font-size: 1.5rem;
+}
+
+.home-hero-art {
+    position: absolute;
+    right: 40px;
+    top: 0;
+    height: 100%;
+    width: auto;
+    max-width: 55%;
+    pointer-events: none;
+}
+
+/* Stat tiles */
+.home-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-tile {
+    padding: 14px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.stat-tile-body {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.stat-tile .forge-stat {
+    font-size: 2.375rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stat-tile .forge-stat.stat-tile-compact {
+    font-size: 1.5rem;
+}
+
+.home-gauge {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    transform: rotate(-90deg);
+}
+
+.home-gauge circle {
+    fill: none;
+    stroke-width: 4;
+}
+
+.home-gauge-track {
+    stroke: var(--forge-border);
+}
+
+.home-gauge-fill {
+    stroke: var(--forge-ember);
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 3px rgba(var(--forge-ember-rgb), 0.6));
+}
+
+/* Weekly volume chart: ember bars that grow from the baseline, muted themed axes */
+.forge-chart text {
+    fill: var(--forge-muted);
+    font-family: var(--forge-font-body);
+}
+
+.forge-chart [class*="mud-chart-serie"] {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: bar-grow 0.9s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+    filter: drop-shadow(0 0 6px rgba(var(--forge-ember-rgb), 0.35));
+}
+
+.home-list .mud-list-item {
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.home-list .mud-list-item:hover {
+    background: var(--forge-surface-2);
+}
+
+/* Session header + progress */
+.session-progress {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.session-progress-bar {
+    flex: 1;
+    height: 10px;
+    border-radius: 5px;
+    background: var(--forge-surface-2);
+    border: 1px solid var(--forge-border);
+    overflow: hidden;
+}
+
+.session-progress-fill {
+    height: 100%;
+    transform-origin: left;
+    background: linear-gradient(90deg, var(--forge-ember), var(--forge-hot));
+    box-shadow: 0 0 14px rgba(var(--forge-ember-rgb), 0.6);
+    transition: width 0.5s ease;
+}
+
+/* Exercise navigation */
+.session-nav .mud-nav-link {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--forge-muted);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.session-nav .mud-nav-link:hover {
+    background: var(--forge-surface-2);
+    color: var(--forge-text);
+}
+
+.session-nav .mud-nav-link.session-ex-active {
+    color: var(--forge-ember);
+    border-color: rgba(var(--forge-ember-rgb), 0.45);
+    background: linear-gradient(90deg, rgba(var(--forge-ember-rgb), 0.2), rgba(var(--forge-ember-rgb), 0.05));
+}
+
+.session-panels .mud-expand-panel {
+    background: var(--forge-surface);
+    border: 1px solid var(--forge-border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+/* Set rows: done dimmed, current highlighted with an ember edge, pending normal */
+.set-table .current-set {
+    box-shadow: inset 3px 0 0 var(--forge-ember);
+    animation: set-row-pulse 2.4s ease-in-out infinite;
+}
+
+.set-table .pending-set {
+    opacity: 0.92;
+}
+
+@keyframes set-row-pulse {
+    0%, 100% { background-color: rgba(var(--forge-ember-rgb), 0.04); }
+    50% { background-color: rgba(var(--forge-ember-rgb), 0.14); }
+}
+
+/* Rest timer ring */
+.rest-ring {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 12px 0;
+    --rest-ring-color: var(--forge-ember);
+}
+
+.rest-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.rest-ring circle {
+    fill: none;
+    stroke-width: 6;
+}
+
+.rest-ring-track {
+    stroke: var(--forge-surface-2);
+}
+
+.rest-ring-fill {
+    stroke-linecap: round;
+    stroke: var(--rest-ring-color);
+    transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+}
+
+/* Ring state colors (set from RestTimer via state classes) */
+.rest-ring--idle {
+    --rest-ring-color: var(--forge-muted);
+}
+
+.rest-ring--ok {
+    --rest-ring-color: var(--forge-ember);
+}
+
+.rest-ring--warn {
+    --rest-ring-color: var(--forge-hot);
+}
+
+.rest-ring--danger {
+    --rest-ring-color: var(--mud-palette-error);
+}
+
+.rest-ring-running .rest-ring-fill {
+    filter: drop-shadow(0 0 6px rgba(var(--forge-ember-rgb), 0.55));
+}
+
+.rest-ring-time {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: var(--rest-ring-color);
+}
+
+@media (max-width: 600px) {
+    .home-hero {
+        padding: 20px;
+    }
+
+    .home-hero-art {
+        right: -40px;
+        opacity: 0.35;
+    }
+
+}
+

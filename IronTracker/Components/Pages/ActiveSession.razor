@@ -15,8 +15,8 @@
 else if (_session == null && _routineDay == null)
 {
     @* No active session - show routine selection *@
-    <MudText Typo="Typo.h4" Class="mb-4">@L["StartAWorkout"]</MudText>
-    
+    <h1 class="forge-display forge-page-title mb-4">@L["StartAWorkout"]</h1>
+
     @if (_routines == null || _routines.Count == 0)
     {
         <MudAlert Severity="Severity.Info">
@@ -29,10 +29,10 @@ else if (_session == null && _routineDay == null)
             @foreach (var routine in _routines)
             {
                 <MudItem xs="12">
-                    <MudCard>
+                    <MudCard Elevation="0" Class="forge-card forge-rise">
                         <MudCardHeader>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.h6">@routine.Name</MudText>
+                                <h2 class="forge-section-title mb-0">@routine.Name</h2>
                             </CardHeaderContent>
                         </MudCardHeader>
                         <MudCardContent>
@@ -63,25 +63,34 @@ else
     <MudGrid>
         @* Header *@
         <MudItem xs="12">
-            <MudPaper Class="pa-4 d-flex justify-space-between align-center" Elevation="1">
-                <div>
-                    <MudText Typo="Typo.h5">@_routineDay?.Name</MudText>
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">
-                        @L["StartedAt", _session?.StartTime.ToLocalTime().ToString("HH:mm")]
-                    </MudText>
+            <MudPaper Class="pa-4 forge-card forge-card-static forge-rise" Elevation="0">
+                <div class="d-flex justify-space-between align-center">
+                    <div>
+                        <h1 class="forge-display forge-page-title">@_routineDay?.Name</h1>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            @L["StartedAt", _session?.StartTime.ToLocalTime().ToString("HH:mm")]
+                        </MudText>
+                    </div>
+                    <MudButtonGroup Variant="Variant.Filled">
+                        <MudButton Color="Color.Error"
+                                   StartIcon="@Icons.Material.Rounded.Stop"
+                                   OnClick="EndSessionAsync">
+                            @L["EndSession"]
+                        </MudButton>
+                        <MudIconButton Icon="@Icons.Material.Rounded.Cancel"
+                                       Color="Color.Default"
+                                       Size="Size.Medium"
+                                       Title="@L["CancelSession"]"
+                                       OnClick="CancelSessionAsync" />
+                    </MudButtonGroup>
                 </div>
-                <MudButtonGroup Variant="Variant.Filled">
-                    <MudButton Color="Color.Error"
-                               StartIcon="@Icons.Material.Filled.Stop"
-                               OnClick="EndSessionAsync">
-                        @L["EndSession"]
-                    </MudButton>
-                    <MudIconButton Icon="@Icons.Material.Filled.Cancel"
-                                   Color="Color.Default"
-                                   Size="Size.Medium"
-                                   Title="@L["CancelSession"]"
-                                   OnClick="CancelSessionAsync" />
-                </MudButtonGroup>
+                <div class="session-progress">
+                    <div class="session-progress-bar" role="progressbar" aria-valuemin="0"
+                         aria-valuemax="@TotalSets" aria-valuenow="@CompletedSets">
+                        <div class="session-progress-fill" style="width: @ProgressPercent%;"></div>
+                    </div>
+                    <span class="forge-stat-label">@CompletedSets / @TotalSets</span>
+                </div>
             </MudPaper>
         </MudItem>
 
@@ -89,9 +98,10 @@ else
         <MudHidden Breakpoint="Breakpoint.SmAndDown">
             @* Desktop Layout *@
             <MudItem md="4" lg="3">
-                <MudPaper Class="pa-3" Elevation="1" Style="position: sticky; top: 80px;">
-                    <MudText Typo="Typo.subtitle1" Class="mb-2">@L["Exercises"]</MudText>
-                    <MudNavMenu>
+                <MudPaper Class="pa-3 forge-card forge-card-static forge-rise stagger-1" Elevation="0"
+                          Style="position: sticky; top: 80px;">
+                    <h2 class="forge-stat-label mb-2">@L["Exercises"]</h2>
+                    <MudNavMenu Class="session-nav">
                         @if (_exercises != null)
                         {
                             @foreach (var exercise in _exercises)
@@ -99,9 +109,9 @@ else
                                 var isComplete = IsExerciseComplete(exercise.Name);
                                 var isActive = _currentExercise?.Name == exercise.Name;
                                 <MudNavLink OnClick="@(() => SelectExercise(exercise))"
-                                            Icon="@(isComplete ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.FitnessCenter)"
+                                            Icon="@GetExerciseIcon(isComplete, isActive)"
                                             IconColor="@(isComplete ? Color.Success : (isActive ? Color.Primary : Color.Default))"
-                                            Class="@(isActive ? "mud-primary-text" : "")">
+                                            Class="@(isActive ? "session-ex-active" : "")">
                                     @exercise.Name
                                 </MudNavLink>
                             }
@@ -143,7 +153,7 @@ else
             </MudItem>
             
             <MudItem xs="12">
-                <MudExpansionPanels MultiExpansion="false">
+                <MudExpansionPanels MultiExpansion="false" Class="session-panels">
                     @if (_exercises != null)
                     {
                         @foreach (var exercise in _exercises)
@@ -152,7 +162,7 @@ else
                             <MudExpansionPanel @bind-Expanded="@_expandedPanels[exercise.Name]">
                                 <TitleContent>
                                     <div class="d-flex align-center">
-                                        <MudIcon Icon="@(isComplete ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.FitnessCenter)"
+                                        <MudIcon Icon="@GetExerciseIcon(isComplete, false)"
                                                  Color="@(isComplete ? Color.Success : Color.Default)"
                                                  Class="mr-2" />
                                         <MudText>@exercise.Name</MudText>
@@ -288,6 +298,19 @@ else
         var logs = GetLogsForExercise(exerciseName);
         return logs.Count >= exercise.SetCount;
     }
+
+    private static string GetExerciseIcon(bool isComplete, bool isActive)
+    {
+        if (isComplete) return Icons.Material.Rounded.CheckCircle;
+        return isActive ? Icons.Material.Rounded.PlayCircle : Icons.Material.Rounded.RadioButtonUnchecked;
+    }
+
+    // Overall session progress, derived from the same logs that drive the per-exercise checkmarks.
+    private int TotalSets => _exercises?.Sum(e => e.SetCount) ?? 0;
+
+    private int CompletedSets => _exercises?.Sum(e => Math.Min(GetLogsForExercise(e.Name).Count, e.SetCount)) ?? 0;
+
+    private int ProgressPercent => TotalSets == 0 ? 0 : CompletedSets * 100 / TotalSets;
 
     private async Task StartSessionAsync(int dayId)
     {

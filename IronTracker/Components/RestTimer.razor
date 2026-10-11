@@ -3,21 +3,21 @@
 @using Plugin.Maui.Audio
 @inject IStringLocalizer<AppResources> L
 
-<MudPaper Class="pa-4 d-flex flex-column align-center" Elevation="2">
-    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@L["RestTimer"]</MudText>
-    
-    <MudText Typo="Typo.h2" Class="my-4" Color="@GetTimerColor()">
-        @TimeSpan.FromSeconds(_remainingSeconds).ToString(@"mm\:ss")
-    </MudText>
-    
-    @if (_isRunning)
-    {
-        <MudProgressLinear Color="@GetTimerColor()" 
-                           Value="@GetProgress()" 
-                           Class="my-2" 
-                           Style="width: 100%; max-width: 200px;" />
-    }
-    
+<MudPaper Class="pa-4 d-flex flex-column align-center forge-card forge-card-static" Elevation="0">
+    <span class="forge-stat-label">@L["RestTimer"]</span>
+
+    <div class="rest-ring @(_isRunning ? "rest-ring-running" : "") @GetRingStateClass()">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="rest-ring-track" cx="50" cy="50" r="46" />
+            <circle class="rest-ring-fill" cx="50" cy="50" r="46" pathLength="100"
+                    stroke-dasharray="100"
+                    stroke-dashoffset="@GetRingOffset()" />
+        </svg>
+        <span class="rest-timer-display rest-ring-time" role="timer">
+            @TimeSpan.FromSeconds(_remainingSeconds).ToString(@"mm\:ss")
+        </span>
+    </div>
+
     <MudStack Row="true" Spacing="2" Class="mt-2">
         @if (!_isRunning)
         {
@@ -170,12 +170,18 @@
         return ((double)_remainingSeconds / _totalSeconds) * 100;
     }
 
-    private Color GetTimerColor()
+    // The ring is pathLength 100 with a full dasharray, so the offset is the elapsed percentage (it drains).
+    private string GetRingOffset()
     {
-        if (!_isRunning) return Color.Default;
-        if (_remainingSeconds <= 10) return Color.Error;
-        if (_remainingSeconds <= 30) return Color.Warning;
-        return Color.Success;
+        return (100 - GetProgress()).ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private string GetRingStateClass()
+    {
+        if (!_isRunning) return "rest-ring--idle";
+        if (_remainingSeconds <= 10) return "rest-ring--danger";
+        if (_remainingSeconds <= 30) return "rest-ring--warn";
+        return "rest-ring--ok";
     }
 
     public void Dispose()

@@ -1,0 +1,12 @@
+<div class="forge-card forge-card-static forge-hero-bg forge-empty forge-rise @Class">
+    <BarbellHero Class="forge-empty-art" Sparks="false" />
+    <p class="forge-empty-text">@Message</p>
+</div>
+
+@code {
+    [Parameter]
+    public string? Message { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+}

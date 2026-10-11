@@ -4,8 +4,8 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Today" Class="mr-2" />
+        <MudText Typo="Typo.h6" Class="forge-display forge-dialog-title">
+            <MudIcon Icon="@Icons.Material.Rounded.CalendarToday" Class="mr-2 forge-dialog-icon" />
             @(IsNew ? L["AddDay"] : L["EditDay"])
         </MudText>
     </TitleContent>
@@ -23,7 +23,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
-        <MudButton Color="Color.Primary" 
+        <MudButton Color="Color.Primary" Class="forge-action-btn" 
                   Variant="Variant.Filled"
                   Disabled="@(string.IsNullOrWhiteSpace(Day.Name))"
                   OnClick="Submit">

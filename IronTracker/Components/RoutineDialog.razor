@@ -4,8 +4,8 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.FitnessCenter" Class="mr-2" />
+        <MudText Typo="Typo.h6" Class="forge-display forge-dialog-title">
+            <MudIcon Icon="@Icons.Material.Rounded.FitnessCenter" Class="mr-2 forge-dialog-icon" />
             @(IsNew ? L["CreateRoutine"] : L["EditRoutine"])
         </MudText>
     </TitleContent>
@@ -23,7 +23,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
-        <MudButton Color="Color.Primary" 
+        <MudButton Color="Color.Primary" Class="forge-action-btn" 
                   Variant="Variant.Filled"
                   Disabled="@(string.IsNullOrWhiteSpace(Routine.Name))"
                   OnClick="Submit">

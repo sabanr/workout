@@ -3,13 +3,13 @@
 @inject IStringLocalizer<AppResources> L
 @implements IDisposable
 
-<MudPaper Class="pa-4" Elevation="1">
-    <MudText Typo="Typo.h6" Class="mb-3">@Exercise.Name</MudText>
+<MudPaper Class="pa-4 forge-card forge-card-static" Elevation="0">
+    <h3 class="forge-section-title mb-3">@Exercise.Name</h3>
     <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-3">
         @L["Target"]: @Exercise.TargetConfig
     </MudText>
     
-    <MudSimpleTable Dense="true" Hover="true" Bordered="true">
+    <MudSimpleTable Dense="true" Hover="true" Bordered="true" Class="set-table">
         <thead>
             <tr>
                 <th style="width: 60px;">@L["Set"]</th>
@@ -24,7 +24,7 @@
             {
                 var setIndex = i;
                 var set = _sets[i];
-                <tr class="@(set.IsCompleted ? "completed-set" : "")">
+                <tr class="@GetRowClass(setIndex, set.IsCompleted)">
                     <td class="text-center">
                         <MudText Typo="Typo.body2">@(setIndex + 1)</MudText>
                     </td>
@@ -56,7 +56,7 @@
                     <td class="text-center">
                         @if (set.IsCompleted)
                         {
-                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />
+                            <MudIcon Icon="@Icons.Material.Rounded.CheckCircle" Color="Color.Success" Class="forge-check-pop" />
                         }
                         else
                         {
@@ -74,7 +74,7 @@
     
     @if (CompletedSetsCount == _sets.Count && _sets.Count > 0)
     {
-        <MudAlert Severity="Severity.Success" Class="mt-3" Dense="true">
+        <MudAlert Severity="Severity.Success" Class="mt-3 forge-rise" Dense="true">
             @L["ExerciseCompleted"]
         </MudAlert>
     }
@@ -184,6 +184,13 @@
                 LogId = existingLog?.Id
             });
         }
+    }
+
+    // The first unfinished set is the "current" one and gets the ember highlight.
+    private string GetRowClass(int setIndex, bool isCompleted)
+    {
+        if (isCompleted) return "completed-set";
+        return setIndex == _sets.FindIndex(s => !s.IsCompleted) ? "current-set" : "pending-set";
     }
 
     private string GetWeightHint(int setIndex)

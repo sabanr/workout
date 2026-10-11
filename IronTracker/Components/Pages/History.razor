@@ -6,19 +6,19 @@
 
 <PageTitle>@L["History"] - IronTracker</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-4">@L["WorkoutHistory"]</MudText>
+<h1 class="forge-display forge-page-title mb-4 forge-rise">@L["WorkoutHistory"]</h1>
 
-<MudPaper Class="pa-4 mb-4" Elevation="1">
+<MudPaper Class="forge-card forge-card-static forge-filter-bar pa-4 mb-4 forge-rise stagger-1" Elevation="0">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            <MudDateRangePicker Label="@L["DateRange"]" 
+            <MudDateRangePicker Label="@L["DateRange"]"
                                 @bind-DateRange="_dateRange"
                                 @bind-DateRange:after="LoadSessionsAsync"
                                 Variant="Variant.Outlined"
                                 MaxDate="DateTime.Today" />
         </MudItem>
         <MudItem xs="12" sm="6" md="4" Class="d-flex align-end">
-            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary">
+            <MudButtonGroup Variant="Variant.Outlined" Color="Color.Primary" Class="forge-preset-group">
                 <MudButton OnClick="@(() => SetPresetRange(7))">@L["DaysPreset", 7]</MudButton>
                 <MudButton OnClick="@(() => SetPresetRange(30))">@L["DaysPreset", 30]</MudButton>
                 <MudButton OnClick="@(() => SetPresetRange(90))">@L["DaysPreset", 90]</MudButton>
@@ -33,38 +33,36 @@
 }
 else if (_sessions == null || _sessions.Count == 0)
 {
-    <MudAlert Severity="Severity.Info" Class="mt-4">
-        @L["NoSessionsInDateRange"]
-    </MudAlert>
+    <EmptyState Message="@L["NoSessionsInDateRange"]" Class="mt-4" />
 }
 else
 {
-    <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Class="mb-3">
+    <span class="forge-stat-label d-block mb-3">
         @L["SessionsFound", _sessions.Count]
-    </MudText>
+    </span>
 
-    <MudTimeline TimelineOrientation="TimelineOrientation.Vertical" TimelinePosition="TimelinePosition.Start">
-        @foreach (var session in _sessions)
+    <MudTimeline TimelineOrientation="TimelineOrientation.Vertical" TimelinePosition="TimelinePosition.Start" Class="forge-timeline">
+        @foreach (var (session, sessionIndex) in _sessions.Select((s, i) => (s, i)))
         {
-            <MudTimelineItem Color="@(session.IsActive ? Color.Warning : Color.Success)" Size="Size.Medium">
+            <MudTimelineItem Color="@(session.IsActive ? Color.Warning : Color.Primary)" Size="Size.Medium">
                 <ItemOpposite>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    <span class="forge-display forge-timeline-day">
                         @session.StartTime.ToLocalTime().ToString("ddd")
-                    </MudText>
+                    </span>
                     <MudText Typo="Typo.caption" Color="Color.Secondary">
                         @session.StartTime.ToLocalTime().ToString("MMM d")
                     </MudText>
                 </ItemOpposite>
                 <ItemContent>
-                    <MudCard Elevation="1" Class="mb-2">
+                    <MudCard Elevation="0" Class="@($"forge-card mb-2 forge-rise stagger-{Math.Min(sessionIndex + 1, 8)}")">
                         <MudCardHeader>
                             <CardHeaderContent>
-                                <MudText Typo="Typo.h6">@session.RoutineDay?.Name</MudText>
+                                <h2 class="forge-section-title mb-0">@session.RoutineDay?.Name</h2>
                                 <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                    @session.StartTime.ToLocalTime().ToString("MMM dd, yyyy HH:mm tt") - 
+                                    @session.StartTime.ToLocalTime().ToString("MMM dd, yyyy HH:mm tt") -
                                     @if (session.IsActive)
                                     {
-                                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined" Class="forge-chip">
                                             @L["InProgressTitleCase"]
                                         </MudChip>
                                     }
@@ -77,25 +75,25 @@ else
                             <CardHeaderActions>
                                 @if (!session.IsActive)
                                 {
-                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="forge-chip forge-chip-volume">
                                         @FormatVolume(SettingsService.ConvertToDisplayUnit(session.TotalVolume)) @SettingsService.GetUnitAbbreviation()
                                     </MudChip>
                                 }
                             </CardHeaderActions>
                         </MudCardHeader>
-                        
+
                         @if (session.SetLogs.Count > 0)
                         {
                             <MudCardContent Class="pt-0">
-                                <MudExpansionPanels Elevation="0">
+                                <MudExpansionPanels Elevation="0" Class="forge-panels">
                                     <MudExpansionPanel Text="@L["ViewDetails"]" Dense="true">
                                         @{
                                             var groupedSets = session.SetLogs
                                                 .GroupBy(s => s.ExerciseName)
                                                 .OrderBy(g => g.First().CompletedAt);
                                         }
-                                        
-                                        <MudSimpleTable Dense="true" Hover="true" Style="background: transparent;">
+
+                                        <MudSimpleTable Dense="true" Hover="true" Class="forge-table" Style="background: transparent;">
                                             <thead>
                                                 <tr>
                                                     <th>@L["Exercise"]</th>
@@ -110,7 +108,7 @@ else
                                                     var sets = exercise.OrderBy(s => s.SetNumber).ToList();
                                                     var bestSet = sets.OrderByDescending(s => s.WeightUsed).ThenByDescending(s => s.RepsPerformed).First();
                                                     var exerciseVolume = sets.Sum(s => s.Volume);
-                                                    
+
                                                     <tr>
                                                         <td>@exercise.Key</td>
                                                         <td>@sets.Count</td>
@@ -124,12 +122,12 @@ else
                                 </MudExpansionPanels>
                             </MudCardContent>
                         }
-                        
+
                         @if (!string.IsNullOrWhiteSpace(session.Notes))
                         {
                             <MudCardContent Class="pt-0">
                                 <MudText Typo="Typo.body2" Color="Color.Secondary">
-                                    <MudIcon Icon="@Icons.Material.Filled.Notes" Size="Size.Small" Class="mr-1" />
+                                    <MudIcon Icon="@Icons.Material.Rounded.Notes" Size="Size.Small" Class="mr-1" />
                                     @session.Notes
                                 </MudText>
                             </MudCardContent>

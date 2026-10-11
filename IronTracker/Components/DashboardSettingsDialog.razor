@@ -4,8 +4,8 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="mr-2" />
+        <MudText Typo="Typo.h6" Class="forge-display forge-dialog-title">
+            <MudIcon Icon="@Icons.Material.Rounded.Dashboard" Class="mr-2 forge-dialog-icon" />
             @L["DashboardSettings"]
         </MudText>
     </TitleContent>
@@ -57,7 +57,7 @@
         </MudStack>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Close" Variant="Variant.Filled" Color="Color.Primary">
+        <MudButton OnClick="Close" Variant="Variant.Filled" Color="Color.Primary" Class="forge-action-btn">
             @L["Done"]
         </MudButton>
     </DialogActions>

@@ -8,11 +8,12 @@
 
 <PageTitle>@L["Routines"] - IronTracker</PageTitle>
 
-<div class="d-flex justify-space-between align-center mb-4">
-    <MudText Typo="Typo.h4">@L["MyRoutines"]</MudText>
-    <MudButton Variant="Variant.Filled" 
-               Color="Color.Primary" 
-               StartIcon="@Icons.Material.Filled.Add"
+<div class="d-flex justify-space-between align-center mb-4 forge-rise">
+    <h1 class="forge-display forge-page-title">@L["MyRoutines"]</h1>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="forge-action-btn"
+               StartIcon="@Icons.Material.Rounded.Add"
                OnClick="OpenCreateRoutineDialog">
         @L["NewRoutine"]
     </MudButton>
@@ -24,66 +25,62 @@
 }
 else if (_routines == null || _routines.Count == 0)
 {
-    <MudAlert Severity="Severity.Info">
-        @L["NoRoutinesFound"]
-    </MudAlert>
+    <EmptyState Message="@L["NoRoutinesFound"]" />
 }
 else
 {
     <MudGrid>
-        @foreach (var routine in _routines)
+        @foreach (var (routine, routineIndex) in _routines.Select((r, i) => (r, i)))
         {
             <MudItem xs="12">
-                <MudCard Elevation="2" Class="mb-4">
+                <MudCard Elevation="0" Class="@($"forge-card forge-card-static forge-routine-card mb-4 forge-rise stagger-{Math.Min(routineIndex + 1, 8)}")">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h5">@routine.Name</MudText>
+                            <h2 class="forge-section-title mb-0">@routine.Name</h2>
                             @if (!string.IsNullOrEmpty(routine.Description))
                             {
                                 <MudText Typo="Typo.body2" Color="Color.Secondary">@routine.Description</MudText>
                             }
                         </CardHeaderContent>
                         <CardHeaderActions>
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                            <MudIconButton Icon="@Icons.Material.Rounded.Edit"
                                           Size="Size.Small"
                                           OnClick="@(() => OpenEditRoutineDialog(routine))" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                          Size="Size.Small" 
+                            <MudIconButton Icon="@Icons.Material.Rounded.Delete"
+                                          Size="Size.Small"
                                           Color="Color.Error"
                                           OnClick="@(() => DeleteRoutineAsync(routine))" />
                         </CardHeaderActions>
                     </MudCardHeader>
                     <MudCardContent>
                         <div class="d-flex justify-space-between align-center mb-2">
-                            <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                                @L["DaysCount", routine.Days.Count]
-                            </MudText>
-                            <MudButton Variant="Variant.Text" 
+                            <span class="forge-stat-label">@L["DaysCount", routine.Days.Count]</span>
+                            <MudButton Variant="Variant.Text"
                                       Size="Size.Small"
-                                      StartIcon="@Icons.Material.Filled.Add"
+                                      StartIcon="@Icons.Material.Rounded.Add"
                                       OnClick="@(() => OpenAddDayDialog(routine))">
                                 @L["AddDay"]
                             </MudButton>
                         </div>
-                        
-                        <MudExpansionPanels Elevation="0">
+
+                        <MudExpansionPanels Elevation="0" Class="forge-panels">
                             @foreach (var day in routine.Days.OrderBy(d => d.SortOrder))
                             {
                                 <MudExpansionPanel>
                                     <TitleContent>
                                         <div class="d-flex align-center gap-2" style="width: 100%">
-                                            <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Small" Color="Color.Primary" />
-                                            <MudText Typo="Typo.subtitle1">@day.Name</MudText>
+                                            <MudIcon Icon="@Icons.Material.Rounded.CalendarToday" Size="Size.Small" Color="Color.Primary" />
+                                            <span class="forge-day-name">@day.Name</span>
                                             <MudSpacer />
-                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">
+                                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Class="forge-chip">
                                                 @L["ExercisesCount", day.Exercises.Count]
                                             </MudChip>
-                                            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                            <MudIconButton Icon="@Icons.Material.Rounded.Edit"
                                                           Size="Size.Small"
                                                           OnClick="@(() => OpenEditDayDialog(day))"
                                                           OnClick:stopPropagation="true" />
-                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                                          Size="Size.Small" 
+                                            <MudIconButton Icon="@Icons.Material.Rounded.Delete"
+                                                          Size="Size.Small"
                                                           Color="Color.Error"
                                                           OnClick="@(() => DeleteDayAsync(day))"
                                                           OnClick:stopPropagation="true" />
@@ -92,7 +89,7 @@ else
                                     <ChildContent>
                                         @if (_expandedDayExercises.TryGetValue(day.Id, out var exercises) && exercises != null)
                                         {
-                                            <MudTable Items="@exercises" Dense="true" Hover="true" Elevation="0">
+                                            <MudTable Items="@exercises" Dense="true" Hover="true" Elevation="0" Class="forge-table">
                                                 <HeaderContent>
                                                     <MudTh>@L["Exercise"]</MudTh>
                                                     <MudTh>@L["SetsXReps"]</MudTh>
@@ -110,27 +107,28 @@ else
                                                         </MudText>
                                                     </MudTd>
                                                     <MudTd>
-                                                        <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                                        <MudIconButton Icon="@Icons.Material.Rounded.Edit"
                                                                       Size="Size.Small"
                                                                       OnClick="@(() => OpenEditExerciseDialog(context))" />
-                                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                                                      Size="Size.Small" 
+                                                        <MudIconButton Icon="@Icons.Material.Rounded.Delete"
+                                                                      Size="Size.Small"
                                                                       Color="Color.Error"
                                                                       OnClick="@(() => DeleteExerciseAsync(context))" />
                                                     </MudTd>
                                                 </RowTemplate>
                                             </MudTable>
-                                            
+
                                             <div class="d-flex justify-space-between mt-3">
-                                                <MudButton Variant="Variant.Text" 
+                                                <MudButton Variant="Variant.Text"
                                                           Size="Size.Small"
-                                                          StartIcon="@Icons.Material.Filled.Add"
+                                                          StartIcon="@Icons.Material.Rounded.Add"
                                                           OnClick="@(() => OpenAddExerciseDialog(day))">
                                                     @L["AddExercise"]
                                                 </MudButton>
-                                                <MudButton Variant="Variant.Filled" 
+                                                <MudButton Variant="Variant.Filled"
                                                            Color="Color.Primary"
-                                                           StartIcon="@Icons.Material.Filled.PlayArrow"
+                                                           Class="forge-action-btn"
+                                                           StartIcon="@Icons.Material.Rounded.PlayArrow"
                                                            OnClick="@(() => StartSession(day.Id))">
                                                     @L["StartThisDay"]
                                                 </MudButton>

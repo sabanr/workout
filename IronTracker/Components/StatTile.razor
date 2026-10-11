@@ -1,0 +1,28 @@
+@* StatTile.razor - Dashboard metric tile: label, optional leading visual, big number *@
+<div class="forge-card stat-tile forge-rise stagger-@Stagger">
+    <span class="forge-stat-label">@Label</span>
+    <div class="stat-tile-body">
+        @Visual
+        <span class="forge-stat forge-glow-text @(Compact ? "stat-tile-compact" : "")" title="@Value">@Value</span>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Value { get; set; } = string.Empty;
+
+    /// <summary>Entrance order (1-8) for the staggered rise-in animation.</summary>
+    [Parameter]
+    public int Stagger { get; set; } = 1;
+
+    /// <summary>Smaller number size, for text values such as routine names.</summary>
+    [Parameter]
+    public bool Compact { get; set; }
+
+    /// <summary>Optional icon or gauge shown before the value.</summary>
+    [Parameter]
+    public RenderFragment? Visual { get; set; }
+}

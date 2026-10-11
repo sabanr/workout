@@ -68,7 +68,7 @@ else
                     <div>
                         <h1 class="forge-display forge-page-title">@_routineDay?.Name</h1>
                         <MudText Typo="Typo.caption" Color="Color.Secondary">
-                            @L["StartedAt", _session?.StartTime.ToLocalTime().ToString("HH:mm")]
+                            @L["StartedAt", _session?.StartTime.ToLocalTime().ToString("HH:mm") ?? string.Empty]
                         </MudText>
                     </div>
                     <MudButtonGroup Variant="Variant.Filled">
@@ -80,7 +80,8 @@ else
                         <MudIconButton Icon="@Icons.Material.Rounded.Cancel"
                                        Color="Color.Default"
                                        Size="Size.Medium"
-                                       Title="@L["CancelSession"]"
+                                       aria-label="@L["CancelSession"]"
+                                       title="@L["CancelSession"]"
                                        OnClick="CancelSessionAsync" />
                     </MudButtonGroup>
                 </div>

@@ -81,17 +81,17 @@ else
                                                      Class="forge-chip">
                                                 @L["ExercisesCount", day.Exercises.Count]
                                             </MudChip>
-                                            <MudIconButton Icon="@Icons.Material.Rounded.Edit"
-                                                           aria-label="@L["Edit"]"
-                                                          Size="Size.Small"
-                                                          OnClick="@(() => OpenEditDayDialog(day))"
-                                                          OnClick:stopPropagation="true" />
-                                            <MudIconButton Icon="@Icons.Material.Rounded.Delete"
-                                                           aria-label="@L["Delete"]"
-                                                          Size="Size.Small"
-                                                          Color="Color.Error"
-                                                          OnClick="@(() => DeleteDayAsync(day))"
-                                                          OnClick:stopPropagation="true" />
+                                            <div class="d-flex" @onclick:stopPropagation="true">
+                                                <MudIconButton Icon="@Icons.Material.Rounded.Edit"
+                                                               aria-label="@L["Edit"]"
+                                                               Size="Size.Small"
+                                                               OnClick="@(() => OpenEditDayDialog(day))" />
+                                                <MudIconButton Icon="@Icons.Material.Rounded.Delete"
+                                                               aria-label="@L["Delete"]"
+                                                               Size="Size.Small"
+                                                               Color="Color.Error"
+                                                               OnClick="@(() => DeleteDayAsync(day))" />
+                                            </div>
                                         </div>
                                     </TitleContent>
                                     <ChildContent>

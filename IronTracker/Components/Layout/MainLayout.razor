@@ -107,7 +107,7 @@
         SettingsService.ToggleLanguage();
         // Reload the native WebView to apply the new culture
         // NavigationManager.forceLoad doesn't work for culture changes in MAUI Blazor
-        var mainPage = Application.Current?.MainPage as MainPage;
+        var mainPage = Application.Current?.Windows.FirstOrDefault()?.Page as MainPage;
         mainPage?.ReloadWebView();
     }
 

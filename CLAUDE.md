@@ -171,6 +171,11 @@ For detailed information about specific areas:
 ### Running a Single Test
 No unit tests exist in this project. Manual testing is performed on actual app platforms.
 
+## Searching & Refactoring Tools
+- **Content search**: use the Grep tool (ripgrep). Use `fd` or the Glob tool for file lookup.
+- **Structural search/replace across files**: use `ast-grep` (installed; the `sg` alias is deprecated). Match code syntax rather than text, e.g. `ast-grep run -p 'await _contextFactory.CreateDbContextAsync()' -l csharp`. Preview with the default output before adding `--rewrite ... -U`.
+- **Single-file edits**: use the Edit tool.
+
 ## Debugging Tips
 
 ### Database Issues

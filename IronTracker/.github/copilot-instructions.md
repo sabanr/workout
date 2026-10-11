@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**IronTracker** is a cross-platform workout tracking app built with **.NET MAUI** (net10.0) + **Blazor Hybrid** (MudBlazor UI). It runs on iOS, Android, macOS Catalyst, and Windows. The app allows users to create workout routines, track sets/reps during active sessions, and view history/statistics.
+**IronTracker** is a cross-platform workout tracking app built with **.NET MAUI** (net10.0) + **Blazor Hybrid** (MudBlazor UI). It runs on iOS, macOS Catalyst, and Windows. The app allows users to create workout routines, track sets/reps during active sessions, and view history/statistics.
 
 ## Architecture
 
@@ -53,17 +53,16 @@
 dotnet build -f net10.0-maccatalyst
 dotnet run -f net10.0-maccatalyst
 
-# Or use VS Code launch configurations
-# iOS Simulator / Android Emulator require platform-specific setup
+# iOS Simulator requires platform-specific setup
 ```
 
 ### Database Migrations
 
 ```bash
-# Add migration (must specify -f flag for single target framework)
+# Add migration (-f is required because the project targets multiple frameworks)
 dotnet ef migrations add MigrationName -f net10.0-maccatalyst
 
-# Apply migrations (happens auto via EnsureCreatedAsync in MauiProgram)
+# Apply migrations (happens auto via EnsureCreatedAsync in DbSeeder.SeedAsync)
 # No manual migration needed - using Code First with EnsureCreated pattern
 ```
 
@@ -79,7 +78,7 @@ dotnet ef migrations add MigrationName -f net10.0-maccatalyst
 
 - Use `IDialogService` injected in pages
 - Example: [Components/ExerciseDialog.razor](../Components/ExerciseDialog.razor), [Components/RoutineDialog.razor](../Components/RoutineDialog.razor)
-- Pattern: `DialogParameters` for input, `DialogReference.Close(result)` to return data
+- Pattern: `DialogParameters` for input; inside the dialog, `[CascadingParameter] IMudDialogInstance MudDialog` and `MudDialog.Close(DialogResult.Ok(value))` to return data
 
 ### Responsive Design
 

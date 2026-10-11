@@ -21,8 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ├── AGENTS.md                 # Coding guidelines and patterns
 ├── README.md                 # User-facing documentation
 ├── CHANGELOG.md              # Version history
-├── .editorconfig             # Code style rules (enforced)
-└── .vscode/                  # VSCode tasks and launch configs
+└── .editorconfig             # Code style rules (enforced)
 ```
 
 **Important**: All development happens in the `IronTracker/` subdirectory. Run build commands from there.
@@ -56,12 +55,11 @@ cd IronTracker
 
 # Add migration
 dotnet ef migrations add MigrationName -f net10.0-maccatalyst
-
-# Update database
-dotnet ef database update -f net10.0-maccatalyst
 ```
 
-**Critical**: The `-f net10.0-maccatalyst` flag is required for EF Core commands because the project targets multiple frameworks.
+The app creates the database at startup with `EnsureCreatedAsync` (in `DbSeeder.SeedAsync`); there is no manual update step.
+
+The `-f net10.0-maccatalyst` flag is required for EF Core commands because the project targets multiple frameworks.
 
 ### Clean & Rebuild
 ```bash
@@ -86,7 +84,7 @@ dotnet clean && dotnet build -f net10.0-maccatalyst
 Blazor `.razor` files (UI and logic combined):
 - `Layout/` - MainLayout, NavMenu
 - `Pages/` - Home, ActiveSession, Routines, History
-- `Dialogs/` - RoutineDialog, DayDialog, ExerciseDialog
+- `RoutineDialog.razor`, `DayDialog.razor`, `ExerciseDialog.razor`, `DashboardSettingsDialog.razor` - Dialogs
 - `RestTimer.razor`, `SetTracker.razor` - Reusable components
 
 ### Data Layer (`IronTracker/Data/`)
@@ -177,7 +175,7 @@ No unit tests exist in this project. Manual testing is performed on actual app p
 
 ### Database Issues
 - Database file location varies by platform - check `FileSystem.AppDataDirectory` at runtime
-- Use `dotnet ef database update -f net10.0-maccatalyst` to apply migrations
+- The schema is created by `EnsureCreatedAsync` on first launch; to pick up model changes locally, delete the database file
 - `DbSeeder.cs` runs on first launch with sample data
 
 ### Blazor Component Issues

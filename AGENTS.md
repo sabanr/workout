@@ -8,7 +8,7 @@ Coding guidelines for the IronTracker workout tracking app.
 **Framework**: .NET 10 MAUI Blazor Hybrid  
 **UI Library**: MudBlazor 8.0.0  
 **Database**: Entity Framework Core 9.0.1 with SQLite  
-**Platforms**: macOS (Catalyst), iOS, Android, Windows
+**Platforms**: macOS (Catalyst), iOS, Windows
 
 ## Build Commands
 
@@ -17,7 +17,6 @@ Run from `IronTracker/` directory:
 # Build
 dotnet build -f net10.0-maccatalyst  # macOS (primary)
 dotnet build -f net10.0-ios          # iOS
-dotnet build -f net10.0-android      # Android
 dotnet build -f net10.0-windows10.0.19041.0  # Windows
 
 # Run
@@ -28,8 +27,8 @@ dotnet clean && dotnet build -f net10.0-maccatalyst
 
 # EF Core Migrations
 dotnet ef migrations add MigrationName -f net10.0-maccatalyst
-dotnet ef database update -f net10.0-maccatalyst
 ```
+The database is created at startup by `EnsureCreatedAsync`; there is no manual update step.
 
 ## Code Style
 
@@ -151,7 +150,6 @@ public async Task<WorkoutSession> StartSessionAsync(int routineDayId)
 |----------|------|
 | **macOS Catalyst** | `~/Library/Containers/dev.rsaban.irontracker/Data/Library/irontracker.db` |
 | **iOS** | `(app sandbox)/Library/irontracker.db` |
-| **Android** | `/data/data/dev.rsaban.irontracker/files/irontracker.db` |
 | **Windows** | `%LOCALAPPDATA%\Packages\dev.rsaban.irontracker\LocalState\irontracker.db` |
 
 ### File Paths
@@ -162,10 +160,10 @@ var dbPath = Path.Combine(FileSystem.AppDataDirectory, "irontracker.db");
 
 ### Conditional Compilation
 ```csharp
-#if ANDROID
-    // Android code
-#elif IOS
+#if IOS
     // iOS code
+#elif MACCATALYST
+    // Mac Catalyst code
 #endif
 ```
 

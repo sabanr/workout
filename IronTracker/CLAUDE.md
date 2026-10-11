@@ -21,7 +21,7 @@ dotnet build -f net10.0-ios
 # Build for Windows (Windows only)
 dotnet build -f net10.0-windows10.0.19041.0
 
-# Add EF Core migration (MUST specify target framework)
+# Add EF Core migration (-f is required; the project targets multiple frameworks)
 dotnet ef migrations add MigrationName -f net10.0-maccatalyst
 ```
 
@@ -40,7 +40,7 @@ dotnet ef migrations add MigrationName -f net10.0-maccatalyst
 - **Models**: `Routine` → `RoutineDay` → `ExerciseTemplate` hierarchy; `WorkoutSession` → `SetLog` for tracking actual workouts
 - **Database Path**: `FileSystem.AppDataDirectory/irontracker.db` (platform-specific location)
 - **Seeding**: `Data/DbSeeder.cs` auto-seeds sample "Rutina Roberto Saban" (3-day Push/Pull/Legs split) on first run
-- **CRITICAL**: Always use `IDbContextFactory<AppDbContext>` everywhere (required for Blazor threading safety). Never inject `AppDbContext` directly.
+- Use `IDbContextFactory<AppDbContext>` rather than injecting `AppDbContext` directly - Blazor runs components on multiple threads.
 
 ### Service Layer
 
@@ -73,7 +73,7 @@ dotnet ef migrations add MigrationName -f net10.0-maccatalyst
 4. **Platform Paths**: Use `FileSystem.AppDataDirectory` for cross-platform storage, never hardcode paths
 5. **MudBlazor StateHasChanged**: In event handlers, call `StateHasChanged()` if modifying data from child components
 6. **EF Core Migrations**: Must use `-f net10.0-maccatalyst` flag when adding migrations (project targets multiple frameworks)
-7. **Database Creation**: Uses `EnsureCreatedAsync` pattern in `MauiProgram` - no manual migration application needed
+7. **Database Creation**: `DbSeeder.SeedAsync` (called from `MauiProgram`) runs `EnsureCreatedAsync` - no manual migration application needed
 
 ## UI Patterns (MudBlazor)
 
@@ -81,7 +81,7 @@ dotnet ef migrations add MigrationName -f net10.0-maccatalyst
 
 - Use `IDialogService` injected in pages
 - Example: `Components/ExerciseDialog.razor`, `Components/RoutineDialog.razor`
-- Pattern: `DialogParameters` for input, `DialogReference.Close(result)` to return data
+- Pattern: `DialogParameters` for input; inside the dialog, `[CascadingParameter] IMudDialogInstance MudDialog` and `MudDialog.Close(DialogResult.Ok(value))` to return data
 
 ### Responsive Design
 

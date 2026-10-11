@@ -1,10 +1,47 @@
-/* IronTracker App Styles - MudBlazor */
+/* IronTracker "Forge" design system - MudBlazor + custom tokens */
+
+/* Tokens: dark is the default; .forge-light on the layout wrapper swaps them */
+:root,
+.forge-root {
+    /* Palette hexes live in Theme/ForgeTheme.cs; these alias MudBlazor's palette variables */
+    --forge-ground: var(--mud-palette-background);
+    --forge-surface: var(--mud-palette-surface);
+    --forge-surface-2: var(--mud-palette-background-gray);
+    --forge-border: var(--mud-palette-lines-default);
+    --forge-text: var(--mud-palette-text-primary);
+    --forge-muted: var(--mud-palette-text-secondary);
+    --forge-ember: var(--mud-palette-primary);
+    --forge-ember-rgb: var(--mud-palette-primary-rgb);
+    --forge-hot: var(--mud-palette-secondary);
+    --forge-hot-rgb: var(--mud-palette-secondary-rgb);
+    --forge-success: var(--mud-palette-success);
+    --forge-on-ember: var(--mud-palette-primary-text);
+    --forge-border-hot: #4a3226;
+    --forge-highlight: rgba(255, 255, 255, 0.06);
+    --forge-glow: 0 0 24px rgba(255, 107, 44, 0.35);
+    --forge-glow-strong: 0 0 32px rgba(255, 107, 44, 0.6);
+    --forge-hatch: rgba(255, 255, 255, 0.022);
+    --forge-sidebar-from: #151517;
+    --forge-sidebar-to: #0F0F10;
+    --forge-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --forge-font-body: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.forge-light {
+    --forge-border-hot: #EBC3AE;
+    --forge-highlight: rgba(255, 255, 255, 0.9);
+    --forge-glow: 0 0 18px rgba(226, 85, 26, 0.18);
+    --forge-glow-strong: 0 0 24px rgba(226, 85, 26, 0.3);
+    --forge-hatch: rgba(0, 0, 0, 0.025);
+    --forge-sidebar-from: #FFFFFF;
+    --forge-sidebar-to: #F3F1ED;
+}
 
 html, body {
     margin: 0;
     padding: 0;
-    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: var(--mud-palette-background);
+    font-family: var(--forge-font-body);
+    background-color: var(--mud-palette-background, #0F0F10);
 }
 
 /* Focus styles */
@@ -82,12 +119,14 @@ h1:focus {
 
 /* Timer display customization */
 .rest-timer-display {
+    font-family: var(--forge-font-display);
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
 }
 
 /* Workout session specific styles */
 .exercise-card {
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .exercise-card:hover {
@@ -108,5 +147,434 @@ h1:focus {
 @media (max-width: 600px) {
     .mud-expansion-panel-content {
         padding: 8px !important;
+    }
+}
+
+/* ---------- Typography helpers ---------- */
+.forge-display,
+.forge-section-title,
+.forge-stat {
+    font-family: var(--forge-font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.forge-section-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    color: var(--forge-text);
+}
+
+.forge-stat {
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--forge-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.forge-stat-label {
+    font-family: var(--forge-font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--forge-muted);
+}
+
+.forge-muted {
+    color: var(--forge-muted);
+}
+
+/* ---------- Surfaces ---------- */
+.forge-card {
+    background: var(--forge-surface);
+    border: 1px solid var(--forge-border);
+    box-shadow: inset 0 1px 0 var(--forge-highlight);
+    border-radius: 10px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.forge-card:hover {
+    transform: translateY(-3px);
+    box-shadow: inset 0 1px 0 var(--forge-highlight), var(--forge-glow);
+    border-color: var(--forge-border-hot);
+}
+
+/* Static variant: no hover lift (for large containers) */
+.forge-card.forge-card-static:hover {
+    transform: none;
+    box-shadow: inset 0 1px 0 var(--forge-highlight);
+    border-color: var(--forge-border);
+}
+
+.forge-glow {
+    box-shadow: var(--forge-glow);
+}
+
+.forge-glow-text {
+    animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.forge-hero-bg {
+    background:
+        radial-gradient(ellipse at 85% 100%, rgba(var(--forge-ember-rgb), 0.22), transparent 60%),
+        linear-gradient(135deg, var(--forge-surface-2), var(--forge-surface));
+}
+
+/* ---------- Buttons ---------- */
+.forge-btn-ember {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 28px;
+    border: 0;
+    border-radius: 10px;
+    font-family: var(--forge-font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--forge-on-ember);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--forge-ember) 88%, white), var(--forge-ember));
+    box-shadow: var(--forge-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.forge-btn-ember:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--forge-glow-strong), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.forge-btn-ember:focus-visible,
+.forge-root button:focus-visible {
+    outline: 2px solid var(--forge-hot);
+    outline-offset: 2px;
+}
+
+/* ---------- Logo ---------- */
+.forge-logo {
+    flex: none;
+    border-radius: 9px;
+    background: linear-gradient(160deg, var(--forge-ember), #c2410c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--forge-glow);
+}
+
+.forge-wordmark {
+    font-family: var(--forge-font-display);
+    font-weight: 700;
+    font-size: 1.375rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--forge-text);
+}
+
+.forge-wordmark span {
+    color: var(--forge-ember);
+}
+
+/* ---------- Layout: app bar + drawer ---------- */
+.forge-appbar.mud-appbar {
+    background: var(--forge-ground);
+    color: var(--forge-text);
+    border-bottom: 1px solid var(--forge-border);
+}
+
+.forge-drawer.mud-drawer {
+    border-right: 1px solid var(--forge-border);
+    background:
+        repeating-linear-gradient(135deg, var(--forge-hatch) 0, var(--forge-hatch) 1px, transparent 1px, transparent 7px),
+        linear-gradient(180deg, var(--forge-sidebar-from), var(--forge-sidebar-to));
+}
+
+.forge-drawer .mud-drawer-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.forge-drawer-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100%;
+    padding: 18px 14px;
+    box-sizing: border-box;
+}
+
+.forge-drawer-spacer {
+    flex: 1;
+}
+
+.forge-nav.mud-navmenu {
+    gap: 4px;
+    display: flex;
+    flex-direction: column;
+}
+
+.forge-nav .mud-nav-link {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--forge-muted);
+    font-family: var(--forge-font-display);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.forge-nav .mud-nav-link .mud-nav-link-icon {
+    color: currentColor;
+}
+
+.forge-nav .mud-nav-link:hover {
+    background: var(--forge-surface-2);
+    color: var(--forge-text);
+}
+
+.forge-nav .mud-nav-link.active,
+.forge-nav .mud-nav-link.active:hover {
+    color: var(--forge-ember);
+    border-color: rgba(var(--forge-ember-rgb), 0.45);
+    background: linear-gradient(90deg, rgba(var(--forge-ember-rgb), 0.2), rgba(var(--forge-ember-rgb), 0.05));
+    box-shadow: var(--forge-glow);
+}
+
+.forge-drawer-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 4px 0;
+    border-top: 1px solid var(--forge-border);
+}
+
+.forge-segmented {
+    display: flex;
+    background: var(--forge-surface-2);
+    border: 1px solid var(--forge-border);
+    border-radius: 7px;
+    padding: 2px;
+}
+
+.forge-segmented button {
+    flex: 1;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--forge-muted);
+    font-family: var(--forge-font-body);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.forge-segmented button.active {
+    background: var(--forge-ember);
+    color: var(--forge-on-ember);
+}
+
+.forge-theme-btn {
+    height: 30px;
+    border-radius: 7px;
+    border: 1px solid var(--forge-border);
+    background: var(--forge-surface-2);
+    color: var(--forge-hot);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+.forge-theme-btn:hover {
+    box-shadow: var(--forge-glow);
+}
+
+.forge-version {
+    font-size: 0.6875rem;
+    color: var(--forge-muted);
+    padding-top: 2px;
+}
+
+/* ---------- Mud component touch-ups ---------- */
+.forge-root .mud-paper,
+.forge-root .mud-card {
+    border: 1px solid var(--forge-border);
+    box-shadow: inset 0 1px 0 var(--forge-highlight);
+}
+
+.forge-root .mud-dialog,
+.forge-root .mud-popover-paper {
+    border: 1px solid var(--forge-border);
+}
+
+.forge-root .mud-button-filled-primary {
+    font-weight: 700;
+}
+
+/* ---------- Keyframes + helpers ---------- */
+.forge-rise,
+.rise-in {
+    opacity: 0;
+    animation: rise-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+@keyframes rise-in {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+    0%, 100% { text-shadow: 0 0 0 rgba(var(--forge-ember-rgb), 0); }
+    50% { text-shadow: 0 0 14px rgba(var(--forge-ember-rgb), 0.55); }
+}
+
+.forge-bar,
+.bar-grow {
+    transform-origin: bottom;
+    transform: scaleY(0);
+    animation: bar-grow 0.9s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+}
+
+@keyframes bar-grow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+.flame-flicker {
+    transform-origin: 50% 100%;
+    animation: flame-flicker 1.3s ease-in-out infinite;
+}
+
+@keyframes flame-flicker {
+    0%, 100% { transform: scale(1, 1) rotate(0); }
+    25% { transform: scale(0.95, 1.06) rotate(-2deg); }
+    50% { transform: scale(1.04, 0.97) rotate(1.5deg); }
+    75% { transform: scale(0.97, 1.04) rotate(-1deg); }
+}
+
+.spark {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: spark-float 3.2s ease-in infinite;
+}
+
+@keyframes spark-float {
+    0% { opacity: 0; transform: translate(0, 0); }
+    15% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx, 6px), -70px); }
+}
+
+.forge-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.forge-shimmer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(var(--forge-hot-rgb), 0.18), transparent);
+    animation: shimmer-sweep 3.6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes shimmer-sweep {
+    0% { left: -60%; }
+    60%, 100% { left: 130%; }
+}
+
+/* Active/in-progress emphasis: pulsing ember border */
+.forge-ember-pulse {
+    border-color: rgba(var(--forge-ember-rgb), 0.6);
+    animation: ember-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes ember-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--forge-ember-rgb), 0), inset 0 1px 0 var(--forge-highlight); }
+    50% { box-shadow: 0 0 22px 2px rgba(var(--forge-ember-rgb), 0.4), inset 0 1px 0 var(--forge-highlight); }
+}
+
+.forge-check-pop {
+    animation: check-pop 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes check-pop {
+    0% { transform: scale(0.4); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Rest-timer ring: set stroke-dasharray to the circumference, animate the offset to it via --ring-len */
+.forge-ring-drain {
+    animation: ring-drain var(--ring-duration, 60s) linear forwards;
+}
+
+@keyframes ring-drain {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: var(--ring-len, 283); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .forge-rise,
+    .rise-in,
+    .forge-bar,
+    .bar-grow,
+    .flame-flicker,
+    .spark,
+    .forge-glow-text,
+    .forge-shimmer::after,
+    .forge-ember-pulse,
+    .forge-check-pop,
+    .forge-ring-drain {
+        animation: none !important;
+    }
+
+    .forge-rise,
+    .rise-in {
+        opacity: 1;
+        transform: none;
+    }
+
+    .forge-bar,
+    .bar-grow {
+        transform: none;
+    }
+
+    .spark {
+        opacity: 0;
+    }
+
+    .forge-card,
+    .forge-btn-ember {
+        transition: none;
+    }
+
+    .forge-card:hover,
+    .forge-btn-ember:hover {
+        transform: none;
     }
 }

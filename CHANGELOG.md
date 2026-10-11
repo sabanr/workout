@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2026-10-11
+
+### Changed
+- "Forge" UI redesign: dark industrial theme with molten ember accents, with a matching light variant.
+- Barlow / Barlow Condensed typography replaces Roboto.
+- New sidebar with logo, ember active state, and unit / language / theme toggles moved into the drawer.
+- Added reusable illustration components (barbell hero, flame icon, logo) and animation helpers.
+
 ## [1.9.0] - 2026-09-12
 
 ### Changed

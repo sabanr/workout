@@ -2,62 +2,67 @@
 @inject SettingsService SettingsService
 @inject IStringLocalizer<AppResources> L
 
-<MudThemeProvider @ref="_themeProvider" @bind-IsDarkMode="@_isDarkMode" />
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+@* Theme class lives on a wrapper that also contains the providers, so popovers and dialogs inherit the tokens *@
+<div class="forge-root @(_isDarkMode ? "forge-dark" : "forge-light")">
+    <MudThemeProvider @ref="_themeProvider" Theme="@ForgeTheme.Theme" @bind-IsDarkMode="@_isDarkMode" />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
 
-<MudLayout>
-    <MudAppBar Elevation="1" Color="Color.Primary">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h5" Class="ml-3">IronTracker</MudText>
-        <MudSpacer />
-        <MudButton Variant="Variant.Text"
-                   Color="Color.Inherit"
-                   OnClick="@ToggleLanguage"
-                   Class="mr-2"
-                   Style="min-width: 48px;"
-                   Title="@L["ToggleLanguage"]">
-            <MudImage Src="@GetLanguageFlagIconPath()"
-                      Alt="@L["ToggleLanguage"]"
-                      Width="24"
-                      Height="24"
-                      ObjectFit="ObjectFit.Contain" />
-        </MudButton>
-        <MudButton Variant="Variant.Text"
-                   Color="Color.Inherit"
-                   OnClick="@ToggleWeightUnit"
-                   Class="mr-2"
-                   Style="min-width: 48px;">
-            @GetWeightUnitLabel()
-        </MudButton>
-        <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
-                       Color="Color.Inherit"
-                       OnClick="@ToggleDarkMode"
-                       aria-label="@(_isDarkMode ? L["LightMode"] : L["DarkMode"])" />
-        <MudText Typo="Typo.caption" Color="Color.Inherit" Class="ml-3">@($"v{GetAppVersion()}")</MudText>
-    </MudAppBar>
-    
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Variant="@DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h6">@L["Menu"]</MudText>
-        </MudDrawerHeader>
-        <NavMenu />
-    </MudDrawer>
-    
-    <MudMainContent Class="pt-16 px-4">
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-4">
-            <div>
-                @Body
+    <MudLayout>
+        <MudAppBar Elevation="0" Class="forge-appbar">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+            <ForgeLogo Size="30" Class="ml-3" />
+            <span class="forge-wordmark ml-2">Iron<span>Tracker</span></span>
+        </MudAppBar>
+
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="0" Variant="@DrawerVariant.Responsive"
+                   ClipMode="DrawerClipMode.Always" Class="forge-drawer">
+            <div class="forge-drawer-inner">
+                <NavMenu />
+                <div class="forge-drawer-spacer"></div>
+                <div class="forge-drawer-footer">
+                    <div class="forge-segmented" role="group" aria-label="@L["ToggleLanguage"]">
+                        <button type="button" aria-pressed="@(!IsSpanish)" class="@SegClass(!IsSpanish)"
+                                @onclick="@(() => SetLanguage(false))">EN</button>
+                        <button type="button" aria-pressed="@IsSpanish" class="@SegClass(IsSpanish)"
+                                @onclick="@(() => SetLanguage(true))">ES</button>
+                    </div>
+                    <div class="forge-segmented" role="group" aria-label="@L["Weight"]">
+                        <button type="button" aria-pressed="@(!IsLbs)" class="@SegClass(!IsLbs)"
+                                @onclick="@(() => SetWeightUnit(false))">kg</button>
+                        <button type="button" aria-pressed="@IsLbs" class="@SegClass(IsLbs)"
+                                @onclick="@(() => SetWeightUnit(true))">lbs</button>
+                    </div>
+                    <button type="button" class="forge-theme-btn" @onclick="@ToggleDarkMode"
+                            aria-label="@(_isDarkMode ? L["LightMode"] : L["DarkMode"])">
+                        <MudIcon Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                                 Size="Size.Small" />
+                    </button>
+                    <div class="forge-version">@($"v{GetAppVersion()}")</div>
+                </div>
             </div>
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
+        </MudDrawer>
+
+        <MudMainContent Class="pt-16 px-4">
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-4">
+                <div>
+                    @Body
+                </div>
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+</div>
 
 @code {
     private bool _drawerOpen = true;
     private bool _isDarkMode;
     private MudThemeProvider _themeProvider = null!;
+
+    private bool IsLbs => SettingsService.WeightUnit == Models.WeightUnit.Lbs;
+
+    private bool IsSpanish => string.Equals(
+        SettingsService.LanguageCode, SettingsService.SpanishArgentinaLanguageCode, StringComparison.OrdinalIgnoreCase);
 
     protected override void OnInitialized()
     {
@@ -103,16 +108,25 @@
         mainPage?.ReloadWebView();
     }
 
-    private string GetWeightUnitLabel()
+    private static string SegClass(bool active)
     {
-        return SettingsService.WeightUnit == Models.WeightUnit.Lbs ? "lbs" : "kg";
+        return active ? "active" : string.Empty;
     }
 
-    private string GetLanguageFlagIconPath()
+    private void SetWeightUnit(bool lbs)
     {
-        return string.Equals(SettingsService.LanguageCode, SettingsService.SpanishArgentinaLanguageCode, StringComparison.OrdinalIgnoreCase)
-            ? "/images/flag-ar.svg"
-            : "/images/flag-us.svg";
+        if (lbs != IsLbs)
+        {
+            ToggleWeightUnit();
+        }
+    }
+
+    private void SetLanguage(bool spanish)
+    {
+        if (spanish != IsSpanish)
+        {
+            ToggleLanguage();
+        }
     }
 
     private string GetAppVersion()

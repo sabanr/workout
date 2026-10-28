@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-10-28
+
+### Changed
+- Custom app icon (ember dumbbell on a dark rounded tile) replaces the default .NET icon.
+- Splash screen uses the dumbbell on the dark Forge background instead of the .NET logo on purple.
+
 ## [2.0.0] - 2026-10-11
 
 ### Changed

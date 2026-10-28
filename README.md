@@ -50,17 +50,6 @@ dotnet build -f net10.0-windows10.0.19041.0
 dotnet run -f net10.0-windows10.0.19041.0
 ```
 
-### Deploy on Windows
-
-`deploy.ps1` (repo root) publishes a Release build, installs it to `C:\Program Files\IronTracker`, and refreshes the "Iron Tracker" desktop shortcut so it shows the current icon. A running instance is closed first. Files are copied over the existing install; nothing in the install folder is deleted.
-
-```powershell
-./deploy.ps1                    # publish and install
-./deploy.ps1 -Launch            # ...then start the app
-./deploy.ps1 -SkipBuild         # reinstall the last publish without rebuilding
-./deploy.ps1 -InstallDir 'D:\Apps\IronTracker' -ShortcutName 'IronTracker'
-```
-
 ## Project Structure
 
 ```
